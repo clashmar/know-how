@@ -84,7 +84,7 @@ git merge <feature-branch>
 git branch -d <feature-branch>
 ```
 
-Then: Cleanup worktree (Step 5)
+Then: report completion and next state.
 
 #### Option 2: Push and Create PR
 
@@ -103,13 +103,11 @@ EOF
 )"
 ```
 
-Then: Cleanup worktree (Step 5)
+Then: report completion and next state.
 
 #### Option 3: Keep As-Is
 
-Report: "Keeping branch <name>. Worktree preserved at <path>."
-
-**Don't cleanup worktree.**
+Report: "Keeping branch <name> as-is."
 
 #### Option 4: Discard
 
@@ -118,7 +116,6 @@ Report: "Keeping branch <name>. Worktree preserved at <path>."
 This will permanently delete:
 - Branch <name>
 - All commits: <commit-list>
-- Worktree at <path>
 
 Type 'discard' to confirm.
 ```
@@ -131,28 +128,12 @@ git checkout <base-branch>
 git branch -D <feature-branch>
 ```
 
-Then: Cleanup worktree (Step 5)
-
-### Step 5: Cleanup Worktree
-
-**For Options 1, 2, 4:**
-
-Check if in worktree:
-```bash
-git worktree list | grep $(git branch --show-current)
-```
-
-If yes:
-```bash
-git worktree remove <worktree-path>
-```
-
-**For Option 3:** Keep worktree.
+Then: report completion and next state.
 
 ## Quick Reference
 
-| Option | Merge | Push | Keep Worktree | Cleanup Branch |
-|--------|-------|------|---------------|----------------|
+| Option | Merge | Push | Keep Branch | Cleanup Branch |
+|--------|-------|------|-------------|----------------|
 | 1. Merge locally | ✓ | - | - | ✓ |
 | 2. Create PR | - | ✓ | ✓ | - |
 | 3. Keep as-is | - | - | ✓ | - |
@@ -168,9 +149,9 @@ git worktree remove <worktree-path>
 - **Problem:** "What should I do next?" → ambiguous
 - **Fix:** Present exactly 4 structured options
 
-**Automatic worktree cleanup**
-- **Problem:** Remove worktree when might need it (Option 2, 3)
-- **Fix:** Only cleanup for Options 1 and 4
+**Automatic cleanup assumptions**
+- **Problem:** Assuming the workspace or branch should be cleaned up automatically
+- **Fix:** Only delete what the chosen option explicitly calls for
 
 **No confirmation for discard**
 - **Problem:** Accidentally delete work
@@ -188,13 +169,10 @@ git worktree remove <worktree-path>
 - Verify tests before offering options
 - Present exactly 4 options
 - Get typed confirmation for Option 4
-- Clean up worktree for Options 1 & 4 only
+- Leave the workspace alone unless the chosen option requires branch cleanup
 
 ## Integration
 
 **Called by:**
 - **subagent-driven-development** (Step 7) - After all tasks complete
 - **executing-plans** (Step 5) - After all batches complete
-
-**Pairs with:**
-- **using-git-worktrees** - Cleans up worktree created by that skill

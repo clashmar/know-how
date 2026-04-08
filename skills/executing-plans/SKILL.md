@@ -61,10 +61,10 @@ After all tasks complete and verified:
 - Reference skills when plan says to
 - Stop when blocked, don't guess
 - Never start implementation on main/master branch without explicit user consent
+- Use the current workspace unless the user explicitly asks for a different setup
 
 ## Integration
 
 **Required workflow skills:**
-- **know-how:using-git-worktrees** - REQUIRED: Set up isolated workspace before starting
 - **know-how:writing-plans** - Creates the plan this skill executes
 - **know-how:finishing-a-development-branch** - Complete development after all tasks

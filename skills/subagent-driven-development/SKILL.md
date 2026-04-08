@@ -265,7 +265,6 @@ Done!
 ## Integration
 
 **Required workflow skills:**
-- **know-how:using-git-worktrees** - REQUIRED: Set up isolated workspace before starting
 - **know-how:writing-plans** - Creates the plan this skill executes
 - **know-how:requesting-code-review** - Code review template for reviewer subagents
 - **know-how:finishing-a-development-branch** - Complete development after all tasks
