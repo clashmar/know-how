@@ -107,10 +107,10 @@ The terminal state is invoking `know-how:writing-plans`.
 
 1. Placeholder scan: remove `TBD`, `TODO`, and vague requirements
 2. Internal consistency: ensure sections do not contradict each other
-3. Scope check: confirm it is focused enough for one implementation plan
-4. Ambiguity check: make edge-case behavior explicit where needed
+3. Scope check: confirm the scope can be executed as one coherent plan without mixing unrelated subsystems or independent deliverables
+4. Ambiguity check: make edge-case behavior explicit for any case that changes user-visible behavior, validation, failure handling, or state transitions
 
-Fix issues inline and move on.
+Fix self-review issues inline. If a fix changes the design materially, present the updated spec to the user before planning.
 
 **User Review Gate:**
 

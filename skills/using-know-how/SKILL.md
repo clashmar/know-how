@@ -91,4 +91,6 @@ When multiple skills could apply, use this order:
 
 **Flexible skills**: adapt the guidance to the codebase and task.
 
-The skill itself will tell you which type it is.
+If a skill does not explicitly label itself, infer the type from its language:
+- hard gates, no-exception rules, and mandatory ordered steps usually mean rigid
+- adaptable guidance, codebase-sensitive wording, and explicit judgment calls usually mean flexible

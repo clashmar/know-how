@@ -149,7 +149,7 @@ Implementer: "Got it. Implementing now..."
   - Committed
 
 [Dispatch spec compliance reviewer]
-Spec reviewer: ✅ Spec compliant - all requirements met, nothing extra
+Spec reviewer: ✅ Spec compliant - all listed requirements implemented, no unrequested behavior or options added
 
 [Get git SHAs, dispatch code quality reviewer]
 Code reviewer: Strengths: Good test coverage, clean. Issues: None. Approved.
@@ -165,7 +165,7 @@ Implementer: [No questions, proceeds]
 Implementer:
   - Added verify/repair modes
   - 8/8 tests passing
-  - Self-review: All good
+  - Self-review: No additional issues found in this pass
   - Committed
 
 [Dispatch spec compliance reviewer]
@@ -194,7 +194,7 @@ Code reviewer: ✅ Approved
 
 [After all tasks]
 [Dispatch final code-reviewer]
-Final reviewer: All requirements met, ready to merge
+Final reviewer: Spec requirements satisfied, no blocking code-quality issues found. Use know-how:closing-out-work before merge.
 
 Done!
 ```
