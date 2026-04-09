@@ -14,26 +14,20 @@ export XDG_CONFIG_HOME="$TEST_HOME/.config"
 export OPENCODE_CONFIG_DIR="$TEST_HOME/.config/opencode"
 
 # Standard install layout:
-#   $OPENCODE_CONFIG_DIR/know-how/             ← plugin root
+#   $OPENCODE_CONFIG_DIR/plugins/know-how.js   ← plugin file OpenCode loads
 #   $OPENCODE_CONFIG_DIR/know-how/skills/      ← bundled skills
-#   $OPENCODE_CONFIG_DIR/know-how/.opencode/plugins/know-how.js ← plugin file
-#   $OPENCODE_CONFIG_DIR/plugins/know-how.js   ← symlink OpenCode reads
 
-PLUGIN_DIR="$OPENCODE_CONFIG_DIR/know-how"
-SKILLS_DIR="$PLUGIN_DIR/skills"
-PLUGIN_FILE="$PLUGIN_DIR/.opencode/plugins/know-how.js"
+BUNDLE_DIR="$OPENCODE_CONFIG_DIR/know-how"
+SKILLS_DIR="$BUNDLE_DIR/skills"
+PLUGIN_FILE="$OPENCODE_CONFIG_DIR/plugins/know-how.js"
 
-# Install skills
-mkdir -p "$PLUGIN_DIR"
-cp -r "$REPO_ROOT/skills" "$PLUGIN_DIR/"
+# Install bundled skills
+mkdir -p "$BUNDLE_DIR"
+cp -r "$REPO_ROOT/skills" "$BUNDLE_DIR/"
 
-# Install plugin
+# Install plugin directly where OpenCode loads it
 mkdir -p "$(dirname "$PLUGIN_FILE")"
 cp "$REPO_ROOT/.opencode/plugins/know-how.js" "$PLUGIN_FILE"
-
-# Register plugin via symlink (what OpenCode actually reads)
-mkdir -p "$OPENCODE_CONFIG_DIR/plugins"
-ln -sf "$PLUGIN_FILE" "$OPENCODE_CONFIG_DIR/plugins/know-how.js"
 
 # Create test skills in different locations for testing
 
@@ -67,10 +61,9 @@ EOF
 
 echo "Setup complete: $TEST_HOME"
 echo "OPENCODE_CONFIG_DIR:  $OPENCODE_CONFIG_DIR"
-echo "Plugin dir:           $PLUGIN_DIR"
+echo "Bundle dir:           $BUNDLE_DIR"
 echo "Skills dir:           $SKILLS_DIR"
 echo "Plugin file:          $PLUGIN_FILE"
-echo "Plugin registered at: $OPENCODE_CONFIG_DIR/plugins/know-how.js"
 echo "Test project at:      $TEST_HOME/test-project"
 
 # Helper function for cleanup (call from tests or trap)
@@ -83,6 +76,6 @@ cleanup_test_env() {
 # Export for use in tests
 export -f cleanup_test_env
 export REPO_ROOT
-export PLUGIN_DIR
+export BUNDLE_DIR
 export SKILLS_DIR
 export PLUGIN_FILE

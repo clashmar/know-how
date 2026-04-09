@@ -13,22 +13,22 @@ source "$SCRIPT_DIR/setup.sh"
 # Trap to cleanup on exit
 trap cleanup_test_env EXIT
 
-plugin_link="$OPENCODE_CONFIG_DIR/plugins/know-how.js"
+plugin_file="$OPENCODE_CONFIG_DIR/plugins/know-how.js"
 
-# Test 1: Verify plugin file exists and is registered
-echo "Test 1: Checking plugin registration..."
-if [ -L "$plugin_link" ]; then
-    echo "  [PASS] Plugin symlink exists"
+# Test 1: Verify plugin file exists in OpenCode's plugin directory
+echo "Test 1: Checking plugin installation..."
+if [ -f "$plugin_file" ]; then
+    echo "  [PASS] Plugin file exists"
 else
-    echo "  [FAIL] Plugin symlink not found at $plugin_link"
+    echo "  [FAIL] Plugin file not found at $plugin_file"
     exit 1
 fi
 
-# Verify symlink target exists
-if [ -f "$(readlink -f "$plugin_link")" ]; then
-    echo "  [PASS] Plugin symlink target exists"
+# Verify bundled skills directory exists
+if [ -d "$SKILLS_DIR" ]; then
+    echo "  [PASS] Bundled skills directory exists"
 else
-    echo "  [FAIL] Plugin symlink target does not exist"
+    echo "  [FAIL] Bundled skills directory does not exist"
     exit 1
 fi
 

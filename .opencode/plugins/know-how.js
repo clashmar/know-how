@@ -7,7 +7,6 @@
 
 import path from 'path';
 import fs from 'fs';
-import os from 'os';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -33,25 +32,20 @@ const extractAndStripFrontmatter = (content) => {
   return { frontmatter, content: body };
 };
 
-// Normalize a path: trim whitespace, expand ~, resolve to absolute
-const normalizePath = (p, homeDir) => {
-  if (!p || typeof p !== 'string') return null;
-  let normalized = p.trim();
-  if (!normalized) return null;
-  if (normalized.startsWith('~/')) {
-    normalized = path.join(homeDir, normalized.slice(2));
-  } else if (normalized === '~') {
-    normalized = homeDir;
-  }
-  return path.resolve(normalized);
+const resolveSkillsDir = () => {
+  const candidates = [
+    path.resolve(__dirname, '../../skills'),
+    path.resolve(__dirname, '../know-how/skills')
+  ];
+
+  return candidates.find(candidate => fs.existsSync(candidate)) || null;
 };
 
 export const KnowHowPlugin = async () => {
-  const homeDir = os.homedir();
-  const skillsDir = path.resolve(__dirname, '../../skills');
-  normalizePath(process.env.OPENCODE_CONFIG_DIR, homeDir);
+  const skillsDir = resolveSkillsDir();
 
   const getBootstrapContent = () => {
+    if (!skillsDir) return null;
     const skillPath = path.join(skillsDir, 'using-know-how', 'SKILL.md');
     if (!fs.existsSync(skillPath)) return null;
 
@@ -84,6 +78,7 @@ ${toolMapping}
     // This works because Config.get() returns a cached singleton — modifications
     // here are visible when skills are lazily discovered later.
     config: async (config) => {
+      if (!skillsDir) return;
       config.skills = config.skills || {};
       config.skills.paths = config.skills.paths || [];
       if (!config.skills.paths.includes(skillsDir)) {
