@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+if [ -n "${OPENCODE_CONFIG_DIR:-}" ]; then
+    CONFIG_DIR="$OPENCODE_CONFIG_DIR"
+elif [ -n "${XDG_CONFIG_HOME:-}" ]; then
+    CONFIG_DIR="$XDG_CONFIG_HOME/opencode"
+else
+    CONFIG_DIR="$HOME/.config/opencode"
+fi
+
+SOURCE_PLUGIN_FILE="$REPO_ROOT/.opencode/plugins/know-how.js"
+SOURCE_SKILLS_DIR="$REPO_ROOT/skills"
+PLUGIN_DIR="$CONFIG_DIR/plugins"
+PLUGIN_FILE="$PLUGIN_DIR/know-how.js"
+BUNDLE_DIR="$CONFIG_DIR/know-how"
+
+if [ ! -f "$SOURCE_PLUGIN_FILE" ]; then
+    echo "Source plugin not found: $SOURCE_PLUGIN_FILE" >&2
+    exit 1
+fi
+
+if [ ! -d "$SOURCE_SKILLS_DIR" ]; then
+    echo "Source skills directory not found: $SOURCE_SKILLS_DIR" >&2
+    exit 1
+fi
+
+mkdir -p "$PLUGIN_DIR"
+
+rm -f "$PLUGIN_FILE"
+rm -rf "$BUNDLE_DIR"
+
+cp "$SOURCE_PLUGIN_FILE" "$PLUGIN_FILE"
+mkdir -p "$BUNDLE_DIR"
+cp -R "$SOURCE_SKILLS_DIR" "$BUNDLE_DIR/skills"
+
+echo "Installed know-how into $CONFIG_DIR"
+echo "Plugin: $PLUGIN_FILE"
+echo "Skills: $BUNDLE_DIR/skills"

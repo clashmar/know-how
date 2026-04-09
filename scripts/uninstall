@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+if [ -n "${OPENCODE_CONFIG_DIR:-}" ]; then
+    CONFIG_DIR="$OPENCODE_CONFIG_DIR"
+elif [ -n "${XDG_CONFIG_HOME:-}" ]; then
+    CONFIG_DIR="$XDG_CONFIG_HOME/opencode"
+else
+    CONFIG_DIR="$HOME/.config/opencode"
+fi
+
+PLUGIN_DIR="$CONFIG_DIR/plugins"
+PLUGIN_FILE="$PLUGIN_DIR/know-how.js"
+BUNDLE_DIR="$CONFIG_DIR/know-how"
+
+rm -f "$PLUGIN_FILE"
+rm -rf "$BUNDLE_DIR"
+
+echo "Removed know-how from $CONFIG_DIR"

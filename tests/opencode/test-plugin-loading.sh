@@ -15,8 +15,8 @@ trap cleanup_test_env EXIT
 
 plugin_file="$OPENCODE_CONFIG_DIR/plugins/know-how.js"
 
-# Test 1: Verify plugin file exists in OpenCode's plugin directory
-echo "Test 1: Checking plugin installation..."
+# Test 1: Verify installer-managed plugin layout exists
+echo "Test 1: Checking installer-managed plugin layout..."
 if [ -f "$plugin_file" ]; then
     echo "  [PASS] Plugin file exists"
 else
@@ -24,7 +24,7 @@ else
     exit 1
 fi
 
-# Verify bundled skills directory exists
+# Verify installer-managed bundled skills directory exists
 if [ -d "$SKILLS_DIR" ]; then
     echo "  [PASS] Bundled skills directory exists"
 else
@@ -32,8 +32,8 @@ else
     exit 1
 fi
 
-# Test 2: Verify skills directory is populated
-echo "Test 2: Checking skills directory..."
+# Test 2: Verify installed bundle is populated
+echo "Test 2: Checking installed skills bundle..."
 skill_count=$(find "$SKILLS_DIR" -name "SKILL.md" | wc -l)
 if [ "$skill_count" -gt 0 ]; then
     echo "  [PASS] Found $skill_count skills"

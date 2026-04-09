@@ -14,20 +14,14 @@ export XDG_CONFIG_HOME="$TEST_HOME/.config"
 export OPENCODE_CONFIG_DIR="$TEST_HOME/.config/opencode"
 
 # Standard install layout:
-#   $OPENCODE_CONFIG_DIR/plugins/know-how.js   ← plugin file OpenCode loads
-#   $OPENCODE_CONFIG_DIR/know-how/skills/      ← bundled skills
+#   $OPENCODE_CONFIG_DIR/plugins/know-how.js   <- plugin file OpenCode loads
+#   $OPENCODE_CONFIG_DIR/know-how/skills/      <- bundled skills
+
+"$REPO_ROOT/scripts/install" >/dev/null
 
 BUNDLE_DIR="$OPENCODE_CONFIG_DIR/know-how"
 SKILLS_DIR="$BUNDLE_DIR/skills"
 PLUGIN_FILE="$OPENCODE_CONFIG_DIR/plugins/know-how.js"
-
-# Install bundled skills
-mkdir -p "$BUNDLE_DIR"
-cp -r "$REPO_ROOT/skills" "$BUNDLE_DIR/"
-
-# Install plugin directly where OpenCode loads it
-mkdir -p "$(dirname "$PLUGIN_FILE")"
-cp "$REPO_ROOT/.opencode/plugins/know-how.js" "$PLUGIN_FILE"
 
 # Create test skills in different locations for testing
 

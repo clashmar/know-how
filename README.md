@@ -2,19 +2,29 @@
 
 OpenCode skill bundle and bootstrap plugin.
 
-## Global install
+## Install
 
-Copy the plugin and bundled skills into `~/.config/opencode/` using this layout:
+```bash
+./scripts/install
+```
+
+Running `./scripts/install` again is the supported update path.
+
+## Uninstall
+
+Remove the bundled plugin and skills with:
+
+```bash
+./scripts/uninstall
+```
+
+## Installed layout
+
+The install script manages only this runtime layout:
 
 ```text
 ~/.config/opencode/plugins/know-how.js
 ~/.config/opencode/know-how/skills/
 ```
 
-Example:
-
-```bash
-mkdir -p ~/.config/opencode/plugins ~/.config/opencode/know-how
-cp .opencode/plugins/know-how.js ~/.config/opencode/plugins/know-how.js
-cp -R skills ~/.config/opencode/know-how/
-```
+It does not modify unrelated files already present in `~/.config/opencode`.
