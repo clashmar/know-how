@@ -171,11 +171,11 @@ You MUST complete each phase before proceeding to the next.
 
 **Fix the root cause, not the symptom:**
 
-1. **Create Failing Test Case**
+1. **Create Reproduction Evidence**
    - Simplest possible reproduction
-   - Automated test if possible
+   - Automated test for regression prevention
    - One-off test script if no framework
-   - MUST have before fixing
+   - Capture evidence before fixing
    - Use the `know-how:test-driven-development` skill for writing proper failing tests
 
 2. **Implement Single Fix**
@@ -249,7 +249,7 @@ If you catch yourself thinking:
 | "Issue is simple, don't need process" | Simple issues have root causes too. Process is fast for simple bugs. |
 | "Emergency, no time for process" | Systematic debugging is FASTER than guess-and-check thrashing. |
 | "Just try this first, then investigate" | First fix sets the pattern. Do it right from the start. |
-| "I'll write test after confirming fix works" | Untested fixes don't stick. Test first proves it. |
+| "I'll write test after confirming fix works" | Post-fix evidence is weaker. Capture a failing reproduction first |
 | "Multiple fixes at once saves time" | Can't isolate what worked. Causes new bugs. |
 | "Reference too long, I'll adapt the pattern" | Partial understanding guarantees bugs. Read it completely. |
 | "I see the problem, let me fix it" | Seeing symptoms ≠ understanding root cause. |
@@ -262,7 +262,7 @@ If you catch yourself thinking:
 | **1. Root Cause** | Read errors, reproduce, check changes, gather evidence | Understand WHAT and WHY |
 | **2. Pattern** | Find working examples, compare | Identify differences |
 | **3. Hypothesis** | Form theory, test minimally | Confirmed or new hypothesis |
-| **4. Implementation** | Create test, fix, verify | Bug resolved, tests pass |
+| **4. Implementation** | Create test/reproduce, fix, verify | Bug resolved, test/evidence confirms it |
 
 ## When Process Reveals "No Root Cause"
 

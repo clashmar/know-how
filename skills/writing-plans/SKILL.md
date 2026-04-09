@@ -16,7 +16,63 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 **Context:** This should be run in the current workspace unless the user explicitly asks for a different setup.
 
 **Save plans to:** `docs/know-how/plans/YYYY-MM-DD-<feature-name>.md`
-- (User preferences for plan location override this default)
+- User preferences for plan location override this default
+
+## Core Rule
+
+Decide the testing strategy before writing tasks.
+
+The plan must explicitly decide:
+
+- whether TDD is required, optional, or skipped
+- which behaviors need automated coverage
+- which changes should be verified manually
+- which low-value tests to avoid
+
+## Testing Strategy Decision
+
+Every plan MUST include a short `Testing Approach` section near the top.
+
+Use this decision model:
+
+### TDD Required
+
+Use TDD when the work has meaningful logic risk, including:
+
+- bug fixes with a reproducible failure
+- business rules and validation
+- state transitions
+- parsers, transformers, and calculations
+- code with tricky edge cases or regression risk
+
+### TDD Optional
+
+Use judgment when the work benefits from tests but does not need strict red-green for every step, including:
+
+- integration work
+- CRUD wiring
+- routine backend endpoints
+- moderate-risk refactors with decent existing coverage
+
+### TDD Skip, Verify Another Way
+
+Prefer manual verification and targeted checks when the change is low-risk or cosmetic, including:
+
+- color, spacing, typography, and layout polish
+- content or copy edits
+- low-risk UI tweaks with no logic change
+- simple config changes
+- codebases where the user explicitly does not want TDD for this work
+
+### Tests To Avoid
+
+Plans should explicitly avoid brittle, low-value tests such as:
+
+- exact button width checks
+- exact color assertions when color is not a contract
+- typography-only assertions
+- giant unit tests for cosmetic-only behavior
+- tests that mostly lock in implementation details
 
 ## Scope Check
 
@@ -35,12 +91,14 @@ This structure informs the task decomposition. Each task should produce self-con
 
 ## Bite-Sized Task Granularity
 
-**Each step is one action (2-5 minutes):**
+Each step should be one concrete action, usually 2-5 minutes:
+
 - "Write the failing test" - step
 - "Run it to make sure it fails" - step
 - "Implement the minimal code to make the test pass" - step
 - "Run the tests and make sure they pass" - step
-- "Commit" - step
+
+Use only the steps the chosen testing strategy actually needs.
 
 ## Plan Document Header
 
@@ -57,10 +115,17 @@ This structure informs the task decomposition. Each task should produce self-con
 
 **Tech Stack:** [Key technologies/libraries]
 
+## Testing Approach
+
+**TDD Decision:** Required | Skip
+
+**Manual verification:**
+- [specific checks to perform]
+
 ---
 ```
 
-## Task Structure
+## TDD Task Structure
 
 ````markdown
 ### Task N: [Component Name]
@@ -95,13 +160,10 @@ def function(input):
 Run: `pytest tests/path/test.py::test_name -v`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 5: Run any broader checks needed**
 
-```bash
-git add tests/path/test.py src/path/file.py
-git commit -m "feat: add specific feature"
-```
-````
+Run: `[broader command]`
+Expected: `[expected result]`
 
 ## No Placeholders
 
@@ -117,7 +179,7 @@ Every step must contain the actual content an engineer needs. These are **plan f
 - Exact file paths always
 - Complete code in every step — if a step changes code, show the code
 - Exact commands with expected output
-- DRY, YAGNI, TDD, frequent commits
+- DRY, YAGNI, TDD
 
 ## Self-Review
 

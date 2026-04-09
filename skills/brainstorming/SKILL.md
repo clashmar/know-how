@@ -19,10 +19,11 @@ You MUST create a task for each of these items and complete them in order:
 2. **Ask clarifying questions** — one at a time, focused on purpose and constraints
 3. **Propose 2-3 approaches** — include trade-offs and a recommendation
 4. **Present the design** — scale detail to complexity, get approval section by section
-5. **Write the design doc** — save to `docs/know-how/specs/YYYY-MM-DD-<topic>-design.md`
-6. **Self-review the spec** — remove ambiguity, placeholders, and contradictions
-7. **Ask the user to review the spec** — wait for approval before moving on
-8. **Transition to implementation planning** — invoke `know-how:writing-plans`
+5. **Decide the testing strategy** — identify risky behaviors, manual checks, and whether TDD should be required
+6. **Write the design doc** — save to `docs/know-how/specs/YYYY-MM-DD-<topic>-design.md`
+7. **Self-review the spec** — remove ambiguity, placeholders, and contradictions
+8. **Ask the user to review the spec** — wait for approval before moving on
+9. **Transition to implementation planning** — invoke `know-how:writing-plans`
 
 ## Process Flow
 
@@ -33,6 +34,7 @@ digraph brainstorming {
     "Propose 2-3 approaches" [shape=box];
     "Present design sections" [shape=box];
     "User approves design?" [shape=diamond];
+    "Decide testing strategy" [shape=box];
     "Write design doc" [shape=box];
     "Spec self-review" [shape=box];
     "User reviews spec?" [shape=diamond];
@@ -43,7 +45,8 @@ digraph brainstorming {
     "Propose 2-3 approaches" -> "Present design sections";
     "Present design sections" -> "User approves design?";
     "User approves design?" -> "Present design sections" [label="no, revise"];
-    "User approves design?" -> "Write design doc" [label="yes"];
+    "User approves design?" -> "Decide testing strategy" [label="yes"];
+    "Decide testing strategy" -> "Write design doc";
     "Write design doc" -> "Spec self-review";
     "Spec self-review" -> "User reviews spec?";
     "User reviews spec?" -> "Write design doc" [label="changes requested"];
@@ -75,6 +78,13 @@ The terminal state is invoking `know-how:writing-plans`.
 - Keep sections short when the problem is simple
 - Ask for approval as you go
 
+**Deciding the testing strategy:**
+
+- Decide whether TDD should be required, optional, or skipped
+- Identify the highest-risk behavior worth automated coverage
+- Call out visual or cosmetic changes that should be verified manually instead
+- Avoid designs that imply every UI detail needs an automated assertion
+
 **Working in existing codebases:**
 
 - Follow the existing structure unless it directly blocks the work
@@ -87,6 +97,7 @@ The terminal state is invoking `know-how:writing-plans`.
 
 - Write the validated spec to `docs/know-how/specs/YYYY-MM-DD-<topic>-design.md`
 - User preferences for spec location override this default
+- Include a short testing strategy section so planning starts from an explicit decision
 
 **Spec Self-Review:**
 

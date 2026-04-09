@@ -105,6 +105,15 @@ Skip any step = lying, not verifying
 ❌ Trust agent report
 ```
 
+**Manual verification for non-TDD work:**
+```
+✅ Run the required build/lint/typecheck commands
+✅ Open the affected UI or flow
+✅ Check the specific states the plan called out
+✅ Report exactly what you verified
+❌ "Looks fine from the code" / "small visual tweak, probably okay"
+```
+
 ## Why This Matters
 
 From 24 failure memories:
@@ -129,6 +138,19 @@ From 24 failure memories:
 - Paraphrases and synonyms
 - Implications of success
 - ANY communication suggesting completion/correctness
+
+## If TDD Was Skipped
+
+Skipping TDD does not lower the verification bar.
+
+When a task uses manual verification or non-TDD checks, you still need fresh evidence:
+
+- run the required commands
+- perform the exact manual checks from the plan
+- verify the affected states or flows directly
+- report what was actually checked
+
+Manual verification is valid for low-risk visual and cosmetic work. Unverified assumptions are not.
 
 ## The Bottom Line
 

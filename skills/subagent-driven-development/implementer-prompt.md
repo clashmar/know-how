@@ -41,6 +41,10 @@ Task tool (general-purpose):
     **While you work:** If you encounter something unexpected or unclear, **ask questions**.
     It's always OK to pause and clarify. Don't guess or make assumptions.
 
+    **Testing discipline:**
+    - If the task requires TDD, follow TDD strictly
+    - If the task uses manual verification, do not invent brittle automated tests just to satisfy process
+
     ## Code Organization
 
     You reason best about code you can hold in context at once, and your edits are more
@@ -93,7 +97,7 @@ Task tool (general-purpose):
     **Testing:**
     - Do tests actually verify behavior (not just mock behavior)?
     - Did I follow TDD if required?
-    - Are tests comprehensive?
+    - Are the tests appropriate for the actual behaviour?
 
     If you find issues during self-review, fix them now before reporting.
 

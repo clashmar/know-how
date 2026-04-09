@@ -1,37 +1,50 @@
 ---
 name: test-driven-development
-description: Use when implementing any feature or bugfix, before writing implementation code
+description: Use when the plan or task calls for TDD
 ---
 
 # Test-Driven Development (TDD)
 
 ## Overview
 
-Write the test first. Watch it fail. Write minimal code to pass.
+Write the test first. Watch it fail. Write the smallest implementation that passes.
 
-**Core principle:** If you didn't watch the test fail, you don't know if it tests the right thing.
+**Core principle:** If you did not watch the test fail first, you do not know whether it tests the right thing.
 
 **Violating the letter of the rules is violating the spirit of the rules.**
 
 ## When to Use
 
+Use this skill when the plan or task has chosen TDD for work:
+
 **Always:**
-- New features
-- Bug fixes
-- Refactoring
-- Behavior changes
+- new features
+- refactoring where tests don't already exist
+- bug fixes with a reproducible failure
+- business logic and validation
+- state transitions
+- parsers, transformers, and calculations
+- regression-prone behavior with clear contracts
 
-**Exceptions (ask your human partner):**
-- Throwaway prototypes
-- Generated code
-- Configuration files
+## When Not to Use
 
-Thinking "skip TDD just this once"? Stop. That's rationalization.
+Do not force this skill onto work that the plan has explicitly marked as non-TDD.
+
+Skip TDD for:
+
+- presentation details with no behavior risk
+- copy or content edits
+- config changes
+- generated code
+- throwaway prototypes
+- codebases where the user explicitly does not want TDD for this work
+
+Skipping TDD does **not** mean skipping verification. Use manual verification or focused checks instead.
 
 ## The Iron Law
 
-```
-NO PRODUCTION CODE WITHOUT A FAILING TEST FIRST
+```text
+NO PRODUCTION CODE BEFORE A FAILING TEST WHEN TDD HAS BEEN CHOSEN
 ```
 
 Write code before the test? Delete it. Start over.
@@ -52,25 +65,27 @@ digraph tdd_cycle {
     red [label="RED\nWrite failing test", shape=box, style=filled, fillcolor="#ffcccc"];
     verify_red [label="Verify fails\ncorrectly", shape=diamond];
     green [label="GREEN\nMinimal code", shape=box, style=filled, fillcolor="#ccffcc"];
-    verify_green [label="Verify passes\nAll green", shape=diamond];
+    verify_green [label="Verify passes", shape=diamond];
     refactor [label="REFACTOR\nClean up", shape=box, style=filled, fillcolor="#ccccff"];
     next [label="Next", shape=ellipse];
 
     red -> verify_red;
     verify_red -> green [label="yes"];
-    verify_red -> red [label="wrong\nfailure"];
+    verify_red -> red [label="wrong failure"];
     green -> verify_green;
     verify_green -> refactor [label="yes"];
     verify_green -> green [label="no"];
-    refactor -> verify_green [label="stay\ngreen"];
+    refactor -> verify_green [label="stay green"];
     verify_green -> next;
     next -> red;
 }
 ```
 
-### RED - Write Failing Test
+## The Standard Loop
 
-Write one minimal test showing what should happen.
+### 1. Write One Failing Test
+
+Write Write one minimal test showing what should happen.
 
 <Good>
 ```typescript
@@ -257,9 +272,7 @@ Tests-first force edge case discovery before implementing. Tests-after verify yo
 
 | Excuse | Reality |
 |--------|---------|
-| "Too simple to test" | Simple code breaks. Test takes 30 seconds. |
 | "I'll test after" | Tests passing immediately prove nothing. |
-| "Tests after achieve same goals" | Tests-after = "what does this do?" Tests-first = "what should this do?" |
 | "Already manually tested" | Ad-hoc ≠ systematic. No record, can't re-run. |
 | "Deleting X hours is wasteful" | Sunk cost fallacy. Keeping unverified code is technical debt. |
 | "Keep as reference, write tests first" | You'll adapt it. That's testing after. Delete means delete. |
@@ -363,9 +376,7 @@ When adding mocks or test utilities, read @testing-anti-patterns.md to avoid com
 
 ## Final Rule
 
+```text
+If TDD is chosen, follow it strictly.
+Test exists and failed first; Otherwise → not TDD
 ```
-Production code → test exists and failed first
-Otherwise → not TDD
-```
-
-No exceptions without your human partner's permission.
