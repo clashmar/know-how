@@ -53,6 +53,12 @@ Task tool (general-purpose):
     - Did they solve the wrong problem?
     - Did they implement the right feature but wrong way?
 
+    **Testing approach compliance:**
+    - Did they follow the plan's `Testing Approach` exactly?
+    - If the plan said `Required`, did they add the required automated tests?
+    - If the plan said `Manual only`, did they avoid adding unnecessary automated tests?
+    - Did they ignore anything listed under `Manual verification` or `Tests to avoid`?
+
     **Verify by reading code, not by trusting report.**
 
     Report:

@@ -20,7 +20,7 @@ Create a task for each of these items and complete them in order:
 2. **Ask clarifying questions** — one at a time, focused on purpose and constraints
 3. **Propose 2-3 approaches** — include trade-offs and a recommendation
 4. **Present the design** — scale detail to complexity, get approval section by section
-5. **Decide the testing strategy** — identify risky behaviors, manual checks, and whether TDD should be required
+5. **Decide the testing strategy** — identify critical behaviors, manual checks, and whether the work should use TDD or be manually tested
 6. **Write the design doc** — save to `~/.config/opencode/projects/know-how/<project-name>/specs/YYYY-MM-DD-<topic>-design.md`
 7. **Self-review the spec** — remove ambiguity, placeholders, and contradictions
 8. **Ask the user to review the spec** — wait for approval before moving on
@@ -82,7 +82,7 @@ The terminal state is invoking `know-how:writing-plans`.
 
 **Deciding the testing strategy:**
 
-- Decide whether TDD should be required, optional, or skipped
+- Decide whether TDD should be required or manual only
 - Identify the highest-risk behavior worth automated coverage
 - Call out visual or cosmetic changes that should be verified manually instead
 - Avoid designs that imply every UI detail needs an automated assertion

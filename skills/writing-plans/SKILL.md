@@ -7,7 +7,7 @@ description: Use when you have a spec or requirements for a multi-step task, bef
 
 ## Overview
 
-Write comprehensive implementation plans assuming the engineer is completely new to our codebase. Document everything they need to know: which files to touch for each task, code, testing, docs they might need to check, how to test it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD.
+Write comprehensive implementation plans assuming the engineer is completely new to our codebase. Document everything they need to know: which files to touch for each task, code, testing, docs they might need to check, how to test it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. Make the testing strategy explicit and binding.
 
 Assume they are a skilled developer, but know almost nothing about our toolset or problem domain. They thrive when given explicit expectations for testing and test design.
 
@@ -27,7 +27,7 @@ Decide the testing strategy before writing tasks.
 
 The plan must explicitly decide:
 
-- whether TDD is required, optional, or skipped
+- whether TDD is required or manual only
 - which behaviors need automated coverage
 - which changes should be verified manually
 - which low-value tests to avoid
@@ -40,32 +40,30 @@ Use this decision model:
 
 ### TDD Required
 
-Use TDD when the work has meaningful logic risk, including:
+Use TDD when the plan should call for automated tests because the work has meaningful logic risk, including:
 
 - bug fixes with a reproducible failure
 - business rules and validation
 - state transitions
 - parsers, transformers, and calculations
 - code with tricky edge cases or regression risk
+- specific integration paths where the plan names an automated test worth adding
 
-### TDD Optional
+### Manual Only
 
-Use judgment when the work benefits from tests but does not need strict red-green for every step, including:
-
-- integration work
-- CRUD wiring
-- routine backend endpoints
-- moderate-risk refactors with decent existing coverage
-
-### TDD Skip, Verify Another Way
-
-Prefer manual verification and targeted checks when the change is low-risk or cosmetic, including:
+Use manual verification and targeted checks when the plan should not call for automated tests, including:
 
 - color, spacing, typography, and layout polish
 - content or copy edits
 - low-risk UI tweaks with no logic change
 - simple config changes
-- codebases where the user explicitly does not want TDD for this work
+- setup and install flows better verified against a real local environment
+- integration work where the plan can be verified reliably without adding automated tests
+- codebases where the user explicitly does not want automated tests for this work
+
+Once the plan is written, the implementer must follow the `Testing Approach` exactly.
+`Manual only` means do not add automated tests.
+`Required` means add the automated tests the plan calls for and use strict TDD for them.
 
 ### Tests To Avoid
 
@@ -94,12 +92,20 @@ This structure informs the task decomposition. Each task should produce self-con
 
 ## Bite-Sized Task Granularity
 
-Each step should be one concrete action, usually 2-5 minutes:
+Each step should be one concrete action, usually 2-5 minutes.
+
+For `Required` work, use TDD-shaped steps such as:
 
 - "Write the failing test" - step
 - "Run it to make sure it fails" - step
 - "Implement the minimal code to make the test pass" - step
 - "Run the tests and make sure they pass" - step
+
+For `Manual only` work, use verification-shaped steps such as:
+
+- "Implement the requested change" - step
+- "Run the targeted command or workflow" - step
+- "Confirm the listed manual checks pass" - step
 
 Use only the steps the chosen testing strategy actually needs.
 
@@ -120,7 +126,11 @@ Use only the steps the chosen testing strategy actually needs.
 
 ## Testing Approach
 
-**TDD Decision:** Required | Skip
+**TDD Decision:** Required | Manual only
+
+Follow this exactly during implementation.
+If the decision is `Manual only`, do not add automated tests.
+If the decision is `Required`, write the failing test first and follow TDD strictly.
 
 **Manual verification:**
 - [specific checks to perform]
@@ -128,7 +138,7 @@ Use only the steps the chosen testing strategy actually needs.
 ---
 ```
 
-## TDD Task Structure
+## Task Structure When TDD Is Required
 
 ````markdown
 ### Task N: [Component Name]
@@ -182,7 +192,39 @@ Every step must contain the actual content an engineer needs. These are **plan f
 - Exact file paths always
 - Complete code in every step — if a step changes code, show the code
 - Exact commands with expected output
-- DRY, YAGNI, TDD
+- DRY, YAGNI, follow the chosen testing strategy
+
+## Task Structure When Testing Is Manual Only
+
+````markdown
+### Task N: [Component Name]
+
+**Files:**
+- Create: `exact/path/to/file.sh`
+- Modify: `exact/path/to/existing.sh:10-40`
+
+- [ ] **Step 1: Implement the requested change**
+
+```bash
+[exact command or code change to make]
+```
+
+- [ ] **Step 2: Run the targeted verification workflow**
+
+Run: `[exact command or workflow]`
+Expected: `[specific success marker]`
+
+- [ ] **Step 3: Perform the manual verification checks from the plan**
+
+- [ ] `[specific check]`
+- [ ] `[specific check]`
+
+- [ ] **Step 4: Confirm the listed tests to avoid were not added**
+
+Expected: no automated tests beyond those explicitly called for by the plan
+````
+
+For `Manual only` tasks, do not add automated tests unless the plan is updated first.
 
 ## Self-Review
 

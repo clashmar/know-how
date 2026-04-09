@@ -57,6 +57,7 @@ After all tasks complete and verified:
 ## Remember
 - Review plan critically first
 - Follow plan steps exactly
+- Follow the plan's `Testing Approach` exactly
 - Don't skip verifications
 - Reference skills when plan says to
 - Stop when blocked, don't guess

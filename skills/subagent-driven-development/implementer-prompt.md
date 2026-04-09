@@ -30,7 +30,7 @@ Task tool (general-purpose):
 
     Once you're clear on requirements:
     1. Implement exactly what the task specifies
-    2. Write tests (following TDD if task says to)
+    2. Follow the plan's Testing Approach exactly
     3. Verify implementation works
     4. Commit your work
     5. Self-review (see below)
@@ -42,8 +42,10 @@ Task tool (general-purpose):
     It's always OK to pause and clarify. Don't guess or make assumptions.
 
     **Testing discipline:**
-    - If the task requires TDD, follow TDD strictly
-    - If the task uses manual verification, do not invent brittle automated tests just to satisfy process
+    - If the plan says `TDD Decision: Required`, add the automated tests the plan calls for and follow TDD strictly
+    - If the plan says `TDD Decision: Manual only`, do not add automated tests
+    - Do not add automated tests for checks listed under manual verification or tests to avoid
+    - If you think the testing approach is wrong, stop and ask instead of improvising
 
     ## Code Organization
 
@@ -95,9 +97,10 @@ Task tool (general-purpose):
     - Did I follow existing patterns in the codebase?
 
     **Testing:**
-    - Do tests actually verify behavior (not just mock behavior)?
-    - Did I follow TDD if required?
-    - Are the tests appropriate for the actual behaviour?
+    - Did I follow the plan's Testing Approach exactly?
+    - If tests were required, did I write the failing test first?
+    - If testing was manual only, did I avoid adding automated tests?
+    - Do any added tests verify real behavior and avoid the listed tests to avoid?
 
     If you find issues during self-review, fix them now before reporting.
 

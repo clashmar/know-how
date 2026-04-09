@@ -270,7 +270,7 @@ Done!
 - **know-how:finishing-a-development-branch** - Complete development after all tasks
 
 **Subagents should use:**
-- **know-how:test-driven-development** - Subagents implement TDD correctly
+- **know-how:test-driven-development** - Use when the plan's `Testing Approach` says `TDD Decision: Required`
 
 **Alternative workflow:**
 - **know-how:executing-plans** - Use for parallel session instead of same-session execution

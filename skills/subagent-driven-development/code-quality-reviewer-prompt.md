@@ -22,5 +22,6 @@ Code-reviewer agent:
 - Are units decomposed so they can be understood and tested independently?
 - Is the implementation following the file structure from the plan?
 - Did this implementation create new files that are already large, or significantly grow existing files? (Don't flag pre-existing file sizes — focus on what this change contributed.)
+- Do any added tests match the plan's `Testing Approach`?
 
 **Code reviewer returns:** Strengths, Issues (Critical/Important/Minor), Assessment
