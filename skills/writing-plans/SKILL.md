@@ -15,7 +15,10 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 **Context:** This should be run in the current workspace unless the user explicitly asks for a different setup.
 
-**Save plans to:** `docs/know-how/plans/YYYY-MM-DD-<feature-name>.md`
+**Save plans to:** `~/.config/opencode/projects/know-how/<project-name>/plans/YYYY-MM-DD-<feature-name>.md`
+- Derive `<project-name>` from the current workspace basename and sanitize it for filesystem safety if creating from scratch
+- If `~/.config/opencode/projects/know-how/<project-name>/` does not exist, ask the user before creating it
+- If the user declines, ask where they want to save the plan and use that path for the rest of the process. If they decline again, write to the current context.
 - User preferences for plan location override this default
 
 ## Core Rule
@@ -197,7 +200,7 @@ If you find issues, fix them inline. No need to re-review — just fix and move 
 
 After saving the plan, offer execution choice:
 
-**"Plan complete and saved to `docs/know-how/plans/<filename>.md`. Two execution options:**
+**"Plan complete and saved to `<path>`. Two execution options:**
 
 **1. Subagent-Driven (recommended)** - I dispatch a fresh subagent per task, review between tasks, fast iteration
 

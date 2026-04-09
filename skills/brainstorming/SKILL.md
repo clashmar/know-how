@@ -20,7 +20,7 @@ You MUST create a task for each of these items and complete them in order:
 3. **Propose 2-3 approaches** — include trade-offs and a recommendation
 4. **Present the design** — scale detail to complexity, get approval section by section
 5. **Decide the testing strategy** — identify risky behaviors, manual checks, and whether TDD should be required
-6. **Write the design doc** — save to `docs/know-how/specs/YYYY-MM-DD-<topic>-design.md`
+6. **Write the design doc** — save to `~/.config/opencode/projects/know-how/<project-name>/specs/YYYY-MM-DD-<topic>-design.md`
 7. **Self-review the spec** — remove ambiguity, placeholders, and contradictions
 8. **Ask the user to review the spec** — wait for approval before moving on
 9. **Transition to implementation planning** — invoke `know-how:writing-plans`
@@ -95,7 +95,9 @@ The terminal state is invoking `know-how:writing-plans`.
 
 **Documentation:**
 
-- Write the validated spec to `docs/know-how/specs/YYYY-MM-DD-<topic>-design.md`
+- Write the validated spec to `~/.config/opencode/projects/know-how/<project-name>/specs/YYYY-MM-DD-<topic>-design.md`
+- Derive `<project-name>` from the current workspace basename and sanitize it for filesystem safety
+- If `~/.config/opencode/projects/know-how/<project-name>/` does not exist, create it.
 - User preferences for spec location override this default
 - Include a short testing strategy section so planning starts from an explicit decision
 
