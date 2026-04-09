@@ -32,9 +32,9 @@ For each task:
 ### Step 3: Complete Development
 
 After all tasks complete and verified:
-- Announce: "I'm using the finishing-a-development-branch skill to complete this work."
-- **REQUIRED SUB-SKILL:** Use know-how:finishing-a-development-branch
-- Follow that skill to verify tests, present options, execute choice
+- Announce: "I'm using the closing-out-work skill to complete this work."
+- **REQUIRED SUB-SKILL:** Use know-how:closing-out-work
+- Follow that skill to close out the work, ask for review, and then choose integration
 
 ## When to Stop and Ask for Help
 
@@ -68,4 +68,4 @@ After all tasks complete and verified:
 
 **Required workflow skills:**
 - **know-how:writing-plans** - Creates the plan this skill executes
-- **know-how:finishing-a-development-branch** - Complete development after all tasks
+- **know-how:closing-out-work** - Close out work after all tasks, get user review, then choose integration
