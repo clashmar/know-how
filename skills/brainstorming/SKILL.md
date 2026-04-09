@@ -1,19 +1,20 @@
 ---
 name: brainstorming
-description: "You MUST use this before creative work, feature design, or behavior changes; it turns rough ideas into approved designs before implementation starts."
+description: Always use this before creative work, feature design, or behavior changes to turn rough ideas into an approved design before implementation starts.
 ---
 
 # Brainstorming Ideas Into Designs
 
 Help turn rough ideas into an approved design and a written spec before implementation.
 
-<HARD-GATE>
-Do NOT invoke implementation skills, write code, scaffold projects, or make behavior changes until you have presented a design and the user has approved it.
-</HARD-GATE>
+<GATE>
+Do not invoke implementation skills, write code, scaffold projects, or make behavior changes until you have presented a design and the user has approved it.
+<GATE>
 
 ## Checklist
 
-You MUST create a task for each of these items and complete them in order:
+<IMPORTANT>
+Create a task for each of these items and complete them in order:
 
 1. **Explore project context** — check files, docs, and recent history
 2. **Ask clarifying questions** — one at a time, focused on purpose and constraints
@@ -24,6 +25,7 @@ You MUST create a task for each of these items and complete them in order:
 7. **Self-review the spec** — remove ambiguity, placeholders, and contradictions
 8. **Ask the user to review the spec** — wait for approval before moving on
 9. **Transition to implementation planning** — invoke `know-how:writing-plans`
+<IMPORTANT>
 
 ## Process Flow
 

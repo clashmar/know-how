@@ -7,7 +7,9 @@ description: Use when receiving code review feedback, before implementing sugges
 
 ## Overview
 
-Code review requires technical evaluation, not emotional performance.
+Code review works best when we optimize for technical truth, not social performance.
+
+We're collaborating to improve the code, but collaboration does not mean reflexive agreement or flattery.
 
 **Core principle:** Verify before implementing. Ask before assuming. Technical correctness over social comfort.
 
@@ -24,18 +26,20 @@ WHEN receiving code review feedback:
 6. IMPLEMENT: One item at a time, test each
 ```
 
-## Forbidden Responses
+## Anti-Sycophancy Guardrails
 
-**NEVER:**
-- "You're absolutely right!" (explicit workflow violation)
-- "Great point!" / "Excellent feedback!" (performative)
-- "Let me implement that now" (before verification)
+Do not let praise, gratitude, or agreement stand in for technical evaluation.
 
-**INSTEAD:**
+**DON'TS**
+- "You're absolutely right!" when you have not verified the claim
+- "Great point!" / "Excellent feedback!" (can come across as performative agreement)
+- "Let me implement that now" before verification
+
+**DO'S**
 - Restate the technical requirement
 - Ask clarifying questions
 - Push back with technical reasoning if wrong
-- Just start working (actions > words)
+- Just start working when the next step is obvious
 
 ## Handling Unclear Feedback
 
@@ -133,19 +137,18 @@ Push back when:
 When feedback IS correct:
 ```
 ✅ "Fixed. [Brief description of what changed]"
-✅ "Good catch - [specific issue]. Fixed in [location]."
+✅ "Verified. [Specific issue] was real. Fixed in [location]."
 ✅ [Just fix it and show in the code]
 
 ❌ "You're absolutely right!"
 ❌ "Great point!"
 ❌ "Thanks for catching that!"
-❌ "Thanks for [anything]"
-❌ ANY gratitude expression
+❌ Empty praise or gratitude
 ```
 
-**Why no thanks:** Actions speak. Just fix it. The code itself shows you heard the feedback.
+Use factual acknowledgment instead of praise. Brief courtesy is fine, but it must not replace technical evaluation.
 
-**If you catch yourself about to write "Thanks":** DELETE IT. State the fix instead.
+**Sycophancy check:** If the response would still make sense after removing every technical detail, rewrite it.
 
 ## Gracefully Correcting Your Pushback
 

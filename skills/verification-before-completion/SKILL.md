@@ -21,6 +21,8 @@ NO COMPLETION CLAIMS WITHOUT FRESH VERIFICATION EVIDENCE
 
 If you haven't run the verification command in this message, you cannot claim it passes.
 
+**Announce before claiming success:** "Verifying with `<command>` before I report status."
+
 ## The Gate Function
 
 ```
@@ -116,12 +118,11 @@ Skip any step = lying, not verifying
 
 ## Why This Matters
 
-From 24 failure memories:
-- your human partner said "I don't believe you" - trust broken
-- Undefined functions shipped - would crash
-- Missing requirements shipped - incomplete features
-- Time wasted on false completion → redirect → rework
-- Violates: "Honesty is a core value. If you lie, you'll be replaced."
+Without fresh verification evidence:
+- Teammates cannot trust completion claims
+- Broken code might be merged or shipped
+- Missing requirements get reported late, when they are more expensive to fix
+- False positives create avoidable rework
 
 ## When To Apply
 
