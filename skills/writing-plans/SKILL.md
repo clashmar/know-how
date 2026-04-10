@@ -27,18 +27,21 @@ Decide the testing strategy before writing tasks.
 
 Every plan MUST declare `Execution Autonomy` near the top before it is finalized.
 
+<GATE>
+If the user has not explicitly chosen an autonomy mode, stop and ask one question before finalizing the plan. Do not infer `Fully autonomous` or `Checkpointed` from context.
+<GATE>
+
 - `Fully autonomous` means execution continues task-to-task unless the execution skill hits a mandatory stop condition such as a blocker, missing context, repeated verification failure, a critical plan gap, or user interruption.
 - `Checkpointed` means execution pauses after every completed task and waits for user approval.
 
 In either mode, a task is not complete until the execution style's required verification and review work has succeeded.
 
-The plan must explicitly decide:
+The plan must explicitly state:
 
 - whether execution is `Fully autonomous` or `Checkpointed`
 - whether TDD is required or manual only
 - which behaviors need automated coverage
 - which changes should be verified manually
-- which low-value tests to avoid
 
 ## Testing Strategy Decision
 

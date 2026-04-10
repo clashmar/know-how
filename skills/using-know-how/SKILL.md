@@ -22,6 +22,9 @@ Know-how skills override default behavior, but **user instructions always take p
 3. **Default system behavior**
 
 If project guidance conflicts with a skill, follow the project guidance.
+## Verification Rule
+
+When a task affects a specific repo, do not claim completion until the workspace guidance checks are done.
 
 ## How to Access Skills
 
