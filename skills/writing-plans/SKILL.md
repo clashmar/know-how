@@ -25,8 +25,16 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 Decide the testing strategy before writing tasks.
 
+Every plan MUST declare `Execution Autonomy` near the top before it is finalized.
+
+- `Fully autonomous` means execution continues task-to-task unless the execution skill hits a mandatory stop condition such as a blocker, missing context, repeated verification failure, a critical plan gap, or user interruption.
+- `Checkpointed` means execution pauses after every completed task and waits for user approval.
+
+In either mode, a task is not complete until the execution style's required verification and review work has succeeded.
+
 The plan must explicitly decide:
 
+- whether execution is `Fully autonomous` or `Checkpointed`
 - whether TDD is required or manual only
 - which behaviors need automated coverage
 - which changes should be verified manually
@@ -123,6 +131,8 @@ Use only the steps the chosen testing strategy actually needs.
 **Architecture:** [2-3 sentences about approach]
 
 **Tech Stack:** [Key technologies/libraries]
+
+**Execution Autonomy:** Fully autonomous | Checkpointed
 
 ## Testing Approach
 
@@ -240,22 +250,27 @@ Fix minor consistency and placeholder issues inline. If you change scope or task
 
 ## Execution Handoff
 
-After saving the plan, offer execution choice:
+After saving the plan, offer execution style choice while preserving the declared autonomy contract:
 
-**"Plan complete and saved to `<path>`. Two execution options:**
+**"Plan complete and saved to `<path>`.
+This plan declares `Execution Autonomy: <mode>`.
 
-**1. Subagent-Driven** - I dispatch a fresh subagent per task, with spec and code-quality review between tasks, for fast iteration
+Two execution styles:**
 
-**2. Inline Execution** - Execute the plan directly using executing-plans, with checkpoints for review
+**1. Subagent-Driven** - I dispatch a fresh subagent per task, with dedicated spec and code-quality review.
 
-**Which approach?**
+**2. Inline Execution** - I execute the plan directly using executing-plans, while still performing required spec-compliance and code-quality review before a task is complete.
+
+Both styles must follow the declared autonomy mode exactly.
+
+**Which execution style do you want?**
 
 **If the user does not clearly choose:** Default to Subagent-Driven when subagents are available and the tasks are mostly independent. Otherwise use Inline Execution.
 
 **If Subagent-Driven chosen:**
 - **REQUIRED SUB-SKILL:** Use know-how:subagent-driven-development
-- Fresh subagent per task + two-stage review
+- Fresh subagent per task + two-stage review + follow the plan's declared autonomy mode
 
 **If Inline Execution chosen:**
 - **REQUIRED SUB-SKILL:** Use know-how:executing-plans
-- Batch execution with checkpoints for review
+- Execute the plan inline while following the plan's declared autonomy mode
