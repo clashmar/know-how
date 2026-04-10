@@ -25,11 +25,7 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 Decide the testing strategy before writing tasks.
 
-Every plan MUST declare `Execution Autonomy` near the top before it is finalized.
-
-<GATE>
-If the user has not explicitly chosen an autonomy mode, stop and ask one question before finalizing the plan. Do not infer `Fully autonomous` or `Checkpointed` from context.
-<GATE>
+Every plan MUST declare `Execution Autonomy` near the top before it is finalized, for the implementation phase that follows the plan. Stop and present a 1-2 option picker with arrow-key navigation and `Enter` to confirm before finalizing the plan. Do not infer `Fully autonomous` or `Checkpointed` from context.
 
 - `Fully autonomous` means execution continues task-to-task unless the execution skill hits a mandatory stop condition such as a blocker, missing context, repeated verification failure, a critical plan gap, or user interruption.
 - `Checkpointed` means execution pauses after every completed task and waits for user approval.
@@ -253,7 +249,7 @@ Fix minor consistency and placeholder issues inline. If you change scope or task
 
 ## Execution Handoff
 
-After saving the plan, offer execution style choice while preserving the declared autonomy contract:
+After saving the plan, offer execution style choice for implementing the plan while preserving the declared autonomy contract:
 
 **"Plan complete and saved to `<path>`.
 This plan declares `Execution Autonomy: <mode>`.
@@ -266,7 +262,7 @@ Two execution styles:**
 
 Both styles must follow the declared autonomy mode exactly.
 
-**Which execution style do you want?**
+**Which execution style do you want?** Present this as a 1-3 option picker with arrow-key navigation and `Enter` to confirm; do not require typed input for small choice sets.
 
 **If the user does not clearly choose:** Default to Subagent-Driven when subagents are available and the tasks are mostly independent. Otherwise use Inline Execution.
 
