@@ -1,6 +1,6 @@
 ---
 name: executing-plans
-description: Use when you have a written implementation plan to execute in a separate session with review checkpoints
+description: Use when you have a written implementation plan to execute directly with review checkpoints
 ---
 
 # Executing Plans
@@ -11,7 +11,7 @@ Load plan, review critically, execute all tasks, report when complete.
 
 **Announce at start:** "I'm using the executing-plans skill to implement this plan."
 
-**Note:** If subagents are available, prefer `know-how:subagent-driven-development` instead of this skill.
+**Use this skill when:** the inline execution path has been chosen for the plan, or when you need to execute a written implementation plan directly without subagents.
 
 ## The Process
 
