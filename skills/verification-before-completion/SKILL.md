@@ -107,7 +107,7 @@ Skip any step = lying, not verifying
 ❌ Trust agent report
 ```
 
-**Manual verification for non-TDD work:**
+**Manual verification for Manual only work:**
 ```
 ✅ Run the required build/lint/typecheck commands
 ✅ Open the affected UI or flow
@@ -140,11 +140,11 @@ Without fresh verification evidence:
 - Implications of success
 - ANY communication suggesting completion/correctness
 
-## If TDD Was Skipped
+## If The Plan Says Manual Only
 
-Skipping TDD does not lower the verification bar.
+`Manual only` does not lower the verification bar.
 
-When a task uses manual verification or non-TDD checks, you still need fresh evidence:
+When the plan says `TDD Decision: Manual only`, you still need fresh evidence:
 
 - run the required commands
 - perform the exact manual checks from the plan

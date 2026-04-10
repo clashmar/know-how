@@ -28,18 +28,10 @@ Use this skill when the plan or task has chosen TDD for work:
 
 ## When Not to Use
 
-Do not force this skill onto work that the plan has explicitly marked as non-TDD.
+Do not use this skill when the plan's `Testing Approach` says `TDD Decision: Manual only`.
 
-Skip TDD for:
-
-- presentation details with no behavior risk
-- copy or content edits
-- config changes
-- generated code
-- throwaway prototypes
-- codebases where the user explicitly does not want TDD for this work
-
-Skipping TDD does **not** mean skipping verification. Use manual verification or focused checks instead.
+`Manual only` means the plan does not call for automated tests for this work.
+It does not lower the verification bar. Follow the plan's manual verification steps exactly.
 
 ## The Iron Law
 
