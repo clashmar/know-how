@@ -94,39 +94,27 @@ Do not skip back directly to final options after making changes.
 
 Only after the user confirms the work looks good, present exactly these options:
 
-1. Merge back to <base-branch> locally
-2. Push and create a Pull Request
+1. Commit changes with message: <commit-message>
+2. Commit, Push and create a Pull Request
 3. Keep the branch as-is (I'll handle it later)
-4. Discard this work
 
 Keep the options concise. Git is the final integration stage here, not the purpose of the skill.
 
 ### Step 8: Execute The Chosen Option
 
-#### Option 1: Merge Locally
+#### Option 1: Commit changes
 
 ```bash
-# Switch to base branch
-git checkout <base-branch>
-
-# Pull latest
-git pull
-
-# Merge feature branch
-git merge <feature-branch>
-
-# Verify tests on merged result
-<test command>
-
-# If tests pass
-git branch -d <feature-branch>
+# Commit changes using this template: type(domain): brief summary of what this work commits
+git commit -m "<commit-message>"
 ```
 
-Then report completion and the resulting branch state.
-
-#### Option 2: Push and Create PR
+#### Option 2: Commit, Push and Create PR
 
 ```bash
+# Commit changes using this template: type(domain): brief summary of what this work commits
+git commit -m "<commit-message>"
+
 # Push branch
 git push -u origin <feature-branch>
 
@@ -147,27 +135,6 @@ Then report completion and the resulting PR or branch state.
 
 Report: "Keeping branch <name> as-is."
 
-#### Option 4: Discard
-
-Confirm first:
-
-```text
-This will permanently delete:
-- Branch <name>
-- All commits: <commit-list>
-
-Type 'discard' to confirm.
-```
-
-Wait for exact typed confirmation.
-
-If confirmed:
-
-```bash
-git checkout <base-branch>
-git branch -D <feature-branch>
-```
-
 Then report completion and the resulting branch state.
 
 ## Common Mistakes
@@ -180,7 +147,7 @@ Then report completion and the resulting branch state.
 ## Red Flags
 
 Never:
-- present merge/PR/keep/discard options before user review
+- present commit/PR/keep options before user review
 - treat "tests already pass" as permission to skip explicit completion-state verification
 - treat time pressure or a tempting fast path as permission to skip determining branch and base-branch context
 - skip residual artifact checks because "tests already pass"
