@@ -25,19 +25,12 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 Decide the testing strategy before writing tasks.
 
-Every plan MUST declare `Execution Autonomy` near the top before it is finalized, for the implementation phase that follows the plan. Stop and present a 1-2 option picker with arrow-key navigation and `Enter` to confirm before finalizing the plan. Do not infer `Fully autonomous` or `Checkpointed` from context.
+The plan MUST explicitly state:
 
-- `Fully autonomous` means execution continues task-to-task unless the execution skill hits a mandatory stop condition such as a blocker, missing context, repeated verification failure, a critical plan gap, or user interruption.
-- `Checkpointed` means execution pauses after every completed task and waits for user approval.
-
-In either mode, a task is not complete until the execution style's required verification and review work has succeeded.
-
-The plan must explicitly state:
-
-- whether execution is `Fully autonomous` or `Checkpointed`
 - whether TDD is required or manual only
 - which behaviors need automated coverage
 - which changes should be verified manually
+- whether execution is `Fully autonomous` or `Checkpointed`
 
 ## Testing Strategy Decision
 
@@ -115,6 +108,14 @@ For `Manual only` work, use verification-shaped steps such as:
 - "Confirm the listed manual checks pass" - step
 
 Use only the steps the chosen testing strategy actually needs.
+
+## Execution Autonomy
+As the final part of the planning process, let the user choose the `Execution Autonomy`. Stop and present a 1-2 option picker with arrow-key navigation and `Enter` to confirm before finalizing the plan. Do not infer `Fully autonomous` or `Checkpointed` from context.
+
+- `Fully autonomous` means execution continues task-to-task unless the execution skill hits a mandatory stop condition such as a blocker, missing context, repeated verification failure, a critical plan gap, or user interruption.
+- `Checkpointed` means execution pauses after every completed task and waits for user approval or feedback.
+
+In either mode, a task is not complete until the execution style's required verification and review work has succeeded.
 
 ## Plan Document Header
 
