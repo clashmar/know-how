@@ -5,11 +5,15 @@ description: Use when executing implementation plans with independent tasks in t
 
 # Subagent-Driven Development
 
-Execute plan by dispatching fresh subagent per task, with required verification plus two-stage review after each: spec compliance review first, then code quality review. Follow the plan's declared `Execution Autonomy` exactly.
+Execute plan by dispatching fresh subagent per task, with required verification plus two-stage review after each: spec compliance review first, then code quality review. Follow the plan's declared `Execution Autonomy` exactly. Keep work moving quickly.
 
 **Why subagents:** You delegate tasks to specialized agents with isolated context. By precisely crafting their instructions and context, you ensure they stay focused and succeed at their task. They should never inherit your session's context or history — you construct exactly what they need. This also preserves your own context for coordination work.
 
-**Core principle:** Fresh subagent per task + required verification + two-stage review (spec then quality) + strict plan-contract enforcement = high quality, predictable execution
+**Core principle:** Fresh implementer subagent per task + required verification + controller review + bounded async advisory review + strict plan-contract enforcement = high quality with **low review latency**. 
+
+<IMPORTANT>
+Keep things moving while maintaining quality gates. Instill urgency in reviewers to review quickly and implementers to fix quickly. You are responsible for keeping things flowing, they are responsible for doing their part well and quickly. Call out delays and blockers, and keep the momentum going.
+<IMPORTANT>
 
 ## When to Use
 
