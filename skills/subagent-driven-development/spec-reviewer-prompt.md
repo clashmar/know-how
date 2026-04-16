@@ -4,6 +4,8 @@ Use this template when dispatching a spec compliance reviewer subagent.
 
 **Purpose:** Verify implementer built what was requested (nothing more, nothing less)
 
+Code-quality review may run concurrently. Stay focused on requirements compliance only, and do not spend time on general code-style suggestions unless they block compliance.
+
 ```
 Task tool (general-purpose):
   description: "Review spec compliance for Task N"

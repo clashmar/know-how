@@ -4,7 +4,13 @@ Use this template when dispatching a code quality reviewer subagent.
 
 **Purpose:** Verify implementation is well-built (clean, tested, maintainable)
 
-**Only dispatch after spec compliance review passes.**
+This review may run concurrently with spec compliance review.
+
+Your approval does not complete the task unless spec compliance review also approves the same code state.
+
+If spec compliance review finds an issue for the current code state, the controller may cancel this review or discard its result and restart both reviews after the spec issue is fixed.
+
+Do not request scope-expanding changes. If a possible improvement would add behavior beyond the task or plan, flag it as out of scope instead of requesting implementation.
 
 ```
 Code-reviewer agent:

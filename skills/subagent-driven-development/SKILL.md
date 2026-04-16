@@ -5,11 +5,11 @@ description: Use when executing implementation plans with independent tasks in t
 
 # Subagent-Driven Development
 
-Execute plan by dispatching fresh subagent per task, with required verification plus two-stage review after each: spec compliance review first, then code quality review. Follow the plan's declared `Execution Autonomy` exactly. Keep work moving quickly.
+Execute plan by dispatching a fresh implementer subagent per task. After the task's verification steps from the plan pass, dispatch spec-compliance review and code-quality review in parallel. Spec review has precedence: if the spec reviewer finds an issue first, stop waiting for code-quality feedback, cancel or discard the concurrent code-quality review, fix the spec issue, re-run the task's verification steps, and then start both reviews again. Task execution is serial, and a task completes only when spec review and code-quality review both approve the same code state. Follow the plan's declared `Execution Autonomy` exactly. Keep work moving quickly.
 
 **Why subagents:** You delegate tasks to specialized agents with isolated context. By precisely crafting their instructions and context, you ensure they stay focused and succeed at their task. They should never inherit your session's context or history — you construct exactly what they need. This also preserves your own context for coordination work.
 
-**Core principle:** Fresh implementer subagent per task + required verification + controller review + bounded async advisory review + strict plan-contract enforcement = high quality with **low review latency**. 
+**Core principle:** Fresh implementer subagent per task + required verification + parallel review + strict plan-contract enforcement = fast feedback with tight scope control.
 
 <IMPORTANT>
 Keep things moving while maintaining quality gates. Instill urgency in reviewers to review quickly and implementers to fix quickly. You are responsible for keeping things flowing, they are responsible for doing their part well and quickly. Call out delays and blockers, and keep the momentum going.
@@ -38,7 +38,7 @@ digraph when_to_use {
 **vs. Executing Plans:**
 - Same session (no context switch)
 - Fresh subagent per task (no context pollution)
-- Two-stage review after each task: spec compliance first, then code quality
+- Spec-compliance and code-quality review start in parallel after the task's verification steps from the plan pass
 - Follows the plan's declared `Execution Autonomy` exactly
 
 ## The Process
@@ -53,15 +53,17 @@ digraph process {
         "Implementer subagent asks questions?" [shape=diamond];
         "Answer questions, provide context" [shape=box];
         "Implementer subagent implements, tests, self-reviews" [shape=box];
-        "Required verification passes?" [shape=diamond];
-        "Implementer subagent fixes verification issues" [shape=box];
-        "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" [shape=box];
-        "Spec reviewer subagent confirms code matches spec?" [shape=diamond];
-        "Implementer subagent fixes spec gaps" [shape=box];
-        "Re-run required verification after review fixes" [shape=box];
-        "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" [shape=box];
-        "Code quality reviewer subagent approves?" [shape=diamond];
-        "Implementer subagent fixes quality issues" [shape=box];
+        "Required verification steps pass?" [shape=diamond];
+        "Implementer subagent fixes task verification issues" [shape=box];
+        "Dispatch spec reviewer (./spec-reviewer-prompt.md) and code-quality reviewer (./code-quality-reviewer-prompt.md) in parallel" [shape=box];
+        "Spec reviewer (./spec-reviewer-prompt.md) approves?" [shape=diamond];
+        "Cancel or discard code-quality review for this code state" [shape=box];
+        "Code-quality review result ready?" [shape=diamond];
+        "Wait for remaining review result" [shape=box];
+        "Code-quality reviewer (./code-quality-reviewer-prompt.md) approves?" [shape=diamond];
+        "Implementer subagent fixes spec issues" [shape=box];
+        "Implementer subagent fixes code-quality issues" [shape=box];
+        "Re-run task verification steps after review fixes" [shape=box];
         "Mark task complete in TodoWrite" [shape=box];
         "Execution Autonomy is Checkpointed?" [shape=diamond];
         "Report status and wait for user approval" [shape=box];
@@ -79,19 +81,23 @@ digraph process {
     "Implementer subagent asks questions?" -> "Answer questions, provide context" [label="yes"];
     "Answer questions, provide context" -> "Dispatch implementer subagent (./implementer-prompt.md)";
     "Implementer subagent asks questions?" -> "Implementer subagent implements, tests, self-reviews" [label="no"];
-    "Implementer subagent implements, tests, self-reviews" -> "Required verification passes?";
-    "Required verification passes?" -> "Implementer subagent fixes verification issues" [label="no"];
-    "Implementer subagent fixes verification issues" -> "Implementer subagent implements, tests, self-reviews" [label="re-verify"];
-    "Required verification passes?" -> "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" [label="yes"];
-    "Dispatch spec reviewer subagent (./spec-reviewer-prompt.md)" -> "Spec reviewer subagent confirms code matches spec?";
-    "Spec reviewer subagent confirms code matches spec?" -> "Implementer subagent fixes spec gaps" [label="no"];
-    "Implementer subagent fixes spec gaps" -> "Re-run required verification after review fixes";
-    "Re-run required verification after review fixes" -> "Required verification passes?";
-    "Spec reviewer subagent confirms code matches spec?" -> "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" [label="yes"];
-    "Dispatch code quality reviewer subagent (./code-quality-reviewer-prompt.md)" -> "Code quality reviewer subagent approves?";
-    "Code quality reviewer subagent approves?" -> "Implementer subagent fixes quality issues" [label="no"];
-    "Implementer subagent fixes quality issues" -> "Re-run required verification after review fixes";
-    "Code quality reviewer subagent approves?" -> "Mark task complete in TodoWrite" [label="yes"];
+    "Implementer subagent implements, tests, self-reviews" -> "Task verification steps pass?";
+    "Task verification steps pass?" -> "Implementer subagent fixes task verification issues" [label="no"];
+    "Implementer subagent fixes task verification issues" -> "Implementer subagent implements, tests, self-reviews" [label="re-verify"];
+    "Task verification steps pass?" -> "Dispatch spec reviewer (./spec-reviewer-prompt.md) and code-quality reviewer (./code-quality-reviewer-prompt.md) in parallel" [label="yes"];
+    "Dispatch spec reviewer (./spec-reviewer-prompt.md) and code-quality reviewer (./code-quality-reviewer-prompt.md) in parallel" -> "Spec reviewer (./spec-reviewer-prompt.md) approves?";
+    "Dispatch spec reviewer (./spec-reviewer-prompt.md) and code-quality reviewer (./code-quality-reviewer-prompt.md) in parallel" -> "Code-quality review result ready?";
+    "Spec reviewer (./spec-reviewer-prompt.md) approves?" -> "Code-quality review result ready?" [label="yes"];
+    "Spec reviewer (./spec-reviewer-prompt.md) approves?" -> "Cancel or discard code-quality review for this code state" [label="no"];
+    "Cancel or discard code-quality review for this code state" -> "Implementer subagent fixes spec issues";
+    "Implementer subagent fixes spec issues" -> "Re-run task verification steps after review fixes";
+    "Code-quality review result ready?" -> "Wait for remaining review result" [label="no"];
+    "Wait for remaining review result" -> "Code-quality review result ready?";
+    "Code-quality review result ready?" -> "Code-quality reviewer (./code-quality-reviewer-prompt.md) approves?" [label="yes"];
+    "Code-quality reviewer (./code-quality-reviewer-prompt.md) approves?" -> "Mark task complete in TodoWrite" [label="yes"];
+    "Code-quality reviewer (./code-quality-reviewer-prompt.md) approves?" -> "Implementer subagent fixes code-quality issues" [label="no"];
+    "Implementer subagent fixes code-quality issues" -> "Re-run task verification steps after review fixes";
+    "Re-run task verification steps after review fixes" -> "Task verification steps pass?";
     "Mark task complete in TodoWrite" -> "Execution Autonomy is Checkpointed?";
     "Execution Autonomy is Checkpointed?" -> "Report status and wait for user approval" [label="yes"];
     "Execution Autonomy is Checkpointed?" -> "More tasks remain?" [label="no"];
@@ -109,12 +115,22 @@ digraph process {
 
 Before dispatching Task 1, read the plan's `Execution Autonomy` field.
 
-- `Fully autonomous`: after a task clears required verification, spec review, and code-quality review, mark it complete and continue to the next task.
+- `Fully autonomous`: after a task clears required verification, spec review approves, and code-quality review approves the same code state, mark it complete and continue to the next task.
 - `Checkpointed`: after a task clears required verification, spec review, and code-quality review, mark it complete, report status, and wait for user approval before starting the next task.
 
-These approval pauses happen after the task's required review and verification work is complete. They do not replace the review gates.
+These approval pauses happen after the task's verification and review work are complete. They do not replace the review gates.
 
-If either review requires code changes, re-run the task's required verification on the updated code before sending it back through review.
+If spec review finds an issue, cancel or discard the code-quality review for that code state, fix the spec issue, re-run the task's verification steps, and then start both reviews again.
+
+If code-quality review finds an issue after spec review approves, fix the code-quality issue, re-run the task's verification steps, and then start both reviews again.
+
+## Review Authority
+
+- spec reviewer authoritative on scope.
+- spec review has precedence over code-quality review for the current code state.
+- code-quality reviewer must stay within approved scope.
+- if spec review fails first, cancel or discard the code-quality review result for that code state.
+- code-quality feedback only matters after spec review approves the same code state.
 
 ## Model Selection
 
@@ -135,7 +151,7 @@ Use the least powerful model that can handle each role to conserve cost and incr
 
 Implementer subagents report one of four statuses. Handle each appropriately:
 
-**DONE:** Confirm the task's required verification passed, then proceed to spec compliance review.
+**DONE:** Confirm the task's verification steps passed, then dispatch both reviewers in parallel and watch the spec reviewer first.
 
 **DONE_WITH_CONCERNS:** The implementer completed the work but flagged doubts. Read the concerns before proceeding. If the concerns are about correctness or scope, address them before review. If they're observations (e.g., "this file is getting large"), note them and proceed only after the task's required verification has passed.
 
@@ -150,6 +166,26 @@ Implementer subagents report one of four statuses. Handle each appropriately:
 - `./implementer-prompt.md` - Dispatch implementer subagent
 - `./spec-reviewer-prompt.md` - Dispatch spec compliance reviewer subagent
 - `./code-quality-reviewer-prompt.md` - Dispatch code quality reviewer subagent
+
+## Per-Task Review Flow
+
+1. Run the task's verification steps from the plan.
+2. Dispatch `./spec-reviewer-prompt.md` and `./code-quality-reviewer-prompt.md` in parallel.
+3. Watch the spec reviewer first.
+4. If the spec reviewer reports any issue:
+   - stop waiting for code-quality feedback
+   - cancel the code-quality review if it is still running
+   - discard the code-quality result if it already returned
+   - send the spec issues to the implementer
+   - re-run the task's verification steps after the fix
+   - dispatch both reviewers again on the new code state
+5. If the spec reviewer approves:
+   - use the code-quality result if it already returned for the same code state
+   - otherwise wait for the code-quality result
+6. If the code-quality reviewer reports an issue after spec approval:
+   - send the issue to the implementer
+   - re-review code quality
+7. Mark the task complete only when both reviewers approve the same code state.
 
 ## Example Workflow
 
@@ -177,10 +213,8 @@ Implementer: "Got it. Implementing now..."
   - Self-review: Found I missed --force flag, added it
 
 [Confirm required task verification passed]
-[Dispatch spec compliance reviewer]
+[Get git SHAs, Dispatch spec compliance reviewer and code quality reviewer in parallel]
 Spec reviewer: ✅ Spec compliant - all listed requirements implemented, no unrequested behavior or options added
-
-[Get git SHAs, dispatch code quality reviewer]
 Code reviewer: Strengths: Good test coverage, clean. Issues: None. Approved.
 
 [Mark Task 1 complete]
@@ -197,24 +231,27 @@ Implementer:
   - 8/8 tests passing
   - Self-review: No additional issues found in this pass
 
-[Dispatch spec compliance reviewer]
+[Dispatch spec compliance reviewer and code quality reviewer in parallel]
 Spec reviewer: ❌ Issues:
   - Missing: Progress reporting (spec says "report every 100 items")
   - Extra: Added --json flag (not requested)
 
-[Implementer fixes issues]
-Implementer: Removed --json flag, added progress reporting
+Code reviewer: [cancelled or discarded because spec review failed first]
 
-[Spec reviewer reviews again]
+[Stop waiting for code-quality feedback]
+[Implementer fixes spec issues]
+Implementer: Removed --json flag and added progress reporting
+
+[Re-run the task's verification steps from the plan]
+[Dispatch both reviewers again]
 Spec reviewer: ✅ Spec compliant now
-
-[Dispatch code quality reviewer]
 Code reviewer: Strengths: Solid. Issues (Important): Magic number (100)
 
-[Implementer fixes]
+[Implementer fixes code-quality issues]
 Implementer: Extracted PROGRESS_INTERVAL constant
 
-[Code reviewer reviews again]
+[Dispatch code quality reviewer again]
+Spec reviewer: ✅ Spec compliant
 Code reviewer: ✅ Approved
 
 [Mark Task 2 complete]
@@ -252,7 +289,7 @@ Done!
 **Quality gates:**
 - Required verification before review and completion
 - Self-review catches issues before handoff
-- Two-stage review: spec compliance, then code quality
+- Parallel review gates
 - Review loops ensure fixes actually work
 - Final whole-implementation review before closing out work
 - Spec compliance prevents over/under-building
@@ -278,8 +315,9 @@ Done!
 - Accept "close enough" on spec compliance (spec reviewer found issues = not done)
 - Skip review loops (reviewer found issues = implementer fixes = review again)
 - Let implementer self-review replace actual review (both are needed)
-- **Start code quality review before spec compliance is ✅** (wrong order)
-- Move to next task while either review has open issues
+- Move to next task before **both** review gates approve the same code state
+- Wait for code-quality feedback after spec review already found an issue for the current code state
+- Reuse a code-quality result from a code state that spec review rejected
 - Ignore the plan's declared `Execution Autonomy`
 - Continue to the next task in `Checkpointed` mode without user approval
 - Treat `NEEDS_CONTEXT` or `BLOCKED` as permission to keep going without your human partner
@@ -290,11 +328,12 @@ Done!
 - Don't rush them into implementation
 
 **If reviewer finds issues:**
-- Implementer (same subagent) fixes them
-- Re-run the task's required verification on the updated code
-- Reviewer reviews again
-- Repeat until approved
-- Don't skip the re-review
+- If spec review finds an issue first, cancel or discard the code-quality review for that code state
+- Implementer (same subagent) fixes the reported issue
+- Re-run the task's verification steps on the updated code
+- Start both reviewers again on the updated code state
+- If spec review approves and code-quality review finds an issue, fix it and repeat code quality review
+- Don't skip re-reviews
 
 **After the final whole-implementation review:**
 - if blocking issues are found, fix them
