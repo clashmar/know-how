@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+if [ -n "${PI_CONFIG_DIR:-}" ]; then
+    CONFIG_DIR="$PI_CONFIG_DIR"
+elif [ -n "${XDG_CONFIG_HOME:-}" ]; then
+    CONFIG_DIR="$XDG_CONFIG_HOME/pi-agent"
+else
+    CONFIG_DIR="$HOME/.pi/agent"
+fi
+
+EXTENSION_DIR="$CONFIG_DIR/extensions"
+EXTENSION_FILE="$EXTENSION_DIR/know-how.ts"
+SKILLS_LINK="$CONFIG_DIR/skills/know-how"
+
+rm -f "$EXTENSION_FILE"
+rm -rf "$SKILLS_LINK"
+
+echo "Removed know-how from $CONFIG_DIR"

@@ -12,11 +12,13 @@ Dispatch the `code-reviewer` agent to catch issues before they cascade. The revi
 ## When to Request Review
 
 **Mandatory:**
+
 - After each task in subagent-driven development
 - After completing major feature
 - Before merge to main
 
 **Optional but valuable:**
+
 - When stuck (fresh perspective)
 - Before refactoring (baseline check)
 - After fixing complex bug
@@ -24,6 +26,7 @@ Dispatch the `code-reviewer` agent to catch issues before they cascade. The revi
 ## How to Request
 
 **1. Get git SHAs:**
+
 ```bash
 BASE_SHA=$(git rev-parse HEAD~1)  # or origin/main
 HEAD_SHA=$(git rev-parse HEAD)
@@ -31,9 +34,22 @@ HEAD_SHA=$(git rev-parse HEAD)
 
 **2. Dispatch code-reviewer subagent:**
 
-Use the `code-reviewer` agent and fill the template at `code-reviewer.md`.
+Use the `code-reviewer` agent. In pi, create it with:
+
+```
+subagent({ action: "create", config: { name: "code-reviewer", systemPrompt: "<from agents/code-reviewer.md>", tools: "read, bash, grep, find, ls" } })
+```
+
+Then dispatch:
+
+```
+subagent({ agent: "code-reviewer", task: "..." })
+```
+
+In OpenCode, use the native `Task` tool with the code-reviewer agent.
 
 **Placeholders:**
+
 - `{WHAT_WAS_IMPLEMENTED}` - What you just built
 - `{PLAN_OR_REQUIREMENTS}` - What it should do
 - `{BASE_SHA}` - Starting commit
@@ -41,6 +57,7 @@ Use the `code-reviewer` agent and fill the template at `code-reviewer.md`.
 - `{DESCRIPTION}` - Brief summary
 
 **3. Act on feedback:**
+
 - Fix Critical issues immediately
 - Fix Important issues before proceeding
 - Note Minor issues for later
@@ -58,7 +75,7 @@ HEAD_SHA=$(git rev-parse HEAD)
 
 [Dispatch code-reviewer agent]
   WHAT_WAS_IMPLEMENTED: Verification and repair functions for conversation index
-  PLAN_OR_REQUIREMENTS: Task 2 from ~/.config/opencode/projects/know-how/<project-name>/plans/deployment-plan.md
+  PLAN_OR_REQUIREMENTS: Task 2 from ~/.know-how/<project-name>/plans/deployment-plan.md
   BASE_SHA: a7981ec
   HEAD_SHA: 3df7661
   DESCRIPTION: Added verifyIndex() and repairIndex() with 4 issue types
@@ -77,27 +94,32 @@ You: [Fix progress indicators]
 ## Integration with Workflows
 
 **Subagent-Driven Development:**
+
 - Review after EACH task
 - Catch issues before they compound
 - Fix before moving to next task
 
 **Executing Plans:**
+
 - Review after each batch (3 tasks)
 - Get feedback, apply, continue
 
 **Ad-Hoc Development:**
+
 - Review before merge
 - Review when stuck
 
 ## Red Flags
 
 **Never:**
+
 - Skip review because "it's simple"
 - Ignore Critical issues
 - Proceed with unfixed Important issues
 - Argue with valid technical feedback
 
 **If reviewer wrong:**
+
 - Push back with technical reasoning
 - Show code/tests that prove it works
 - Request clarification

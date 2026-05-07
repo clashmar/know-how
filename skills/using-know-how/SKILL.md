@@ -1,6 +1,6 @@
 ---
 name: using-know-how
-description: Use when starting any conversation in OpenCode; establishes how to discover and apply know-how skills before responding or acting
+description: Use when starting any conversation; establishes how to discover and apply know-how skills before responding or acting
 ---
 
 <SUBAGENT-STOP>
@@ -22,15 +22,16 @@ Know-how skills override default behavior, but **user instructions always take p
 3. **Default system behavior**
 
 If project guidance conflicts with a skill, follow the project guidance.
+
 ## Verification Rule
 
 When a task affects a specific repo, do not claim completion until the workspace guidance checks are done.
 
 ## How to Access Skills
 
-Use OpenCode's `skill` tool. When you invoke a skill, its content is loaded for you to follow directly.
+Load a skill by reading its `SKILL.md` file directly or using the `/skill:name` command. When you load a skill, its content is available for you to follow directly.
 
-Do not read skill files directly unless the user specifically asks for file contents.
+Do not re-read a skill that is already loaded in context.
 
 ## The Rule
 
@@ -43,7 +44,7 @@ digraph skill_flow {
     "Already brainstormed?" [shape=diamond];
     "Invoke brainstorming skill" [shape=box];
     "Might any skill apply?" [shape=diamond];
-    "Invoke skill tool" [shape=box];
+    "Load skill" [shape=box];
     "Announce skill use" [shape=box];
     "Has checklist?" [shape=diamond];
     "Create TodoWrite items" [shape=box];
@@ -56,9 +57,9 @@ digraph skill_flow {
     "Already brainstormed?" -> "Invoke brainstorming skill" [label="no"];
     "Already brainstormed?" -> "Might any skill apply?" [label="yes"];
     "Invoke brainstorming skill" -> "Might any skill apply?";
-    "Might any skill apply?" -> "Invoke skill tool" [label="yes, even 1%"];
+    "Might any skill apply?" -> "Load skill" [label="yes, even 1%"];
     "Might any skill apply?" -> "Respond or act" [label="definitely not"];
-    "Invoke skill tool" -> "Announce skill use";
+    "Load skill" -> "Announce skill use";
     "Announce skill use" -> "Has checklist?";
     "Has checklist?" -> "Create TodoWrite items" [label="yes"];
     "Has checklist?" -> "Follow skill exactly" [label="no"];
@@ -71,14 +72,14 @@ digraph skill_flow {
 
 These thoughts mean stop and check for skills first:
 
-| Thought | Reality |
-|---------|---------|
-| "This is just a simple question" | Questions are tasks. Check for skills. |
-| "I need more context first" | Skill check comes before clarifying questions. |
-| "Let me explore the codebase first" | Skills tell you how to explore. |
-| "I remember this skill already" | Skills change. Load the current version. |
-| "I'll just do one thing first" | The skill check happens before action. |
-| "The skill is overkill" | Small tasks are where process gets skipped. |
+| Thought                             | Reality                                        |
+| ----------------------------------- | ---------------------------------------------- |
+| "This is just a simple question"    | Questions are tasks. Check for skills.         |
+| "I need more context first"         | Skill check comes before clarifying questions. |
+| "Let me explore the codebase first" | Skills tell you how to explore.                |
+| "I remember this skill already"     | Skills change. Load the current version.       |
+| "I'll just do one thing first"      | The skill check happens before action.         |
+| "The skill is overkill"             | Small tasks are where process gets skipped.    |
 
 ## Skill Priority
 
@@ -95,5 +96,6 @@ When multiple skills could apply, use this order:
 **Flexible skills**: adapt the guidance to the codebase and task.
 
 If a skill does not explicitly label itself, infer the type from its language:
+
 - hard gates, no-exception rules, and mandatory ordered steps usually mean rigid
 - adaptable guidance, codebase-sensitive wording, and explicit judgment calls usually mean flexible

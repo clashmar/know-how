@@ -13,8 +13,8 @@ If spec compliance review finds an issue for the current code state, the control
 Do not request scope-expanding changes. If a possible improvement would add behavior beyond the task or plan, flag it as out of scope instead of requesting implementation.
 
 ```
-Code-reviewer agent:
-  Use template at requesting-code-review/code-reviewer.md
+Subagent dispatch — code quality reviewer:
+  Use the code-reviewer agent template
 
   WHAT_WAS_IMPLEMENTED: [from implementer's report]
   PLAN_OR_REQUIREMENTS: Task N from [plan-file]
@@ -24,6 +24,7 @@ Code-reviewer agent:
 ```
 
 **In addition to standard code quality concerns, the reviewer should check:**
+
 - Does each file have one clear responsibility with a well-defined interface?
 - Are units decomposed so they can be understood and tested independently?
 - Is the implementation following the file structure from the plan?

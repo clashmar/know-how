@@ -15,9 +15,10 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 **Context:** This should be run in the current workspace unless the user explicitly asks for a different setup.
 
-**Save plans to:** `~/.config/opencode/projects/know-how/<project-name>/plans/YYYY-MM-DD-<feature-name>.md`
+**Save plans to:** `~/.know-how/<project-name>/plans/YYYY-MM-DD-<feature-name>.md`
+
 - Derive `<project-name>` from the current workspace basename and sanitize it for filesystem safety if creating from scratch
-- If `~/.config/opencode/projects/know-how/<project-name>/` does not exist, ask the user before creating it
+- If `~/.know-how/<project-name>/` does not exist, ask the user before creating it
 - If the user declines, ask where they want to save the plan and use that path for the rest of the process. If they decline again, write to the current context.
 - User preferences for plan location override this default
 
@@ -110,6 +111,7 @@ For `Manual only` work, use verification-shaped steps such as:
 Use only the steps the chosen testing strategy actually needs.
 
 ## Execution Autonomy
+
 As the final part of the planning process, let the user choose the `Execution Autonomy`. Stop and present a 1-2 option picker with arrow-key navigation and `Enter` to confirm before finalizing the plan. Do not infer `Fully autonomous` or `Checkpointed` from context.
 
 - `Fully autonomous` means execution continues task-to-task unless the execution skill hits a mandatory stop condition such as a blocker, missing context, repeated verification failure, a critical plan gap, or user interruption.
@@ -143,6 +145,7 @@ If the decision is `Manual only`, do not add automated tests.
 If the decision is `Required`, write the failing test first and follow TDD strictly.
 
 **Manual verification:**
+
 - [specific checks to perform]
 
 ---
@@ -150,10 +153,11 @@ If the decision is `Required`, write the failing test first and follow TDD stric
 
 ## Task Structure When TDD Is Required
 
-````markdown
+`````markdown
 ### Task N: [Component Name]
 
 **Files:**
+
 - Create: `exact/path/to/file.py`
 - Modify: `exact/path/to/existing.py:123-145`
 - Test: `tests/exact/path/to/test.py`
@@ -191,6 +195,7 @@ Expected: `[expected result]`
 ## No Placeholders
 
 Every step must contain the actual content an engineer needs. These are **plan failures** — never write them:
+
 - "TBD", "TODO", "implement later", "fill in details"
 - "Add appropriate error handling" / "add validation" / "handle edge cases"
 - "Write tests for the above" (without actual test code)
@@ -199,6 +204,7 @@ Every step must contain the actual content an engineer needs. These are **plan f
 - References to types, functions, or methods not defined in any task
 
 ## Remember
+
 - Exact file paths always
 - Complete code in every step — if a step changes code, show the code
 - Exact commands with expected output
@@ -210,6 +216,7 @@ Every step must contain the actual content an engineer needs. These are **plan f
 ### Task N: [Component Name]
 
 **Files:**
+
 - Create: `exact/path/to/file.sh`
 - Modify: `exact/path/to/existing.sh:10-40`
 
@@ -233,6 +240,7 @@ Expected: `[specific success marker]`
 
 Expected: no automated tests beyond those explicitly called for by the plan
 ````
+`````
 
 For `Manual only` tasks, do not add automated tests unless the plan is updated first.
 
@@ -252,10 +260,10 @@ Fix minor consistency and placeholder issues inline. If you change scope or task
 
 After saving the plan, offer execution style choice for implementing the plan while preserving the declared autonomy contract:
 
-**"Plan complete and saved to `<path>`.
+\*\*"Plan complete and saved to `<path>`.
 This plan declares `Execution Autonomy: <mode>`.
 
-Two execution styles:**
+Two execution styles:\*\*
 
 **1. Subagent-Driven** - I dispatch a fresh subagent per task, with dedicated spec and code-quality review.
 
@@ -268,9 +276,11 @@ Both styles must follow the declared autonomy mode exactly.
 **If the user does not clearly choose:** Default to Subagent-Driven when subagents are available and the tasks are mostly independent. Otherwise use Inline Execution.
 
 **If Subagent-Driven chosen:**
+
 - **REQUIRED SUB-SKILL:** Use know-how:subagent-driven-development
 - Fresh subagent per task + two-stage review + follow the plan's declared autonomy mode
 
 **If Inline Execution chosen:**
+
 - **REQUIRED SUB-SKILL:** Use know-how:executing-plans
 - Execute the plan inline while following the plan's declared autonomy mode

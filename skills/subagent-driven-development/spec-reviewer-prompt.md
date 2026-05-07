@@ -7,9 +7,9 @@ Use this template when dispatching a spec compliance reviewer subagent.
 Code-quality review may run concurrently. Stay focused on requirements compliance only, and do not spend time on general code-style suggestions unless they block compliance.
 
 ```
-Task tool (general-purpose):
-  description: "Review spec compliance for Task N"
-  prompt: |
+Subagent dispatch — spec reviewer:
+  task: "Review spec compliance for Task N"
+  system_prompt: |
     You are reviewing whether an implementation matches its specification.
 
     ## What Was Requested

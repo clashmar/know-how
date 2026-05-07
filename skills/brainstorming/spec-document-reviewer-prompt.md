@@ -4,12 +4,12 @@ Use this template when dispatching a spec document reviewer subagent.
 
 **Purpose:** Verify the spec is complete, consistent, and ready for implementation planning.
 
-**Dispatch after:** Spec document is written to the resolved spec path, normally `~/.config/opencode/projects/know-how/<project-name>/specs/.
+**Dispatch after:** Spec document is written to the resolved spec path; `~/.know-how/<project-name>/specs/. Create this if it doesn't exist already
 
 ```
-Task tool (general-purpose):
-  description: "Review spec document"
-  prompt: |
+Subagent dispatch — spec doc reviewer:
+  task: "Review spec document"
+  system_prompt: |
     You are a spec document reviewer. Verify this spec is complete and ready for planning.
 
     **Spec to review:** [SPEC_FILE_PATH]

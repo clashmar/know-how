@@ -36,6 +36,7 @@ digraph when_to_use {
 ```
 
 **vs. Executing Plans:**
+
 - Same session (no context switch)
 - Fresh subagent per task (no context pollution)
 - Spec-compliance and code-quality review start in parallel after the task's verification steps from the plan pass
@@ -143,6 +144,7 @@ Use the least powerful model that can handle each role to conserve cost and incr
 **Architecture, design, and review tasks**: use the most capable available model.
 
 **Task complexity signals:**
+
 - Touches 1-2 files with a complete spec → cheap model
 - Touches multiple files with integration concerns → standard model
 - Requires design judgment or broad codebase understanding → most capable model
@@ -192,7 +194,7 @@ Implementer subagents report one of four statuses. Handle each appropriately:
 ```
 You: I'm using Subagent-Driven Development to execute this plan.
 
-[Read plan file once: ~/.config/opencode/projects/know-how/<project-name>/plans/feature-plan.md]
+[Read plan file once: ~/.know-how/<project-name>/plans/feature-plan.md]
 [Read `Execution Autonomy` from the plan]
 [Extract all 5 tasks with full text and context]
 [Create TodoWrite with all tasks]
@@ -204,7 +206,7 @@ Task 1: Hook installation script
 
 Implementer: "Before I begin - should the hook be installed at user or system level?"
 
-You: "User level (~/.config/opencode/hooks/)"
+You: "User level (~/.config/hooks/)"
 
 Implementer: "Got it. Implementing now..."
 [Later] Implementer:
@@ -270,23 +272,27 @@ Done!
 ## Advantages
 
 **vs. Manual execution:**
+
 - Subagents follow the plan's testing strategy consistently
 - Fresh context per task (no confusion)
 - Parallel-safe (subagents don't interfere)
 - Subagent can ask questions (before AND during work)
 
 **vs. Executing Plans:**
+
 - Same session (no handoff)
 - Same autonomy contract, but with fresh subagent context per task
 - Review checkpoints automatic
 
 **Efficiency gains:**
+
 - No file reading overhead (controller provides full text)
 - Controller curates exactly what context is needed
 - Subagent gets complete information upfront
 - Questions surfaced before work begins (not after)
 
 **Quality gates:**
+
 - Required verification before review and completion
 - Self-review catches issues before handoff
 - Parallel review gates
@@ -297,6 +303,7 @@ Done!
 - `Checkpointed` mode adds user approval after each completed task
 
 **Cost:**
+
 - More subagent invocations (implementer + 2 reviewers per task)
 - Controller does more prep work (extracting all tasks upfront)
 - Review loops add iterations
@@ -305,6 +312,7 @@ Done!
 ## Red Flags
 
 **Never:**
+
 - Start implementation on main/master branch without explicit user consent
 - Skip reviews (spec compliance OR code quality)
 - Proceed with unfixed issues
@@ -323,11 +331,13 @@ Done!
 - Treat `NEEDS_CONTEXT` or `BLOCKED` as permission to keep going without your human partner
 
 **If subagent asks questions:**
+
 - Answer clearly and completely
 - Provide additional context if needed
 - Don't rush them into implementation
 
 **If reviewer finds issues:**
+
 - If spec review finds an issue first, cancel or discard the code-quality review for that code state
 - Implementer (same subagent) fixes the reported issue
 - Re-run the task's verification steps on the updated code
@@ -336,28 +346,34 @@ Done!
 - Don't skip re-reviews
 
 **After the final whole-implementation review:**
+
 - if blocking issues are found, fix them
 - re-run the relevant verification on the updated code
 - send the whole implementation back for final review
 - do not move to `closing-out-work` until the final reviewer approves
 
 **In both autonomy modes:**
+
 - do not continue past blockers, missing context, repeated verification failure, a critical plan gap or inconsistency, or user interruption
 - do not treat autonomy mode as permission to skip reviews or verification
 
 **If subagent fails task:**
+
 - Dispatch fix subagent with specific instructions
 - Don't try to fix manually (context pollution)
 
 ## Integration
 
 **Required workflow skills:**
+
 - **know-how:writing-plans** - Creates the plan this skill executes
 - **know-how:requesting-code-review** - Code review template for reviewer subagents
 - **know-how:closing-out-work** - Close out work after all tasks, get user review, then choose integration
 
 **Subagents should use:**
+
 - **know-how:test-driven-development** - Use when the plan's `Testing Approach` says `TDD Decision: Required`
 
 **Alternative workflow:**
+
 - **know-how:executing-plans** - Use for inline execution instead of fresh subagent-per-task execution

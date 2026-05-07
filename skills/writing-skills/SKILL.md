@@ -9,10 +9,10 @@ description: Use when creating new skills, editing existing skills, or verifying
 
 Writing skills is Test-Driven Development applied to process documentation.
 
-Skills live in OpenCode skill directories:
+Skills live in skill directories:
 
-- `~/.config/opencode/skills/` for personal skills
-- `.opencode/skills/` for project skills
+- `~/.pi/agent/skills/` for personal skills (pi) / `~/.config/opencode/skills/` (OpenCode)
+- `.pi/skills/` for project skills (pi) / `.opencode/skills/` (OpenCode)
 - bundled plugin `skills/` directories for distributed skill packs
 
 You run realistic scenarios, watch agents fail without the skill, write the skill, verify it works, and refactor to close loopholes.
@@ -31,13 +31,13 @@ A skill is a reusable reference guide for a technique, pattern, workflow, or too
 
 ## TDD Mapping
 
-| TDD Concept | Skill Creation |
-|-------------|----------------|
-| Test case | Pressure scenario with a subagent |
-| Production code | `SKILL.md` |
-| RED | Agent violates rule without skill |
-| GREEN | Agent complies with skill present |
-| REFACTOR | Close loopholes and re-test |
+| TDD Concept     | Skill Creation                    |
+| --------------- | --------------------------------- |
+| Test case       | Pressure scenario with a subagent |
+| Production code | `SKILL.md`                        |
+| RED             | Agent violates rule without skill |
+| GREEN           | Agent complies with skill present |
+| REFACTOR        | Close loopholes and re-test       |
 
 The whole process is RED-GREEN-REFACTOR.
 
@@ -96,18 +96,23 @@ description: Use when [specific triggers or symptoms]
 # Skill Name
 
 ## Overview
+
 Core idea in 1-2 sentences.
 
 ## When to Use
+
 Concrete triggers and situations.
 
 ## Core Pattern
+
 Show the key workflow or decision pattern.
 
 ## Quick Reference
+
 Short table or bullets for scanning.
 
 ## Common Mistakes
+
 What goes wrong and how to recover.
 ```
 
