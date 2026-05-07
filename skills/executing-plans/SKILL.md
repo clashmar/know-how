@@ -29,13 +29,14 @@ TodoWrite rules:
 7. If review requires more changes, move the same task back to `in_progress` instead of creating a new todo item.
 8. Mark the task `completed` only after all required work for that task is finished.
 9. In `Checkpointed` mode, wait for user approval only after marking the current task `completed`.
-</IMPORTANT>
+   </IMPORTANT>
 
 ## Process Flow
 
 ```dot
 digraph execution {
     "Read plan, extract tasks, and create TodoWrite" [shape=box];
+    "Prepare worktree" [shape=box];
     "Implement current task" [shape=box];
     "Required verification passes?" [shape=diamond];
     "Fix verification issues" [shape=box];
@@ -49,7 +50,8 @@ digraph execution {
     "More tasks remain?" [shape=diamond];
     "Invoke closing-out-work" [shape=doublecircle];
 
-    "Read plan, extract tasks, and create TodoWrite" -> "Implement current task";
+    "Read plan, extract tasks, and create TodoWrite" -> "Prepare worktree";
+    "Prepare worktree" -> "Implement current task";
     "Implement current task" -> "Required verification passes?";
     "Required verification passes?" -> "Fix verification issues" [label="no"];
     "Fix verification issues" -> "Implement current task";
@@ -72,13 +74,44 @@ digraph execution {
 ## The Process
 
 ### Step 1: Load and Review Plan
+
 1. Read plan file
 2. Read the plan's declared `Execution Autonomy`
 3. Review critically - identify any questions or concerns about the plan
 4. If concerns: Raise them with your human partner before starting
 5. If no concerns: Create TodoWrite from the exact plan task headings and proceed
 
-### Step 2: Execute Tasks
+### Step 1.5: Isolate in a Worktree
+
+Before touching any code, create a git worktree to isolate the work from your main checkout:
+
+```bash
+# 1. Note where you are
+git branch --show-current          # store as $ORIGINAL_BRANCH
+git rev-parse --show-toplevel      # store as $REPO_ROOT
+
+# 2. Check the working tree is clean
+git status --porcelain
+# If dirty: "Working tree has uncommitted changes. Stash them and proceed, or abort?"
+
+# 3. Derive a worktree branch name from the plan
+#    e.g. plan title "Add Auth Refactor" → branch: "feature-auth-refactor"
+#    Sanitize: lowercase, hyphens, no special chars
+
+# 4. Create the worktree
+git worktree add ../<project>-<feature> -b <feature-branch>
+
+# 5. Work from the worktree
+cd ../<project>-<feature>
+```
+
+The agent now works entirely inside the worktree. Commits, tests, file edits — all happen there.
+The original checkout stays untouched on its original branch.
+
+**If a worktree for this branch already exists**, `cd` into it instead of creating a new one.
+
+**If the user says "no worktree"** or the repo can't support worktrees (bare repo, submodule),
+skip this step and work on the current branch as normal.
 
 Before executing tasks, read `Execution Autonomy` from the plan.
 
@@ -92,6 +125,7 @@ The spec-compliance review and code-quality review are separate mandatory gates 
 If either review leads to code changes, re-run the task's required verification on the updated code, then re-run spec-compliance review and code-quality review before marking the task complete.
 
 For each task:
+
 1. Mark the matching TodoWrite item as `in_progress`
 2. Follow each step exactly (plan has bite-sized steps)
 3. Run verifications as specified
@@ -104,6 +138,7 @@ For each task:
 ### Step 3: Complete Development
 
 After all tasks complete and verified:
+
 - Run one final whole-implementation code-quality review before closing out the work
 - If that final review requires code changes, re-run the relevant verification and review on the updated code before continuing
 - Announce: "I'm using the closing-out-work skill to complete this work."
@@ -113,6 +148,7 @@ After all tasks complete and verified:
 ## When to Stop and Ask for Help
 
 **STOP executing immediately when:**
+
 - Hit a blocker (missing dependency, test fails, instruction unclear)
 - Plan has critical gaps preventing starting
 - You don't understand an instruction
@@ -125,12 +161,14 @@ After all tasks complete and verified:
 ## When to Revisit Earlier Steps
 
 **Return to Review (Step 1) when:**
+
 - Partner updates the plan based on your feedback
 - Fundamental approach needs rethinking
 
 **Don't force through blockers** - stop and ask.
 
 ## Remember
+
 - Review plan critically first
 - Read and follow the plan's `Execution Autonomy` exactly
 - Create TodoWrite from the exact plan task headings only
@@ -149,6 +187,7 @@ After all tasks complete and verified:
 ## Integration
 
 **Required workflow skills:**
+
 - **know-how:writing-plans** - Creates the plan this skill executes
 - **know-how:requesting-code-review** - Use for focused code review on risky, behavior-changing, or multi-file tasks
 - **know-how:closing-out-work** - Close out work after all tasks, get user review, then choose integration

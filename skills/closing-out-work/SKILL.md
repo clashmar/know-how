@@ -40,6 +40,12 @@ Do this before cleanup, review, or PR talk so the close-out work stays tied to t
 # Identify current branch
 git branch --show-current
 
+# Detect if we're in a worktree
+git worktree list
+# If the current path shows "(detached)" or is a worktree path,
+# store the original branch (the one visible from the main repo)
+# and note: "Working in a worktree — will merge back on close-out."
+
 # Infer a likely base branch name
 git symbolic-ref refs/remotes/origin/HEAD --short 2>/dev/null | sed 's#^origin/##'
 ```
@@ -51,6 +57,7 @@ If that does not return one clear branch name, check common local branch names l
 Before asking for review or showing options, inspect the work for leftovers that should not ride along just because verification passed.
 
 Check explicitly for:
+
 - temp files from testing or manual experiments
 - generated leftovers that should be removed or regenerated cleanly
 - redundant code from earlier iterations
@@ -66,6 +73,7 @@ Review the completed work once more before asking the user to look at it.
 Ask yourself: what is a careful reviewer likely to flag next?
 
 Look for:
+
 - violations of style or conventions that should be fixed before review
 - unclear naming or structure
 - missing cleanup from the final implementation
@@ -82,6 +90,7 @@ Do not present merge, PR, keep, or discard options before the user has had a cha
 ### Step 6: Handle Feedback Loop
 
 If the user gives feedback, route back through the same gates in order:
+
 1. Apply the feedback
 2. Re-run verification
 3. Re-check for residual artifacts
@@ -92,11 +101,27 @@ Do not skip back directly to final options after making changes.
 
 ### Step 7: Present Final Options After User Confirmation
 
-Only after the user confirms the work looks good, present exactly these options:
+Only after the user confirms the work looks good.
+
+**If working in a worktree** (detected in Step 2), merge back first:
+
+```bash
+# From the original repo (not the worktree)
+cd $REPO_ROOT
+git merge <worktree-branch>
+
+# Clean up the worktree
+git worktree remove ../<project>-<feature>
+git branch -d <worktree-branch>  # optional, branch is merged
+```
+
+Then present exactly these options:
 
 1. Commit changes with message: <commit-message>
 2. Commit, Push and create a Pull Request
 3. Keep the branch as-is (I'll handle it later)
+
+**If not in a worktree**, present these options directly.
 
 Keep the options concise. Git is the final integration stage here, not the purpose of the skill.
 
@@ -147,6 +172,7 @@ Then report completion and the resulting branch state.
 ## Red Flags
 
 Never:
+
 - present commit/PR/keep options before user review
 - treat "tests already pass" as permission to skip explicit completion-state verification
 - treat time pressure or a tempting fast path as permission to skip determining branch and base-branch context
@@ -157,6 +183,7 @@ Never:
 - discard work without typed confirmation
 
 Always:
+
 - get verification passing first
 - sweep for residual artifacts before review
 - ask the user to review before presenting final options

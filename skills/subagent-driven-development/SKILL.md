@@ -71,13 +71,15 @@ digraph process {
     }
 
     "Read plan, extract all tasks with full text, note context, read Execution Autonomy, create TodoWrite" [shape=box];
+    "Prepare worktree" [shape=box];
     "More tasks remain?" [shape=diamond];
     "Dispatch final code reviewer subagent for entire implementation" [shape=box];
     "Final reviewer approves whole implementation?" [shape=diamond];
     "Fix final review issues, re-run relevant verification, and re-review" [shape=box];
     "Use know-how:closing-out-work to close out work, get user review, then choose integration" [shape=box style=filled fillcolor=lightgreen];
 
-    "Read plan, extract all tasks with full text, note context, read Execution Autonomy, create TodoWrite" -> "Dispatch implementer subagent (./implementer-prompt.md)";
+    "Read plan, extract all tasks with full text, note context, read Execution Autonomy, create TodoWrite" -> "Prepare worktree";
+    "Prepare worktree" -> "Dispatch implementer subagent (./implementer-prompt.md)";
     "Dispatch implementer subagent (./implementer-prompt.md)" -> "Implementer subagent asks questions?";
     "Implementer subagent asks questions?" -> "Answer questions, provide context" [label="yes"];
     "Answer questions, provide context" -> "Dispatch implementer subagent (./implementer-prompt.md)";
@@ -111,6 +113,33 @@ digraph process {
     "Fix final review issues, re-run relevant verification, and re-review" -> "Dispatch final code reviewer subagent for entire implementation";
 }
 ```
+
+## Isolate in a Worktree
+
+Before dispatching any subagents, create a git worktree. The controller orchestrates from the original session but subagents work in the isolated checkout:
+
+```bash
+# 1. Note where you are
+git branch --show-current          # store as $ORIGINAL_BRANCH
+git rev-parse --show-toplevel      # store as $REPO_ROOT
+
+# 2. Check the working tree is clean
+git status --porcelain
+# If dirty: "Working tree has uncommitted changes. Stash and proceed, or abort?"
+
+# 3. Derive a worktree branch name from the plan
+#    e.g. plan title "Add Auth Refactor" → branch: "feature-auth-refactor"
+
+# 4. Create the worktree
+git worktree add ../<project>-<feature> -b <feature-branch>
+```
+
+Each subagent task includes `cwd: /path/to/worktree` so they edit files there.
+Commits happen in the worktree. The original checkout stays untouched.
+
+**If a worktree for this branch already exists**, reuse it.
+
+**If the user says "no worktree"**, skip and work on the current branch.
 
 ## Execution Autonomy
 
