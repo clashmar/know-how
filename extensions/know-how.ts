@@ -275,23 +275,12 @@ const getBootstrapContent = (): string | null => {
 	const fullContent = fs.readFileSync(USING_KNOW_HOW_PATH, "utf8");
 	const { content } = extractAndStripFrontmatter(fullContent);
 
-	const toolMapping = `**Tool Mapping for pi:**
-When skills reference tools you don't have, substitute pi equivalents:
-- \`TodoWrite\` → use the \`todo\` tool (create/update/list/delete — same semantics)
-- \`Task\` / subagent dispatch → use the \`subagent\` tool
-- \`Skill\` tool / OpenCode's skill tool → read the SKILL.md file directly, or use \`/skill:name\`
-- \`Read\`, \`Write\`, \`Edit\`, \`Bash\` → your native tools (same names)
-
-**Artifact paths:** Use \`~/.know-how/<project>/\` for specs and plans (cross-harness convention).`;
-
 	_bootstrapContent = `<EXTREMELY_IMPORTANT>
 Know-how is available in this session.
 
 **IMPORTANT: The using-know-how skill content is included below. It is ALREADY LOADED — you are currently following it. Do NOT read the SKILL.md file again — that would be redundant.**
 
 ${content}
-
-${toolMapping}
 </EXTREMELY_IMPORTANT>`;
 
 	return _bootstrapContent;
