@@ -9,7 +9,7 @@ description: Use when implementation is complete, verification is passing, and y
 
 Close out implementation by verifying it, cleaning up residual artifacts, anticipating likely feedback, asking the user to review the work, and only after user confirmation presenting final integration options.
 
-**Core principle:** Verify -> determine context -> clean up -> anticipate feedback -> ask for review -> feedback loop if needed -> then choose integration.
+**Core principle:** Verify -> determine context -> clean up -> anticipate feedback -> reflect -> ask for review -> feedback loop if needed -> then choose integration.
 
 **Announce at start:** "I'm using the closing-out-work skill to complete this work."
 
@@ -80,6 +80,27 @@ Look for:
 - small follow-up fixes that are faster to address now than in review
 
 If you change anything here, return to verification before moving on.
+
+### Step 4.5: Reflect
+
+Before presenting the work for review, capture what was learned:
+
+Call `/reflect` (or write the reflection manually) to record key decisions,
+user corrections, and recurring problems from this work.
+
+The reflection should cover everything from this work unit:
+
+- Decisions made and why
+- Any user corrections or steering received
+- Mistakes and their fixes
+- Patterns that recurred (check prior reflections in
+  `~/.know-how/<project>/reflections/`)
+- Remaining work or follow-ups
+
+Persist key decisions and lessons to pi-memory via `memory_remember`.
+Remove any stale facts via `memory_forget`.
+
+If this was trivial work with no decisions or corrections, skip this step.
 
 ### Step 5: Ask The User To Review The Work
 

@@ -8,13 +8,18 @@
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
 // ---------------------------------------------------------------------------
 // Path resolution
 // ---------------------------------------------------------------------------
 
-const SKILLS_DIR = path.resolve(__dirname, "../skills");
+const SKILLS_DIR = (() => {
+	const deployed = path.resolve(__dirname, "../skills", "know-how");
+	if (fs.existsSync(deployed)) return deployed;
+	return path.resolve(__dirname, "../skills");
+})();
 const USING_KNOW_HOW_PATH = path.join(SKILLS_DIR, "using-know-how", "SKILL.md");
 
 // ---------------------------------------------------------------------------
@@ -45,6 +50,213 @@ const extractAndStripFrontmatter = (
 
 	return { frontmatter, content: body };
 };
+
+// ---------------------------------------------------------------------------
+// pi-memory lazy import (best-effort — if not installed, catch-up uses files only)
+// ---------------------------------------------------------------------------
+
+let _piMemory: any;
+
+function getPiMemory(): any {
+	if (_piMemory !== undefined) return _piMemory;
+	try {
+		_piMemory = require("@samfp/pi-memory");
+	} catch {
+		_piMemory = null;
+	}
+	return _piMemory;
+}
+
+// ---------------------------------------------------------------------------
+// Project name derivation (matches writing-plans convention)
+// ---------------------------------------------------------------------------
+
+function getProjectName(cwd: string): string {
+	return path
+		.basename(cwd)
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, "-")
+		.replace(/^-|-$/g, "");
+}
+
+// ---------------------------------------------------------------------------
+// Reflection file helpers
+// ---------------------------------------------------------------------------
+
+const REFLECTIONS_DIR = (projectName: string): string =>
+	path.join(os.homedir(), ".know-how", projectName, "reflections");
+
+interface ReflectionSummary {
+	date: string;
+	topic: string;
+	scope: string;
+	recurring: string[];
+	remaining: string[];
+}
+
+function parseReflection(filePath: string): ReflectionSummary | null {
+	try {
+		const raw = fs.readFileSync(filePath, "utf8");
+		const name = path.basename(filePath, ".md");
+		// Filename format: YYYY-MM-DD-topic.md
+		const dateMatch = name.match(/^(\d{4}-\d{2}-\d{2})-(.+)$/);
+
+		// Extract sections
+		const scopeMatch = raw.match(/\*\*Scope:\*\*\s*(.+)/);
+		const recurringSection = extractListSection(
+			raw,
+			"Recurring problems to watch",
+		);
+		const remainingSection = extractListSection(raw, "Remaining work");
+
+		return {
+			date: dateMatch ? dateMatch[1] : "",
+			topic: dateMatch ? dateMatch[2].replace(/-/g, " ") : name,
+			scope: scopeMatch ? scopeMatch[1].trim() : "",
+			recurring: recurringSection,
+			remaining: remainingSection,
+		};
+	} catch {
+		return null;
+	}
+}
+
+/** Extract list items from a named markdown section. */
+function extractListSection(raw: string, sectionName: string): string[] {
+	const regex = new RegExp(`## ${sectionName}\\n((?:- .+\\n?)*)`, "m");
+	const match = raw.match(regex);
+	if (!match || !match[1]) return [];
+	return match[1]
+		.split("\n")
+		.map((line) => line.replace(/^- /, "").trim())
+		.filter((line) => line.length > 0);
+}
+
+function getRecentReflections(
+	projectName: string,
+): { file: string; summary: ReflectionSummary }[] {
+	const dir = REFLECTIONS_DIR(projectName);
+	if (!fs.existsSync(dir)) return [];
+
+	const files = fs
+		.readdirSync(dir)
+		.filter((f) => f.endsWith(".md"))
+		.sort()
+		.reverse()
+		.slice(0, 2);
+
+	const results: { file: string; summary: ReflectionSummary }[] = [];
+	for (const file of files) {
+		const summary = parseReflection(path.join(dir, file));
+		if (summary) results.push({ file, summary });
+	}
+	return results;
+}
+
+// ---------------------------------------------------------------------------
+// Catch-up content synthesis
+// ---------------------------------------------------------------------------
+
+interface CatchUpResult {
+	block: string;
+	summary: string;
+}
+
+function buildCatchUpBlock(projectName: string): CatchUpResult | null {
+	const reflections = getRecentReflections(projectName);
+	const piMemory = getPiMemory();
+
+	let piFacts: string[] = [];
+	if (piMemory) {
+		let store: any = null;
+		try {
+			const dbPath = piMemory.resolveDbPath(process.cwd());
+			store = new piMemory.MemoryStore(dbPath);
+			const results = store.searchSemantic(projectName, 10);
+			piFacts = results.map((r: any) => `${r.key}: ${r.value}`);
+		} catch {
+			// pi-memory query failed — continue without it
+		} finally {
+			if (store) store.close();
+		}
+	}
+
+	if (reflections.length === 0 && piFacts.length === 0) return null;
+
+	const lines: string[] = [];
+	lines.push("<project-state>");
+	lines.push(`You're working on **${projectName}**.`);
+	lines.push("");
+
+	// Recent reflections
+	if (reflections.length > 0) {
+		lines.push("Recent reflections:");
+		for (const { summary } of reflections) {
+			const scopeSuffix = summary.scope ? ` — ${summary.scope}` : "";
+			lines.push(`- ${summary.date}: ${summary.topic}${scopeSuffix}`);
+		}
+		lines.push("");
+
+		// Recurring problems
+		const allRecurring = reflections.flatMap((r) => r.summary.recurring);
+		if (allRecurring.length > 0) {
+			lines.push("Recurring patterns to watch:");
+			for (const item of allRecurring) {
+				lines.push(`- ${item}`);
+			}
+			lines.push("");
+		}
+	}
+
+	// pi-memory facts
+	if (piFacts.length > 0) {
+		lines.push("Key facts from memory:");
+		for (const fact of piFacts.slice(0, 8)) {
+			lines.push(`- ${fact}`);
+		}
+		lines.push("");
+	}
+
+	// Remaining work
+	const allRemaining = reflections.flatMap((r) => r.summary.remaining);
+	if (allRemaining.length > 0) {
+		lines.push("Active decisions that may still need work:");
+		for (const item of allRemaining) {
+			lines.push(`- ${item}`);
+		}
+		lines.push("");
+	}
+
+	lines.push("");
+	lines.push(
+		"This is context for your next task — no exploration or action needed. Continue to the user's request.",
+	);
+	lines.push("</project-state>");
+
+	const block = lines.join("\n");
+
+	// Build summary for notification
+	const parts: string[] = [];
+	if (reflections.length > 0) {
+		const topics = reflections.map((r) => r.summary.topic).join(", ");
+		parts.push(
+			`${reflections.length} reflection${reflections.length > 1 ? "s" : ""} (${topics})`,
+		);
+	}
+	if (piFacts.length > 0) {
+		parts.push(`${piFacts.length} memory fact${piFacts.length > 1 ? "s" : ""}`);
+	}
+	const summary = `Caught up: ${parts.join(", ")}`;
+
+	// Size guard: cap at 3KB
+	let finalBlock = block;
+	if (Buffer.byteLength(block, "utf8") > 3072) {
+		const truncated = block.slice(0, 2800);
+		finalBlock = truncated + "\n...(trimmed for length)\n</project-state>";
+	}
+
+	return { block: finalBlock, summary };
+}
 
 // ---------------------------------------------------------------------------
 // Bootstrap content builder
@@ -114,6 +326,15 @@ const SKILL_ROUTES: Record<string, { label: string; skill: string }> = {
 		label: "close-out — Verify, clean up, and integrate finished work",
 		skill: "closing-out-work",
 	},
+	reflect: {
+		label:
+			"reflect — Capture session reflection (decisions, corrections, lessons)",
+		skill: "session-reflection",
+	},
+	"catch-up": {
+		label: "catch-up — Reconstruct project context from reflections + memory",
+		skill: "session-reflection",
+	},
 };
 
 const MENU_OPTIONS = Object.entries(SKILL_ROUTES).map(
@@ -162,6 +383,52 @@ export default function (pi: ExtensionAPI) {
 		};
 	});
 
+	// Inject catch-up context on first user message of each session
+	pi.on("before_agent_start", async (event, ctx) => {
+		// Prevent double-injection within the same session
+		const entries = ctx.sessionManager.getEntries();
+		const alreadyInjected = entries.some(
+			(e) => e.type === "custom" && e.customType === "know-how-catch-up",
+		);
+		if (alreadyInjected) return;
+
+		const projectName = getProjectName(ctx.cwd);
+		const result = buildCatchUpBlock(projectName);
+		if (!result) return; // silent no-op when nothing to catch up on
+
+		return {
+			message: {
+				customType: "know-how-catch-up",
+				content: result.block,
+				display: false,
+			},
+		};
+	});
+
+	// Prompt for reflection on session exit (non-blocking)
+	pi.on("session_before_switch", async (_event, ctx) => {
+		// Count user messages in current session
+		const entries = ctx.sessionManager.getEntries();
+		const userMessageCount = entries.filter(
+			(e) => e.type === "message" && (e as any).message?.role === "user",
+		).length;
+
+		if (userMessageCount >= 5) {
+			ctx.ui.setStatus(
+				"know-how",
+				"💭 Consider /reflect to capture what you learned",
+			);
+			// Clear after 5 seconds — non-blocking, does not delay exit
+			setTimeout(() => {
+				try {
+					ctx.ui.setStatus("know-how", "");
+				} catch {
+					/* ctx stale — harmless */
+				}
+			}, 5000);
+		}
+	});
+
 	// Register /know-how command with workflow menu
 	pi.registerCommand("know-how", {
 		description:
@@ -170,6 +437,30 @@ export default function (pi: ExtensionAPI) {
 			// Direct routing: /know-how brainstorm
 			if (args) {
 				const key = args.trim().toLowerCase();
+
+				// Special case: /catch-up injects the synthesized block directly
+				if (key === "catch-up") {
+					const projectName = getProjectName(ctx.cwd);
+					const result = buildCatchUpBlock(projectName);
+					if (result) {
+						pi.sendMessage(
+							{
+								customType: "know-how-catch-up",
+								content: result.block,
+								display: false,
+							},
+							{ deliverAs: "steer" },
+						);
+						ctx.ui.notify(result.summary, "info");
+					} else {
+						ctx.ui.notify(
+							"No reflections or project memory found for this project.",
+							"info",
+						);
+					}
+					return;
+				}
+
 				const route = SKILL_ROUTES[key];
 				if (route) {
 					const skillContent = loadSkillContent(route.skill);
@@ -228,6 +519,59 @@ export default function (pi: ExtensionAPI) {
 					}
 					break;
 				}
+			}
+		},
+	});
+
+	// Register /reflect command
+	pi.registerCommand("reflect", {
+		description:
+			"Capture a session reflection (decisions, corrections, recurring problems)",
+		handler: async (args, ctx) => {
+			const skillContent = loadSkillContent("session-reflection");
+			if (!skillContent) {
+				ctx.ui.notify("session-reflection skill not found", "error");
+				return;
+			}
+			const bootstrap = getBootstrapContent();
+			let content = `${bootstrap ?? ""}\n\n<LOADED_SKILL name="session-reflection">\n${skillContent}\n</LOADED_SKILL>`;
+			if (args) {
+				content += `\n\nUser specified topic: ${args}`;
+			}
+			pi.sendMessage(
+				{
+					customType: "know-how-skill-load",
+					content,
+					display: false,
+				},
+				{ deliverAs: "steer", triggerTurn: true },
+			);
+			const topicInfo = args ? ` (topic: ${args})` : "";
+			ctx.ui.notify(`Loaded session-reflection skill${topicInfo}`, "info");
+		},
+	});
+
+	// Register /catch-up command
+	pi.registerCommand("catch-up", {
+		description: "Reconstruct project context from reflections and pi-memory",
+		handler: async (_args, ctx) => {
+			const projectName = getProjectName(ctx.cwd);
+			const result = buildCatchUpBlock(projectName);
+			if (result) {
+				pi.sendMessage(
+					{
+						customType: "know-how-catch-up",
+						content: result.block,
+						display: false,
+					},
+					{ deliverAs: "steer" },
+				);
+				ctx.ui.notify(result.summary, "info");
+			} else {
+				ctx.ui.notify(
+					"No reflections or project memory found for this project.",
+					"info",
+				);
 			}
 		},
 	});
