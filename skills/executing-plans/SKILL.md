@@ -34,41 +34,46 @@ TodoWrite rules:
 ## Process Flow
 
 ```dot
-digraph execution {
-    "Read plan, extract tasks, and create TodoWrite" [shape=box];
-    "Prepare worktree" [shape=box];
-    "Implement current task" [shape=box];
-    "Required verification passes?" [shape=diamond];
-    "Fix verification issues" [shape=box];
-    "Spec-compliance review passes?" [shape=diamond];
-    "Fix spec gaps" [shape=box];
-    "Code-quality review passes?" [shape=diamond];
-    "Fix quality issues" [shape=box];
-    "Mark current task completed" [shape=box];
-    "Execution Autonomy is Checkpointed?" [shape=diamond];
-    "Report status and wait for approval" [shape=box];
-    "More tasks remain?" [shape=diamond];
-    "Invoke closing-out-work" [shape=doublecircle];
+ digraph execution {
+     "Read plan, extract tasks, and create TodoWrite" [shape=box];
+     "Worktree Strategy?" [shape=diamond];
+     "Create worktree from current branch" [shape=box];
+     "Stay on current branch" [shape=box];
+     "Implement current task" [shape=box];
+     "Required verification passes?" [shape=diamond];
+     "Fix verification issues" [shape=box];
+     "Spec-compliance review passes?" [shape=diamond];
+     "Fix spec gaps" [shape=box];
+     "Code-quality review passes?" [shape=diamond];
+     "Fix quality issues" [shape=box];
+     "Mark current task completed" [shape=box];
+     "Execution Autonomy is Checkpointed?" [shape=diamond];
+     "Report status and wait for approval" [shape=box];
+     "More tasks remain?" [shape=diamond];
+     "Invoke closing-out-work" [shape=doublecircle];
 
-    "Read plan, extract tasks, and create TodoWrite" -> "Prepare worktree";
-    "Prepare worktree" -> "Implement current task";
-    "Implement current task" -> "Required verification passes?";
-    "Required verification passes?" -> "Fix verification issues" [label="no"];
-    "Fix verification issues" -> "Implement current task";
-    "Required verification passes?" -> "Spec-compliance review passes?" [label="yes"];
-    "Spec-compliance review passes?" -> "Fix spec gaps" [label="no"];
-    "Fix spec gaps" -> "Implement current task";
-    "Spec-compliance review passes?" -> "Code-quality review passes?" [label="yes"];
-    "Code-quality review passes?" -> "Fix quality issues" [label="no"];
-    "Fix quality issues" -> "Implement current task";
-    "Code-quality review passes?" -> "Mark current task completed" [label="yes"];
-    "Mark current task completed" -> "Execution Autonomy is Checkpointed?";
-    "Execution Autonomy is Checkpointed?" -> "Report status and wait for approval" [label="yes"];
-    "Execution Autonomy is Checkpointed?" -> "More tasks remain?" [label="no"];
-    "Report status and wait for approval" -> "More tasks remain?";
-    "More tasks remain?" -> "Implement current task" [label="yes"];
-    "More tasks remain?" -> "Invoke closing-out-work" [label="no"];
-}
+     "Read plan, extract tasks, and create TodoWrite" -> "Worktree Strategy?";
+     "Worktree Strategy?" -> "Create worktree from current branch" [label="Worktree"];
+     "Worktree Strategy?" -> "Stay on current branch" [label="Direct"];
+     "Create worktree from current branch" -> "Implement current task";
+     "Stay on current branch" -> "Implement current task";
+     "Implement current task" -> "Required verification passes?";
+     "Required verification passes?" -> "Fix verification issues" [label="no"];
+     "Fix verification issues" -> "Implement current task";
+     "Required verification passes?" -> "Spec-compliance review passes?" [label="yes"];
+     "Spec-compliance review passes?" -> "Fix spec gaps" [label="no"];
+     "Fix spec gaps" -> "Implement current task";
+     "Spec-compliance review passes?" -> "Code-quality review passes?" [label="yes"];
+     "Code-quality review passes?" -> "Fix quality issues" [label="no"];
+     "Fix quality issues" -> "Implement current task";
+     "Code-quality review passes?" -> "Mark current task completed" [label="yes"];
+     "Mark current task completed" -> "Execution Autonomy is Checkpointed?";
+     "Execution Autonomy is Checkpointed?" -> "Report status and wait for approval" [label="yes"];
+     "Execution Autonomy is Checkpointed?" -> "More tasks remain?" [label="no"];
+     "Report status and wait for approval" -> "More tasks remain?";
+     "More tasks remain?" -> "Implement current task" [label="yes"];
+     "More tasks remain?" -> "Invoke closing-out-work" [label="no"];
+ }
 ```
 
 ## The Process
@@ -76,19 +81,23 @@ digraph execution {
 ### Step 1: Load and Review Plan
 
 1. Read plan file
-2. Read the plan's declared `Execution Autonomy`
+2. Read the plan's declared `Execution Autonomy` and `Worktree Strategy`
 3. Review critically - identify any questions or concerns about the plan
 4. If concerns: Raise them with your human partner before starting
 5. If no concerns: Create TodoWrite from the exact plan task headings and proceed
 
-### Step 1.5: Isolate in a Worktree
+### Step 1.5: Set Up Work Environment
 
-Before touching any code, create a git worktree to isolate the work from your main checkout:
+Read the plan's declared `Worktree Strategy` and follow it exactly.
+
+#### If `Worktree Strategy: Worktree`
+
+Create a git worktree from the **current branch** to isolate work:
 
 ```bash
 # 1. Note where you are
-git branch --show-current          # store as $ORIGINAL_BRANCH
-git rev-parse --show-toplevel      # store as $REPO_ROOT
+CURRENT_BRANCH=$(git branch --show-current)
+REPO_ROOT=$(git rev-parse --show-toplevel)
 
 # 2. Check the working tree is clean
 git status --porcelain
@@ -98,20 +107,25 @@ git status --porcelain
 #    e.g. plan title "Add Auth Refactor" → branch: "feature-auth-refactor"
 #    Sanitize: lowercase, hyphens, no special chars
 
-# 4. Create the worktree
-git worktree add ../<project>-<feature> -b <feature-branch>
+# 4. Create the worktree from the current branch
+git worktree add ../<project>-<feature> -b <feature-branch> $CURRENT_BRANCH
 
 # 5. Work from the worktree
 cd ../<project>-<feature>
 ```
 
 The agent now works entirely inside the worktree. Commits, tests, file edits — all happen there.
-The original checkout stays untouched on its original branch.
+The original checkout stays untouched.
 
 **If a worktree for this branch already exists**, `cd` into it instead of creating a new one.
 
-**If the user says "no worktree"** or the repo can't support worktrees (bare repo, submodule),
-skip this step and work on the current branch as normal.
+#### If `Worktree Strategy: Direct`
+
+Work directly on the current branch. No worktree setup needed.
+
+#### If the repo can't support worktrees (bare repo, submodule)
+
+Fall back to working on the current branch regardless of the plan's Worktree Strategy.
 
 Before executing tasks, read `Execution Autonomy` from the plan.
 
@@ -171,6 +185,7 @@ After all tasks complete and verified:
 
 - Review plan critically first
 - Read and follow the plan's `Execution Autonomy` exactly
+- Read and follow the plan's `Worktree Strategy` exactly
 - Create TodoWrite from the exact plan task headings only
 - Follow plan steps exactly
 - Follow the plan's `Testing Approach` exactly

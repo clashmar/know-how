@@ -32,6 +32,7 @@ The plan MUST explicitly state:
 - which behaviors need automated coverage
 - which changes should be verified manually
 - whether execution is `Fully autonomous` or `Checkpointed`
+- whether to work in a `Worktree` or `Direct` on the current branch
 
 ## Testing Strategy Decision
 
@@ -110,14 +111,47 @@ For `Manual only` work, use verification-shaped steps such as:
 
 Use only the steps the chosen testing strategy actually needs.
 
+## Worktree Strategy
+
+Every plan MUST declare whether work happens in a worktree or directly on the current branch.
+
+Use this decision model:
+
+### Worktree
+
+Use a worktree when the plan will modify production-like code that should be isolated:
+
+- any implementation that could need rollback
+- work that will be reviewed before merge
+- parallel agent dispatch where agents touch different files
+- any plan where keeping the original checkout clean matters
+
+### Direct
+
+Work directly on the current branch when the changes are low-risk or don't benefit from isolation:
+
+- docs-only or config-only changes
+- quick fixes where rollback is trivial
+- repos that don't support worktrees
+- the user explicitly prefers working on the current branch
+
+The worktree, when chosen, is always created from the current branch — not from main. This means if you're on a feature branch, the worktree branches from that feature branch.
+
 ## Execution Autonomy
 
-As the final part of the planning process, let the user choose the `Execution Autonomy`. Stop and present a 1-2 option picker with arrow-key navigation and `Enter` to confirm before finalizing the plan. Do not infer `Fully autonomous` or `Checkpointed` from context.
+As the final part of the planning process, let the user choose both the `Execution Autonomy` and `Worktree Strategy`. Stop and present a picker with arrow-key navigation and `Enter` to confirm before finalizing the plan. Do not infer either choice from context.
+
+**Execution Autonomy:**
 
 - `Fully autonomous` means execution continues task-to-task unless the execution skill hits a mandatory stop condition such as a blocker, missing context, repeated verification failure, a critical plan gap, or user interruption.
 - `Checkpointed` means execution pauses after every completed task and waits for user approval or feedback.
 
 In either mode, a task is not complete until the execution style's required verification and review work has succeeded.
+
+**Worktree Strategy:**
+
+- `Worktree` means create a git worktree from the current branch and work there. Commits, tests, and edits happen in the worktree. The original checkout stays untouched.
+- `Direct` means work directly on the current branch without creating a worktree.
 
 ## Plan Document Header
 
@@ -135,6 +169,8 @@ In either mode, a task is not complete until the execution style's required veri
 **Tech Stack:** [Key technologies/libraries]
 
 **Execution Autonomy:** Fully autonomous | Checkpointed
+
+**Worktree Strategy:** Worktree | Direct
 
 ## Testing Approach
 
@@ -258,18 +294,18 @@ Fix minor consistency and placeholder issues inline. If you change scope or task
 
 ## Execution Handoff
 
-After saving the plan, offer execution style choice for implementing the plan while preserving the declared autonomy contract:
+After saving the plan, offer execution style choice for implementing the plan while preserving the declared autonomy contract and worktree strategy:
 
-\*\*"Plan complete and saved to `<path>`.
-This plan declares `Execution Autonomy: <mode>`.
+**"Plan complete and saved to `<path>`.**
+This plan declares `Execution Autonomy: <mode>` and `Worktree Strategy: <strategy>`.
 
-Two execution styles:\*\*
+**Two execution styles:**
 
 **1. Subagent-Driven** - I dispatch a fresh subagent per task, with dedicated spec and code-quality review.
 
 **2. Inline Execution** - I execute the plan directly using executing-plans, while still performing required spec-compliance and code-quality review before a task is complete.
 
-Both styles must follow the declared autonomy mode exactly.
+Both styles must follow the declared autonomy mode and worktree strategy exactly.
 
 **Which execution style do you want?** Present this as a 1-3 option picker with arrow-key navigation and `Enter` to confirm; do not require typed input for small choice sets.
 
@@ -278,9 +314,9 @@ Both styles must follow the declared autonomy mode exactly.
 **If Subagent-Driven chosen:**
 
 - **REQUIRED SUB-SKILL:** Use know-how:subagent-driven-development
-- Fresh subagent per task + two-stage review + follow the plan's declared autonomy mode
+- Fresh subagent per task + two-stage review + follow the plan's declared autonomy mode and worktree strategy
 
 **If Inline Execution chosen:**
 
 - **REQUIRED SUB-SKILL:** Use know-how:executing-plans
-- Execute the plan inline while following the plan's declared autonomy mode
+- Execute the plan inline while following the plan's declared autonomy mode and worktree strategy

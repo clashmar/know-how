@@ -40,7 +40,12 @@ Do this before cleanup, review, or PR talk so the close-out work stays tied to t
 # Identify current branch
 git branch --show-current
 
-# Detect if we're in a worktree
+# Detect if we're working in a worktree
+# This should match the plan's declared Worktree Strategy:
+#   - "Worktree" → we created a worktree from the current branch at the start
+#   - "Direct" → we stayed on the current branch
+# If the plan declared Worktree, verify the worktree exists.
+# If the plan declared Direct, we should NOT be in a worktree.
 git worktree list
 # If the current path shows "(detached)" or is a worktree path,
 # store the original branch (the one visible from the main repo)
@@ -124,7 +129,7 @@ Do not skip back directly to final options after making changes.
 
 Only after the user confirms the work looks good.
 
-**If working in a worktree** (detected in Step 2), merge back first:
+**If the plan declared `Worktree Strategy: Worktree`** (detected in Step 2), merge back first:
 
 ```bash
 # From the original repo (not the worktree)
@@ -142,7 +147,7 @@ Then present exactly these options:
 2. Commit, Push and create a Pull Request
 3. Keep the branch as-is (I'll handle it later)
 
-**If not in a worktree**, present these options directly.
+**If the plan declared `Worktree Strategy: Direct`** (or worktree merge is already done), present these options directly.
 
 Keep the options concise. Git is the final integration stage here, not the purpose of the skill.
 

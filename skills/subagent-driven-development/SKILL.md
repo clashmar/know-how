@@ -70,16 +70,21 @@ digraph process {
         "Report status and wait for user approval" [shape=box];
     }
 
-    "Read plan, extract all tasks with full text, note context, read Execution Autonomy, create TodoWrite" [shape=box];
-    "Prepare worktree" [shape=box];
+    "Read plan, extract all tasks with full text, note context, read Execution Autonomy and Worktree Strategy, create TodoWrite" [shape=box];
+    "Worktree Strategy?" [shape=diamond];
+    "Create worktree from current branch" [shape=box];
+    "Work on current branch" [shape=box];
     "More tasks remain?" [shape=diamond];
     "Dispatch final code reviewer subagent for entire implementation" [shape=box];
     "Final reviewer approves whole implementation?" [shape=diamond];
     "Fix final review issues, re-run relevant verification, and re-review" [shape=box];
     "Use know-how:closing-out-work to close out work, get user review, then choose integration" [shape=box style=filled fillcolor=lightgreen];
 
-    "Read plan, extract all tasks with full text, note context, read Execution Autonomy, create TodoWrite" -> "Prepare worktree";
-    "Prepare worktree" -> "Dispatch implementer subagent (./implementer-prompt.md)";
+    "Read plan, extract all tasks with full text, note context, read Execution Autonomy and Worktree Strategy, create TodoWrite" -> "Worktree Strategy?";
+    "Worktree Strategy?" -> "Create worktree from current branch" [label="Worktree"];
+    "Worktree Strategy?" -> "Work on current branch" [label="Direct"];
+    "Create worktree from current branch" -> "Dispatch implementer subagent (./implementer-prompt.md)";
+    "Work on current branch" -> "Dispatch implementer subagent (./implementer-prompt.md)";
     "Dispatch implementer subagent (./implementer-prompt.md)" -> "Implementer subagent asks questions?";
     "Implementer subagent asks questions?" -> "Answer questions, provide context" [label="yes"];
     "Answer questions, provide context" -> "Dispatch implementer subagent (./implementer-prompt.md)";
@@ -114,14 +119,18 @@ digraph process {
 }
 ```
 
-## Isolate in a Worktree
+## Set Up Work Environment
 
-Before dispatching any subagents, create a git worktree. The controller orchestrates from the original session but subagents work in the isolated checkout:
+Read the plan's declared `Worktree Strategy` and follow it exactly.
+
+### If `Worktree Strategy: Worktree`
+
+Before dispatching any subagents, create a git worktree **from the current branch**. The controller orchestrates from the original session but subagents work in the isolated checkout:
 
 ```bash
 # 1. Note where you are
-git branch --show-current          # store as $ORIGINAL_BRANCH
-git rev-parse --show-toplevel      # store as $REPO_ROOT
+CURRENT_BRANCH=$(git branch --show-current)
+REPO_ROOT=$(git rev-parse --show-toplevel)
 
 # 2. Check the working tree is clean
 git status --porcelain
@@ -130,8 +139,8 @@ git status --porcelain
 # 3. Derive a worktree branch name from the plan
 #    e.g. plan title "Add Auth Refactor" → branch: "feature-auth-refactor"
 
-# 4. Create the worktree
-git worktree add ../<project>-<feature> -b <feature-branch>
+# 4. Create the worktree from the current branch
+git worktree add ../<project>-<feature> -b <feature-branch> $CURRENT_BRANCH
 ```
 
 Each subagent task includes `cwd: /path/to/worktree` so they edit files there.
@@ -139,14 +148,27 @@ Commits happen in the worktree. The original checkout stays untouched.
 
 **If a worktree for this branch already exists**, reuse it.
 
-**If the user says "no worktree"**, skip and work on the current branch.
+### If `Worktree Strategy: Direct`
 
-## Execution Autonomy
+Work directly on the current branch. No worktree setup needed. Subagents work in the current checkout.
 
-Before dispatching Task 1, read the plan's `Execution Autonomy` field.
+### If the repo can't support worktrees (bare repo, submodule)
+
+Fall back to working on the current branch regardless of the plan's Worktree Strategy.
+
+## Execution Autonomy and Worktree Strategy
+
+Before dispatching Task 1, read the plan's `Execution Autonomy` and `Worktree Strategy` fields.
+
+**Execution Autonomy:**
 
 - `Fully autonomous`: after a task clears required verification, spec review approves, and code-quality review approves the same code state, mark it complete and continue to the next task.
 - `Checkpointed`: after a task clears required verification, spec review, and code-quality review, mark it complete, report status, and wait for user approval before starting the next task.
+
+**Worktree Strategy:**
+
+- `Worktree`: create a git worktree from the current branch before starting work. Subagents work in the worktree.
+- `Direct`: work directly on the current branch without creating a worktree.
 
 These approval pauses happen after the task's verification and review work are complete. They do not replace the review gates.
 
@@ -355,7 +377,7 @@ Done!
 - Move to next task before **both** review gates approve the same code state
 - Wait for code-quality feedback after spec review already found an issue for the current code state
 - Reuse a code-quality result from a code state that spec review rejected
-- Ignore the plan's declared `Execution Autonomy`
+- Ignore the plan's declared `Execution Autonomy` or `Worktree Strategy`
 - Continue to the next task in `Checkpointed` mode without user approval
 - Treat `NEEDS_CONTEXT` or `BLOCKED` as permission to keep going without your human partner
 
