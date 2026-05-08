@@ -1,6 +1,6 @@
 # know-how
 
-OpenCode skill bundle and bootstrap plugin.
+pi skill bundle and extension.
 
 ## Install
 
@@ -23,8 +23,8 @@ Remove the bundled plugin and skills with:
 The install script manages only this runtime layout:
 
 ```text
-~/.config/opencode/plugins/know-how.js
-~/.config/opencode/know-how/skills/
+~/.pi/agent/extensions/know-how.ts
+~/.pi/agent/skills/know-how/
 ```
 
-It does not modify unrelated files already present in `~/.config/opencode`.
+It does not modify unrelated files already present in `~/.pi/agent`.

@@ -5,7 +5,7 @@ description: Use when completing tasks, implementing major features, or before m
 
 # Requesting Code Review
 
-Dispatch the `code-reviewer` agent to catch issues before they cascade. The reviewer gets precisely crafted context for evaluation — never your session's history. This keeps the reviewer focused on the work product, not your thought process, and preserves your own context for continued work.
+Dispatch the `reviewer` subagent to catch issues before they cascade. The reviewer gets precisely crafted context for evaluation — never your session's history. This keeps the reviewer focused on the work product, not your thought process, and preserves your own context for continued work.
 
 **Core principle:** Review early, review often.
 
@@ -32,21 +32,21 @@ BASE_SHA=$(git rev-parse HEAD~1)  # or origin/main
 HEAD_SHA=$(git rev-parse HEAD)
 ```
 
-**2. Dispatch code-reviewer subagent:**
+**2. Dispatch reviewer subagent:**
 
-Use the `code-reviewer` agent. In pi, create it with:
-
-```
-subagent({ action: "create", config: { name: "code-reviewer", systemPrompt: "<from agents/code-reviewer.md>", tools: "read, bash, grep, find, ls" } })
-```
-
-Then dispatch:
+Use the `reviewer` agent via the `subagent` tool:
 
 ```
-subagent({ agent: "code-reviewer", task: "..." })
+subagent({
+  agent: "reviewer",
+  task: "Review code quality for: [description]"
+})
 ```
 
-In OpenCode, use the native `Task` tool with the code-reviewer agent.
+For spec-compliance or code-quality reviews, use the appropriate prompt template:
+
+- Spec compliance: see `../../skills/subagent-driven-development/spec-reviewer-prompt.md`
+- Code quality: see `../../skills/subagent-driven-development/code-quality-reviewer-prompt.md`
 
 **Placeholders:**
 
@@ -73,11 +73,9 @@ You: Let me request code review before proceeding.
 BASE_SHA=$(git log --oneline | grep "Task 1" | head -1 | awk '{print $1}')
 HEAD_SHA=$(git rev-parse HEAD)
 
-[Dispatch code-reviewer agent]
+[Dispatch reviewer subagent]
   WHAT_WAS_IMPLEMENTED: Verification and repair functions for conversation index
   PLAN_OR_REQUIREMENTS: Task 2 from ~/.know-how/<project-name>/plans/deployment-plan.md
-  BASE_SHA: a7981ec
-  HEAD_SHA: 3df7661
   DESCRIPTION: Added verifyIndex() and repairIndex() with 4 issue types
 
 [Subagent returns]:

@@ -16,7 +16,7 @@ Do not invoke implementation skills, write code, scaffold projects, or make beha
 <IMPORTANT>
 Create a task for each of these items and complete them in order:
 
-1. **Explore project context** — dispatch parallel subagents to read files, docs, and recent history concurrently; gather all results before continuing
+1. **Explore project context** — dispatch parallel `scout` agents to read files, docs, and recent history concurrently; gather all results before continuing
 2. **Ask clarifying questions** — one at a time, focused on purpose and constraints
 3. **Propose 2-3 approaches** — include trade-offs and a recommendation
 4. **Present the design** — scale detail to complexity, get approval section by section
@@ -31,7 +31,7 @@ Create a task for each of these items and complete them in order:
 
 ```dot
 digraph brainstorming {
-    "Explore project context\n(parallel subagents)" [shape=box];
+    "Explore project context\n(parallel scouts)" [shape=box];
     "Ask clarifying questions" [shape=box];
     "Propose 2-3 approaches" [shape=box];
     "Present design sections" [shape=box];
@@ -42,7 +42,7 @@ digraph brainstorming {
     "User reviews spec?" [shape=diamond];
     "Invoke writing-plans" [shape=doublecircle];
 
-    "Explore project context\n(parallel subagents)" -> "Ask clarifying questions";
+    "Explore project context\n(parallel scouts)" -> "Ask clarifying questions";
     "Ask clarifying questions" -> "Propose 2-3 approaches";
     "Propose 2-3 approaches" -> "Present design sections";
     "Present design sections" -> "User approves design?";
@@ -62,7 +62,7 @@ The terminal state is invoking `know-how:writing-plans`.
 
 **Understanding the idea:**
 
-- **Explore the current project state first using parallel subagents.** Identify the independent reads needed (related files, docs, recent git history, existing patterns) and dispatch them concurrently via the `subagent` tool. Do not read sources sequentially. Gather all results before drawing conclusions or asking questions.
+- **Explore the current project state first using parallel `scout` agents.** Identify the independent reads needed (related files, docs, recent git history, existing patterns) and dispatch `scout` agents concurrently via the `subagent` tool. Do not read sources sequentially. Gather all results before drawing conclusions or asking questions.
 - If the request covers multiple independent subsystems, decompose it before refining details
 - Ask one question per message
 - Prefer multiple choice when it makes the trade-off clearer

@@ -29,7 +29,7 @@ When a task affects a specific repo, do not claim completion until the workspace
 
 ## How to Access Skills
 
-Load a skill by reading its `SKILL.md` file directly or using the `/skill:name` command. When you load a skill, its content is available for you to follow directly.
+Load a skill by reading its `SKILL.md` file directly. When you load a skill, its content is available for you to follow directly.
 
 Do not re-read a skill that is already loaded in context.
 
@@ -47,7 +47,7 @@ digraph skill_flow {
     "Load skill" [shape=box];
     "Announce skill use" [shape=box];
     "Has checklist?" [shape=diamond];
-    "Create TodoWrite items" [shape=box];
+    "Create todo items" [shape=box];
     "Follow skill exactly" [shape=box];
     "Respond or act" [shape=doublecircle];
 
@@ -61,9 +61,9 @@ digraph skill_flow {
     "Might any skill apply?" -> "Respond or act" [label="definitely not"];
     "Load skill" -> "Announce skill use";
     "Announce skill use" -> "Has checklist?";
-    "Has checklist?" -> "Create TodoWrite items" [label="yes"];
+    "Has checklist?" -> "Create todo items" [label="yes"];
     "Has checklist?" -> "Follow skill exactly" [label="no"];
-    "Create TodoWrite items" -> "Follow skill exactly";
+    "Create todo items" -> "Follow skill exactly";
     "Follow skill exactly" -> "Respond or act";
 }
 ```

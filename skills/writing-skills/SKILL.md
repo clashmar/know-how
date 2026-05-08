@@ -11,8 +11,8 @@ Writing skills is Test-Driven Development applied to process documentation.
 
 Skills live in skill directories:
 
-- `~/.pi/agent/skills/` for personal skills (pi) / `~/.config/opencode/skills/` (OpenCode)
-- `.pi/skills/` for project skills (pi) / `.opencode/skills/` (OpenCode)
+- `~/.pi/agent/skills/` for personal skills (pi)
+- `.pi/skills/` for project skills (pi)
 - bundled plugin `skills/` directories for distributed skill packs
 
 You run realistic scenarios, watch agents fail without the skill, write the skill, verify it works, and refactor to close loopholes.
@@ -118,7 +118,7 @@ What goes wrong and how to recover.
 
 ## Skill Discovery Optimization
 
-Descriptions should help OpenCode decide whether to load the skill.
+Descriptions should help the agent decide whether to load the skill.
 
 **Description = when to use, not what it does.**
 

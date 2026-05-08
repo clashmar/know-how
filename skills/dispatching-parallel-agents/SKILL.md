@@ -69,13 +69,19 @@ Each agent gets:
 
 ### 3. Dispatch in Parallel
 
-Dispatch one agent per problem domain concurrently. Use your subagent system:
+Dispatch one agent per problem domain concurrently using the `subagent` tool with the `tasks` array and `concurrency` parameter.
+
+Investigation domains use `scout` agents. Fix domains use `worker` agents.
 
 ```
-Agent 1 → Fix agent-tool-abort.test.ts failures
-Agent 2 → Fix batch-completion-behavior.test.ts failures
-Agent 3 → Fix tool-approval-race-conditions.test.ts failures
-// All three run concurrently
+subagent({
+  tasks: [
+    { agent: "scout", task: "Investigate agent-tool-abort.test.ts failures", reads: ["src/agents/agent-tool-abort.test.ts"] },
+    { agent: "worker", task: "Fix batch-completion-behavior.test.ts failures", reads: ["src/agents/batch-completion-behavior.test.ts"] },
+    { agent: "worker", task: "Fix tool-approval-race-conditions.test.ts failures", reads: ["src/agents/tool-approval-race-conditions.test.ts"] }
+  ],
+  concurrency: 3
+})
 ```
 
 ### 4. Review and Integrate
@@ -149,19 +155,24 @@ Return: Summary of what you found and what you fixed.
 
 **Decision:** Independent domains - abort logic separate from batch completion separate from race conditions
 
-**Dispatch:**
+**Dispatch (parallel `worker` agents via `subagent` PARALLEL mode):**
 
 ```
-Agent 1 → Fix agent-tool-abort.test.ts
-Agent 2 → Fix batch-completion-behavior.test.ts
-Agent 3 → Fix tool-approval-race-conditions.test.ts
+subagent({
+  tasks: [
+    { agent: "worker", task: "Fix agent-tool-abort.test.ts failures", reads: ["src/agents/agent-tool-abort.test.ts"] },
+    { agent: "worker", task: "Fix batch-completion-behavior.test.ts failures", reads: ["src/agents/batch-completion-behavior.test.ts"] },
+    { agent: "worker", task: "Fix tool-approval-race-conditions.test.ts failures", reads: ["src/agents/tool-approval-race-conditions.test.ts"] }
+  ],
+  concurrency: 3
+})
 ```
 
 **Results:**
 
-- Agent 1: Replaced timeouts with event-based waiting
-- Agent 2: Fixed event structure bug (threadId in wrong place)
-- Agent 3: Added wait for async tool execution to complete
+- worker 1: Replaced timeouts with event-based waiting
+- worker 2: Fixed event structure bug (threadId in wrong place)
+- worker 3: Added wait for async tool execution to complete
 
 **Integration:** All fixes independent, no conflicts, full suite green
 

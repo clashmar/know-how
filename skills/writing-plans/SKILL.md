@@ -309,8 +309,6 @@ Both styles must follow the declared autonomy mode and worktree strategy exactly
 
 **Which execution style do you want?** Present this as a 1-3 option picker with arrow-key navigation and `Enter` to confirm; do not require typed input for small choice sets.
 
-**If the user does not clearly choose:** Default to Subagent-Driven when subagents are available and the tasks are mostly independent. Otherwise use Inline Execution.
-
 **If Subagent-Driven chosen:**
 
 - **REQUIRED SUB-SKILL:** Use know-how:subagent-driven-development
