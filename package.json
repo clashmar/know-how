@@ -2,7 +2,7 @@
   "name": "know-how",
   "version": "1.0.0",
   "description": "Agent skill bundle for systematic software development — brainstorming, planning, execution, debugging, and code review workflows",
-  "keywords": ["pi-package", "opencode-plugin", "agent-skills"],
+  "keywords": ["pi-package", "agent-skills"],
   "license": "MIT",
   "pi": {
     "extensions": ["./extensions"],

@@ -4,22 +4,22 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-if [ -n "${OPENCODE_CONFIG_DIR:-}" ]; then
-    CONFIG_DIR="$OPENCODE_CONFIG_DIR"
+if [ -n "${PI_CONFIG_DIR:-}" ]; then
+    CONFIG_DIR="$PI_CONFIG_DIR"
 elif [ -n "${XDG_CONFIG_HOME:-}" ]; then
-    CONFIG_DIR="$XDG_CONFIG_HOME/opencode"
+    CONFIG_DIR="$XDG_CONFIG_HOME/pi-agent"
 else
-    CONFIG_DIR="$HOME/.config/opencode"
+    CONFIG_DIR="$HOME/.pi/agent"
 fi
 
-SOURCE_PLUGIN_FILE="$REPO_ROOT/.opencode/plugins/know-how.js"
+SOURCE_EXTENSION_FILE="$REPO_ROOT/extensions/know-how.ts"
 SOURCE_SKILLS_DIR="$REPO_ROOT/skills"
-PLUGIN_DIR="$CONFIG_DIR/plugins"
-PLUGIN_FILE="$PLUGIN_DIR/know-how.js"
-BUNDLE_DIR="$CONFIG_DIR/know-how"
+EXTENSION_DIR="$CONFIG_DIR/extensions"
+EXTENSION_FILE="$EXTENSION_DIR/know-how.ts"
+SKILLS_LINK="$CONFIG_DIR/skills/know-how"
 
-if [ ! -f "$SOURCE_PLUGIN_FILE" ]; then
-    echo "Source plugin not found: $SOURCE_PLUGIN_FILE" >&2
+if [ ! -f "$SOURCE_EXTENSION_FILE" ]; then
+    echo "Source extension not found: $SOURCE_EXTENSION_FILE" >&2
     exit 1
 fi
 
@@ -28,15 +28,19 @@ if [ ! -d "$SOURCE_SKILLS_DIR" ]; then
     exit 1
 fi
 
-mkdir -p "$PLUGIN_DIR"
+mkdir -p "$EXTENSION_DIR"
+mkdir -p "$(dirname "$SKILLS_LINK")"
 
-rm -f "$PLUGIN_FILE"
-rm -rf "$BUNDLE_DIR"
+rm -f "$EXTENSION_FILE"
+rm -rf "$SKILLS_LINK"
 
-cp "$SOURCE_PLUGIN_FILE" "$PLUGIN_FILE"
-mkdir -p "$BUNDLE_DIR"
-cp -R "$SOURCE_SKILLS_DIR" "$BUNDLE_DIR/skills"
+cp "$SOURCE_EXTENSION_FILE" "$EXTENSION_FILE"
+ln -sf "$SOURCE_SKILLS_DIR" "$SKILLS_LINK"
 
-echo "Installed know-how into $CONFIG_DIR"
-echo "Plugin: $PLUGIN_FILE"
-echo "Skills: $BUNDLE_DIR/skills"
+echo "Installed know-how for pi into $CONFIG_DIR"
+echo "Extension: $EXTENSION_FILE"
+echo "Skills:    $SKILLS_LINK -> $SOURCE_SKILLS_DIR"
+echo ""
+echo "The extension auto-discovers skills, so the symlink is optional but"
+echo "useful for /skills browsing. The extension's resources_discover hook"
+echo "points directly to the repo's skills/ directory."
