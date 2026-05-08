@@ -19,7 +19,7 @@ Every subagent dispatch point in this skill maps to a specific pi agent:
 
 | Role                              | pi Agent   |
 | --------------------------------- | ---------- |
-| Implementer per task              | `worker`   |
+| Worker per task                   | `worker`   |
 | Spec compliance review            | `reviewer` |
 | Code quality review               | `reviewer` |
 | Final whole-implementation review | `reviewer` |
@@ -27,7 +27,7 @@ Every subagent dispatch point in this skill maps to a specific pi agent:
 The `worker` agent handles implementation with forked context. The `reviewer` agent handles reviews with spec compliance or code quality prompt templates.
 
 <IMPORTANT>
-Keep things moving while maintaining quality gates. Instill urgency in reviewers to review quickly and implementers to fix quickly. You are responsible for keeping things flowing, they are responsible for doing their part well and quickly. Call out delays and blockers, and keep the momentum going.
+Keep things moving while maintaining quality gates. Instill urgency in reviewers to review quickly and workers to fix quickly. You are responsible for keeping things flowing, they are responsible for doing their part well and quickly. Call out delays and blockers, and keep the momentum going.
 <IMPORTANT>
 
 ## When to Use
@@ -55,7 +55,7 @@ digraph process {
 
     subgraph cluster_per_task {
         label="Per Task";
-        "Dispatch worker subagent (./implementer-prompt.md)" [shape=box];
+        "Dispatch worker subagent (./worker-prompt.md)" [shape=box];
         "Worker subagent asks questions?" [shape=diamond];
         "Answer questions, provide context" [shape=box];
         "Worker subagent implements, tests, self-reviews" [shape=box];
@@ -88,11 +88,11 @@ digraph process {
     "Read plan, extract all tasks with full text, note context, read Execution Autonomy and Worktree Strategy, create todo items" -> "Worktree Strategy?";
     "Worktree Strategy?" -> "Create worktree from current branch" [label="Worktree"];
     "Worktree Strategy?" -> "Work on current branch" [label="Direct"];
-    "Create worktree from current branch" -> "Dispatch worker subagent (./implementer-prompt.md)";
-    "Work on current branch" -> "Dispatch worker subagent (./implementer-prompt.md)";
-    "Dispatch worker subagent (./implementer-prompt.md)" -> "Worker subagent asks questions?";
+    "Create worktree from current branch" -> "Dispatch worker subagent (./worker-prompt.md)";
+    "Work on current branch" -> "Dispatch worker subagent (./worker-prompt.md)";
+    "Dispatch worker subagent (./worker-prompt.md)" -> "Worker subagent asks questions?";
     "Worker subagent asks questions?" -> "Answer questions, provide context" [label="yes"];
-    "Answer questions, provide context" -> "Dispatch worker subagent (./implementer-prompt.md)";
+    "Answer questions, provide context" -> "Dispatch worker subagent (./worker-prompt.md)";
     "Worker subagent asks questions?" -> "Worker subagent implements, tests, self-reviews" [label="no"];
     "Worker subagent implements, tests, self-reviews" -> "Task verification steps pass?";
     "Task verification steps pass?" -> "Worker subagent fixes task verification issues" [label="no"];
@@ -115,7 +115,7 @@ digraph process {
     "Execution Autonomy is Checkpointed?" -> "Report status and wait for user approval" [label="yes"];
     "Execution Autonomy is Checkpointed?" -> "More tasks remain?" [label="no"];
     "Report status and wait for user approval" -> "More tasks remain?";
-    "More tasks remain?" -> "Dispatch worker subagent (./implementer-prompt.md)" [label="yes"];
+    "More tasks remain?" -> "Dispatch worker subagent (./worker-prompt.md)" [label="yes"];
     "More tasks remain?" -> "Dispatch reviewer — whole implementation" [label="no"];
     "Dispatch reviewer — whole implementation" -> "Reviewer — whole implementation approves?";
     "Reviewer — whole implementation approves?" -> "Use know-how:closing-out-work to close out work, get user review, then choose integration" [label="yes"];
@@ -205,7 +205,7 @@ Worker subagents report one of four statuses. Handle each appropriately:
 
 ## Prompt Templates
 
-- `./implementer-prompt.md` - Dispatch worker subagent
+- `./worker-prompt.md` - Dispatch worker subagent
 - `./spec-reviewer-prompt.md` - Dispatch reviewer for spec compliance
 - `./code-quality-reviewer-prompt.md` - Dispatch reviewer for code quality
 

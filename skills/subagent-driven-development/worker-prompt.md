@@ -1,9 +1,9 @@
-# Implementer Subagent Prompt Template
+# Worker Subagent Prompt Template
 
-Use this template when dispatching an implementer subagent.
+Use this template when dispatching a worker subagent.
 
 ```
-Subagent dispatch — implementer:
+Subagent dispatch — worker:
   task: "Implement Task N: [task name]"
   system_prompt: |
     You are implementing Task N: [task name]

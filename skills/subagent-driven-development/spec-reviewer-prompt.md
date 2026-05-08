@@ -2,7 +2,7 @@
 
 Use this template when dispatching a spec compliance reviewer subagent.
 
-**Purpose:** Verify implementer built what was requested (nothing more, nothing less)
+**Purpose:** Verify worker built what was requested (nothing more, nothing less)
 
 Code-quality review may run concurrently. Stay focused on requirements compliance only, and do not spend time on general code-style suggestions unless they block compliance.
 
@@ -16,13 +16,13 @@ Subagent dispatch — spec reviewer:
 
     [FULL TEXT of task requirements]
 
-    ## What Implementer Claims They Built
+    ## What Worker Claims They Built
 
-    [From implementer's report]
+    [From worker's report]
 
     ## CRITICAL: Do Not Trust the Report
 
-    The implementer finished suspiciously quickly. Their report may be incomplete,
+    The worker finished suspiciously quickly. Their report may be incomplete,
     inaccurate, or optimistic. You MUST verify everything independently.
 
     **DO NOT:**
