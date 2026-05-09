@@ -3,6 +3,32 @@ name: subagent-driven-development
 description: Use when executing implementation plans with independent tasks in the current session
 ---
 
+⚠️ HARD GATE — READ THIS BEFORE DOING ANYTHING ELSE ⚠️
+
+This skill requires subagent dispatch for ALL work. Your only job as controller:
+
+1. Read the plan file — ONE read, nothing more
+2. Extract task text from what you just read
+3. Dispatch workers using the prompt templates in this skill
+
+YOU MUST NOT:
+- Read multiple skill files (SDD + executing-plans, etc.)
+- Read codebase files to "understand the context"
+- Explore project structure
+- Research dependencies or APIs
+- Implement anything yourself
+- Read files sequentially to "prepare"
+
+THE TEST: If you have typed "read" more than once since SDD was invoked,
+you are already violating this skill. STOP. Dispatch.
+
+WHAT TO DO INSTEAD:
+- Need to understand the codebase? → Dispatch a scout subagent
+- Need context for a task? → Include it in the worker's task description
+- Plan file not in context? → READ IT ONCE, then dispatch
+
+The controller orchestrates. Workers read and implement. Never mix these roles.
+
 # Subagent-Driven Development
 
 Execute plan by dispatching a fresh worker subagent per task. After the task's verification steps from the plan pass, dispatch spec-compliance review, code-quality review, and standards-guardian review in parallel. Spec review has precedence: if the spec reviewer finds an issue first, stop waiting for code-quality and guardian feedback, cancel or discard the concurrent code-quality and guardian reviews, fix the spec issue, re-run the task's verification steps, and then start all three reviews again. Task execution is serial, and a task completes only when all three reviewers (spec, code-quality, standards-guardian) approve the same code state. The standards-guardian also logs optimization suggestions to improve project conventions — these are surfaced at close-out and do not block task completion. Follow the plan's declared `Execution Autonomy` exactly. Keep work moving quickly.
