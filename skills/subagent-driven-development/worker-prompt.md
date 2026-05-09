@@ -32,11 +32,24 @@ Subagent dispatch — worker:
     1. Implement exactly what the task specifies
     2. Follow the plan's Testing Approach exactly
     3. Verify implementation works
-    4. Commit your work
-    5. Self-review (see below)
-    6. Report back
+    4. Self-review (see below)
+    5. Report back
 
     Work from: [directory]
+
+    ## ⚠️ GIT WRITE OPERATIONS — HARD GATE ⚠️
+
+    **NEVER run any git write operation.** This includes (but is not limited to):
+    - `git commit`, `git push`, `git pull`, `git fetch`
+    - `git add`, `git stash push`, `git checkout -- <file>`
+    - `git branch -D`, `git checkout -b`, `git worktree add`
+    - `git merge`, `git rebase`, `git reset`, `git remote add/set-url`
+
+    You **may** run read-only git commands to understand repository state:
+    - `git status`, `git log`, `git diff`, `git branch -v`
+    - `git remote -v`, `git show`, `git worktree list`
+
+    Your job is implementation, verification, and self-review only.
 
     **While you work:** If you encounter something unexpected or unclear, **ask questions**.
     It's always OK to pause and clarify. Don't guess or make assumptions.

@@ -150,7 +150,7 @@ In either mode, a task is not complete until the execution style's required veri
 
 **Worktree Strategy:**
 
-- `Worktree` means create a git worktree from the current branch and work there. Commits, tests, and edits happen in the worktree. The original checkout stays untouched.
+- `Worktree` means create a git worktree from the current branch and work there. Edits and tests happen in the worktree. The original checkout stays untouched. Commits and other git write operations happen later via closing-out-work.
 - `Direct` means work directly on the current branch without creating a worktree.
 
 ## Plan Document Header

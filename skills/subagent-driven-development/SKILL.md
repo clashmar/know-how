@@ -45,13 +45,13 @@ Execute plan by dispatching a fresh worker subagent per task. After the task's v
 
 Every subagent dispatch point in this skill maps to a specific pi agent:
 
-| Role                              | pi Agent             |
-| --------------------------------- | -------------------- |
-| Worker per task                   | `worker`             |
-| Spec compliance review            | `reviewer`           |
-| Code quality review               | `reviewer`           |
-| Standards enforcement             | `guardian`           |
-| Final whole-implementation review | `reviewer`           |
+| Role                              | pi Agent   |
+| --------------------------------- | ---------- |
+| Worker per task                   | `worker`   |
+| Spec compliance review            | `reviewer` |
+| Code quality review               | `reviewer` |
+| Standards enforcement             | `guardian` |
+| Final whole-implementation review | `reviewer` |
 
 The `worker` agent handles implementation with forked context. The `reviewer` agent handles reviews with spec compliance or code quality prompt templates. The `guardian` agent enforces documented project conventions using its dedicated system prompt (see `~/.pi/agent/agents/guardian.md`).
 
@@ -189,7 +189,7 @@ REPO_ROOT=$(git rev-parse --show-toplevel)
 
 # 2. Check the working tree is clean
 git status --porcelain
-# If dirty: "Working tree has uncommitted changes. Stash and proceed, or abort?"
+# If dirty: "Working tree has uncommitted changes. Commit them first (outside this workflow) or abort?"
 
 # 3. Derive a worktree branch name from the plan
 #    e.g. plan title "Add Auth Refactor" → branch: "feature-auth-refactor"
@@ -199,7 +199,10 @@ git worktree add ../<project>-<feature> -b <feature-branch> $CURRENT_BRANCH
 ```
 
 Each subagent task includes `cwd: /path/to/worktree` so they edit files there.
-Commits happen in the worktree. The original checkout stays untouched.
+File edits and tests happen in the worktree. The original checkout stays untouched.
+**Git write operations (commit, push, merge) are not performed by subagents during
+task execution.** All git integration is gated behind user review — at checkpoints
+(if `Execution Autonomy: Checkpointed`) and at close-out via closing-out-work.
 
 **If a worktree for this branch already exists**, reuse it.
 
@@ -410,6 +413,9 @@ Done!
 
 **Never:**
 
+- Instruct workers or subagents to perform git write operations (commit, push, merge, branch, add, stash, checkout --, worktree add/remove, reset). Git writes are gated behind user review — at checkpoints (if `Execution Autonomy: Checkpointed`) and at close-out via closing-out-work. Workers implement, verify, and self-review — they do not commit.
+- Treat worktree commits or any git write as “safe” because it’s on a disposable branch. The git write gate applies universally, regardless of branch.
+- Make git write operations yourself during execution (stash, checkout --, branch -D, worktree remove). All git integration happens through closing-out-work after user review.
 - Start implementation on main/master branch without explicit user consent
 - Skip reviews (spec compliance, code quality, OR guardian)
 - Proceed with unfixed issues

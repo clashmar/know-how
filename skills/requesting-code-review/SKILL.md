@@ -25,22 +25,44 @@ Dispatch the `reviewer` subagent to catch issues before they cascade. The review
 
 ## How to Request
 
-**1. Get git SHAs:**
+**1. Determine the change range:**
+
+If the changes are committed:
 
 ```bash
 BASE_SHA=$(git rev-parse HEAD~1)  # or origin/main
 HEAD_SHA=$(git rev-parse HEAD)
 ```
 
+If the changes are uncommitted (workers do not commit during execution — this is the
+default for SDD and executing-plans workflows):
+
+```bash
+# Use the base branch/commit as the diff base
+BASE_SHA=$(git merge-base HEAD origin/main 2>/dev/null || echo HEAD~1)
+# No HEAD_SHA needed — review the working tree state directly
+```
+
 **2. Dispatch reviewer subagent:**
 
-Use the `reviewer` agent via the `subagent` tool. Include the changed files, SHAs,
-and a stop rule — reviewers inspect the diff, not the whole codebase:
+Use the `reviewer` agent via the `subagent` tool. Include the changed files, SHAs or
+diff info, and a stop rule — reviewers inspect the diff, not the whole codebase:
+
+For committed changes:
 
 ```
 subagent({
   agent: "reviewer",
   task: "Review code quality for: [description]. Changed files: [list paths]. BASE_SHA: [sha], HEAD_SHA: [sha]. Inspect the diff and changed files only — do not explore unrelated code. Return findings with file:line references."
+})
+```
+
+For uncommitted changes (default in SDD/executing-plans workflows):
+
+```
+subagent({
+  agent: "reviewer",
+  task: "Review code quality for: [description]. Changed files: [list paths]. Run `git diff [base_sha]` to see the diff. Inspect the diff and changed files only — do not explore unrelated code. Return findings with file:line references."
 })
 ```
 
@@ -53,8 +75,9 @@ For spec-compliance or code-quality reviews, use the appropriate prompt template
 
 - `{WHAT_WAS_IMPLEMENTED}` - What you just built
 - `{PLAN_OR_REQUIREMENTS}` - What it should do
-- `{BASE_SHA}` - Starting commit
-- `{HEAD_SHA}` - Ending commit
+- `{BASE_SHA}` - Starting commit (or diff base for uncommitted changes)
+- `{HEAD_SHA}` - Ending commit (not used for uncommitted changes — reviewers read file state directly)
+- `{DIFF}` - Output of `git diff` against the base (for uncommitted changes, replaces BASE_SHA..HEAD_SHA)
 - `{DESCRIPTION}` - Brief summary
 
 **3. Act on feedback:**

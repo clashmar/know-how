@@ -66,4 +66,7 @@ Subagent dispatch — spec reviewer:
     Report:
     - ✅ Spec compliant (if everything matches after code inspection)
     - ❌ Issues found: [list specifically what's missing or extra, with file:line references]
+
+    **This is a review-only dispatch.** Do not make any file changes, git write operations,
+    or code modifications. Report findings only.
 ```

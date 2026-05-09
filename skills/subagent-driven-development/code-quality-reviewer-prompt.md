@@ -18,10 +18,12 @@ Subagent dispatch — code quality reviewer:
 
   WHAT_WAS_IMPLEMENTED: [from worker's report]
   PLAN_OR_REQUIREMENTS: Task N from [plan-file]
-  BASE_SHA: [commit before task]
-  HEAD_SHA: [current commit]
+  DIFF: [output of `git diff` against the base branch or commit — workers do not commit, so the diff is from uncommitted changes]
   DESCRIPTION: [task summary]
 ```
+
+Use `git diff` against the base branch/commit to see all changes
+for this task. Review the current file state directly.
 
 **In addition to standard code quality concerns, the reviewer should check:**
 
@@ -32,3 +34,6 @@ Subagent dispatch — code quality reviewer:
 - Do any added tests match the plan's `Testing Approach`?
 
 **Code reviewer returns:** Strengths, Issues (Critical/Important/Minor), Assessment
+
+**This is a review-only dispatch.** Do not make any file changes, git write operations,
+or code modifications. Report findings only.

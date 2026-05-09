@@ -111,7 +111,7 @@ REPO_ROOT=$(git rev-parse --show-toplevel)
 
 # 2. Check the working tree is clean
 git status --porcelain
-# If dirty: "Working tree has uncommitted changes. Stash them and proceed, or abort?"
+# If dirty: "Working tree has uncommitted changes. Commit them first (outside this workflow) or abort?"
 
 # 3. Derive a worktree branch name from the plan
 #    e.g. plan title "Add Auth Refactor" → branch: "feature-auth-refactor"
@@ -124,8 +124,10 @@ git worktree add ../<project>-<feature> -b <feature-branch> $CURRENT_BRANCH
 cd ../<project>-<feature>
 ```
 
-The agent now works entirely inside the worktree. Commits, tests, file edits — all happen there.
-The original checkout stays untouched.
+The agent now works entirely inside the worktree. Tests and file edits happen there.
+Git write operations (commit, push, merge) are not performed during execution — they are
+gated behind user review at checkpoints (if `Execution Autonomy: Checkpointed`) and at
+close-out via closing-out-work.
 
 **If a worktree for this branch already exists**, `cd` into it instead of creating a new one.
 
@@ -207,6 +209,8 @@ After all tasks complete and verified:
 - Reference skills when plan says to
 - Stop when blocked, don't guess
 - Never start implementation on main/master branch without explicit user consent
+- Never make git write operations during execution — no commits, pushes, merges, stash, checkout --, branch -D, or worktree remove during task execution. All git integration is gated behind user review at checkpoints and at close-out via closing-out-work
+- Never treat worktree branches as “safe to commit on” — the git write gate applies universally, regardless of branch
 - Use the current workspace unless the user explicitly asks for a different setup
 
 ## Integration

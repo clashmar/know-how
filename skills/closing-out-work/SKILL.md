@@ -153,7 +153,32 @@ Do not skip back directly to final options after making changes.
 
 Only after the user confirms the work looks good.
 
-**If the plan declared `Worktree Strategy: Worktree`** (detected in Step 2), merge back first:
+**If the plan declared `Worktree Strategy: Worktree`** (detected in Step 2), present both the merge-back and the integration options together — the user chooses whether to proceed:
+
+1. Merge worktree, then Commit with message: \<commit-message\>
+2. Merge worktree, then Commit, Push and create a Pull Request
+3. Merge worktree, then Keep the branch as-is (I'll handle it later)
+4. Keep everything as-is, no merge or integration yet
+
+**If the plan declared `Worktree Strategy: Direct`** (or worktree merge is already done), present these options directly:
+
+1. Commit changes with message: \<commit-message\>
+2. Commit, Push and create a Pull Request
+3. Keep the branch as-is (I'll handle it later)
+
+Keep the options concise. Git is the final integration stage here, not the purpose of the skill.
+
+**Do not execute any git write operations until the user chooses an option.** The merge,
+worktree remove, branch deletion, and commit are all git write operations that require
+explicit user approval. Presenting options is not permission to execute them.
+
+### Step 9: Execute The Chosen Option
+
+**These git write operations are executed only after the user explicitly chooses an option in Step 8.** Do not run any git write commands before the user confirms.
+
+#### Worktree Strategy: Worktree — Merge First
+
+For Options 1-3, merge the worktree branch back to the original repo first:
 
 ```bash
 # From the original repo (not the worktree)
@@ -164,18 +189,6 @@ git merge <worktree-branch>
 git worktree remove ../<project>-<feature>
 git branch -d <worktree-branch>  # optional, branch is merged
 ```
-
-Then present exactly these options:
-
-1. Commit changes with message: <commit-message>
-2. Commit, Push and create a Pull Request
-3. Keep the branch as-is (I'll handle it later)
-
-**If the plan declared `Worktree Strategy: Direct`** (or worktree merge is already done), present these options directly.
-
-Keep the options concise. Git is the final integration stage here, not the purpose of the skill.
-
-### Step 9: Execute The Chosen Option
 
 #### Option 1: Commit changes
 
@@ -223,11 +236,13 @@ Then report completion and the resulting branch state.
 
 Never:
 
+- execute any git write operation (commit, push, merge, worktree remove, branch -D, stash, checkout --) before the user explicitly chooses an option in Step 8
+- execute a worktree merge-back before the user confirms — the merge, worktree remove, and branch deletion are all git write operations that require explicit approval
 - present commit/PR/keep options before user review
-- treat "tests already pass" as permission to skip explicit completion-state verification
+- treat “tests already pass” as permission to skip explicit completion-state verification
 - treat time pressure or a tempting fast path as permission to skip determining branch and base-branch context
-- skip residual artifact checks because "tests already pass"
-- treat sunk-cost or "already basically done" reasoning as a reason to skip obvious cleanup, polish, or review
+- skip residual artifact checks because “tests already pass”
+- treat sunk-cost or “already basically done” reasoning as a reason to skip obvious cleanup, polish, or review
 - assume the work is finished without asking what a careful reviewer is likely to flag next
 - treat cleanup or polish as optional when obvious issues are already visible
 - discard work without typed confirmation
