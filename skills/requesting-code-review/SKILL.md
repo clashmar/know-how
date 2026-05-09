@@ -34,12 +34,13 @@ HEAD_SHA=$(git rev-parse HEAD)
 
 **2. Dispatch reviewer subagent:**
 
-Use the `reviewer` agent via the `subagent` tool:
+Use the `reviewer` agent via the `subagent` tool. Include the changed files, SHAs,
+and a stop rule — reviewers inspect the diff, not the whole codebase:
 
 ```
 subagent({
   agent: "reviewer",
-  task: "Review code quality for: [description]"
+  task: "Review code quality for: [description]. Changed files: [list paths]. BASE_SHA: [sha], HEAD_SHA: [sha]. Inspect the diff and changed files only — do not explore unrelated code. Return findings with file:line references."
 })
 ```
 

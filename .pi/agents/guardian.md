@@ -1,5 +1,5 @@
 ---
-name: standards-guardian
+name: guardian
 description: |
   Project-standards enforcement reviewer. Reads global AGENTS.md
   (~/.pi/agent/AGENTS.md), the project skill (~/.pi/agent/skills/<project>/SKILL.md),

@@ -63,9 +63,15 @@ Each domain is independent - fixing tool approval doesn't affect abort tests.
 Each agent gets:
 
 - **Specific scope:** One test file or subsystem
-- **Clear goal:** Make these tests pass
+- **Clear goal:** Make these tests pass (worker) or answer these specific questions (scout)
 - **Constraints:** Don't change other code
 - **Expected output:** Summary of what you found and fixed
+
+**For scout tasks specifically**, follow the scout-prompt.md template — every scout MUST have:
+- Specific files to read (not "the auth module")
+- Specific questions to answer (2-4 numbered bullets)
+- A stop boundary ("stop after reading listed files")
+- A conciseness directive ("bullet list under 500 words")
 
 ### 3. Dispatch in Parallel
 
@@ -76,7 +82,7 @@ Investigation domains use `scout` agents. Fix domains use `worker` agents.
 ```
 subagent({
   tasks: [
-    { agent: "scout", task: "Investigate agent-tool-abort.test.ts failures", reads: ["src/agents/agent-tool-abort.test.ts"] },
+    { agent: "scout", task: "Read src/agents/agent-tool-abort.test.ts. Answer: (1) What are the 3 test names and their expected behavior? (2) What assertions are failing? Stop after reading this file. Bullet list under 300 words.", reads: ["src/agents/agent-tool-abort.test.ts"] },
     { agent: "worker", task: "Fix batch-completion-behavior.test.ts failures", reads: ["src/agents/batch-completion-behavior.test.ts"] },
     { agent: "worker", task: "Fix tool-approval-race-conditions.test.ts failures", reads: ["src/agents/tool-approval-race-conditions.test.ts"] }
   ],
@@ -123,6 +129,9 @@ Return: Summary of what you found and what you fixed.
 ```
 
 ## Common Mistakes
+
+**❌ Vague scout task:** "Investigate agent-tool-abort.test.ts failures" - scout wanders, reads 26 files
+**✅ Bounded scout task:** "Read agent-tool-abort.test.ts. Answer: (1) What are the test names? (2) What's failing? Stop after this file. Bullet list under 300 words."
 
 **❌ Too broad:** "Fix all the tests" - agent gets lost
 **✅ Specific:** "Fix agent-tool-abort.test.ts" - focused scope

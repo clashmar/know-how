@@ -12,6 +12,7 @@ This skill requires subagent dispatch for ALL work. Your only job as controller:
 3. Dispatch workers using the prompt templates in this skill
 
 YOU MUST NOT:
+
 - Read multiple skill files (SDD + executing-plans, etc.)
 - Read codebase files to "understand the context"
 - Explore project structure
@@ -23,7 +24,8 @@ THE TEST: If you have typed "read" more than once since SDD was invoked,
 you are already violating this skill. STOP. Dispatch.
 
 WHAT TO DO INSTEAD:
-- Need to understand the codebase? → Dispatch a scout subagent
+
+- Need to understand the codebase? → Dispatch a bounded scout subagent (see `./scout-prompt.md`). Every scout MUST get: specific files to read, specific questions to answer, a stop boundary, and a conciseness directive. Never dispatch a scout with a vague mandate like "explore the codebase."
 - Need context for a task? → Include it in the worker's task description
 - Plan file not in context? → READ IT ONCE, then dispatch
 
@@ -31,7 +33,7 @@ The controller orchestrates. Workers read and implement. Never mix these roles.
 
 # Subagent-Driven Development
 
-Execute plan by dispatching a fresh worker subagent per task. After the task's verification steps from the plan pass, dispatch spec-compliance review, code-quality review, and standards-guardian review in parallel. Spec review has precedence: if the spec reviewer finds an issue first, stop waiting for code-quality and guardian feedback, cancel or discard the concurrent code-quality and guardian reviews, fix the spec issue, re-run the task's verification steps, and then start all three reviews again. Task execution is serial, and a task completes only when all three reviewers (spec, code-quality, standards-guardian) approve the same code state. The standards-guardian also logs optimization suggestions to improve project conventions — these are surfaced at close-out and do not block task completion. Follow the plan's declared `Execution Autonomy` exactly. Keep work moving quickly.
+Execute plan by dispatching a fresh worker subagent per task. After the task's verification steps from the plan pass, dispatch spec-compliance review, code-quality review, and guardian review in parallel. Spec review has precedence: if the spec reviewer finds an issue first, stop waiting for code-quality and guardian feedback, cancel or discard the concurrent code-quality and guardian reviews, fix the spec issue, re-run the task's verification steps, and then start all three reviews again. Task execution is serial, and a task completes only when all three reviewers (spec, code-quality, guardian) approve the same code state. The guardian also logs optimization suggestions to improve project conventions — these are surfaced at close-out and do not block task completion. Follow the plan's declared `Execution Autonomy` exactly. Keep work moving quickly.
 
 **Why subagents:** You delegate tasks to specialized agents with isolated context. By precisely crafting their instructions and context, you ensure they stay focused and succeed at their task. They should never inherit your session's context or history — you construct exactly what they need. This also preserves your own context for coordination work.
 
@@ -48,10 +50,10 @@ Every subagent dispatch point in this skill maps to a specific pi agent:
 | Worker per task                   | `worker`             |
 | Spec compliance review            | `reviewer`           |
 | Code quality review               | `reviewer`           |
-| Standards enforcement             | `standards-guardian` |
+| Standards enforcement             | `guardian`           |
 | Final whole-implementation review | `reviewer`           |
 
-The `worker` agent handles implementation with forked context. The `reviewer` agent handles reviews with spec compliance or code quality prompt templates. The `standards-guardian` agent enforces documented project conventions using its dedicated system prompt (see `agents/standards-guardian.md`).
+The `worker` agent handles implementation with forked context. The `reviewer` agent handles reviews with spec compliance or code quality prompt templates. The `guardian` agent enforces documented project conventions using its dedicated system prompt (see `~/.pi/agent/agents/guardian.md`).
 
 <IMPORTANT>
 Keep things moving while maintaining quality gates. Instill urgency in reviewers to review quickly and workers to fix quickly. You are responsible for keeping things flowing, they are responsible for doing their part well and quickly. Call out delays and blockers, and keep the momentum going.
@@ -89,14 +91,14 @@ digraph process {
         "Worker subagent implements, tests, self-reviews" [shape=box];
         "Task verification steps pass?" [shape=diamond];
         "Worker subagent fixes task verification issues" [shape=box];
-        "Dispatch reviewers in parallel: spec compliance, code quality, and standards-guardian" [shape=box];
+        "Dispatch reviewers in parallel: spec compliance, code quality, and guardian" [shape=box];
         "reviewer — spec compliance (./spec-reviewer-prompt.md) approves?" [shape=diamond];
         "Cancel or discard code-quality and guardian reviews for this code state" [shape=box];
         "Code-quality review result ready?" [shape=diamond];
         "Wait for remaining reviewer results" [shape=box];
         "reviewer — code quality (./code-quality-reviewer-prompt.md) approves?" [shape=diamond];
-        "standards-guardian result ready?" [shape=diamond];
-        "standards-guardian approves?" [shape=diamond];
+        "guardian result ready?" [shape=diamond];
+        "guardian approves?" [shape=diamond];
         "All reviewers approved?" [shape=diamond];
         "Worker subagent fixes remaining issues" [shape=box];
         "Worker subagent fixes spec issues" [shape=box];
@@ -115,7 +117,7 @@ digraph process {
     "More tasks remain?" [shape=diamond];
     "Dispatch final reviews in parallel" [shape=box];
     "Reviewer — whole implementation approves?" [shape=diamond];
-    "standards-guardian — whole implementation approves?" [shape=diamond];
+    "guardian — whole implementation approves?" [shape=diamond];
     "Fix final review issues, re-run relevant verification, and re-review" [shape=box];
     "Use know-how:closing-out-work to close out work, get user review, then choose integration" [shape=box style=filled fillcolor=lightgreen];
 
@@ -131,10 +133,10 @@ digraph process {
     "Worker subagent implements, tests, self-reviews" -> "Task verification steps pass?";
     "Task verification steps pass?" -> "Worker subagent fixes task verification issues" [label="no"];
     "Worker subagent fixes task verification issues" -> "Worker subagent implements, tests, self-reviews" [label="re-verify"];
-    "Task verification steps pass?" -> "Dispatch reviewers in parallel: spec compliance, code quality, and standards-guardian" [label="yes"];
-    "Dispatch reviewers in parallel: spec compliance, code quality, and standards-guardian" -> "reviewer — spec compliance (./spec-reviewer-prompt.md) approves?";
-    "Dispatch reviewers in parallel: spec compliance, code quality, and standards-guardian" -> "Code-quality review result ready?";
-    "Dispatch reviewers in parallel: spec compliance, code quality, and standards-guardian" -> "standards-guardian result ready?";
+    "Task verification steps pass?" -> "Dispatch reviewers in parallel: spec compliance, code quality, and guardian" [label="yes"];
+    "Dispatch reviewers in parallel: spec compliance, code quality, and guardian" -> "reviewer — spec compliance (./spec-reviewer-prompt.md) approves?";
+    "Dispatch reviewers in parallel: spec compliance, code quality, and guardian" -> "Code-quality review result ready?";
+    "Dispatch reviewers in parallel: spec compliance, code quality, and guardian" -> "guardian result ready?";
     "reviewer — spec compliance (./spec-reviewer-prompt.md) approves?" -> "Code-quality review result ready?" [label="yes"];
     "reviewer — spec compliance (./spec-reviewer-prompt.md) approves?" -> "Cancel or discard code-quality and guardian reviews for this code state" [label="no"];
     "Cancel or discard code-quality and guardian reviews for this code state" -> "Worker subagent fixes spec issues";
@@ -142,14 +144,14 @@ digraph process {
     "Code-quality review result ready?" -> "Wait for remaining reviewer results" [label="no"];
     "Wait for remaining reviewer results" -> "Code-quality review result ready?";
     "Code-quality review result ready?" -> "reviewer — code quality (./code-quality-reviewer-prompt.md) approves?" [label="yes"];
-    "standards-guardian result ready?" -> "Wait for remaining reviewer results" [label="no"];
-    "Wait for remaining reviewer results" -> "standards-guardian result ready?";
-    "standards-guardian result ready?" -> "standards-guardian approves?" [label="yes"];
+    "guardian result ready?" -> "Wait for remaining reviewer results" [label="no"];
+    "Wait for remaining reviewer results" -> "guardian result ready?";
+    "guardian result ready?" -> "guardian approves?" [label="yes"];
     "reviewer — code quality (./code-quality-reviewer-prompt.md) approves?" -> "All reviewers approved?" [label="yes"];
     "reviewer — code quality (./code-quality-reviewer-prompt.md) approves?" -> "Worker subagent fixes code-quality issues" [label="no"];
 
-    "standards-guardian approves?" -> "All reviewers approved?" [label="yes"];
-    "standards-guardian approves?" -> "Worker subagent fixes compliance issues" [label="no"];
+    "guardian approves?" -> "All reviewers approved?" [label="yes"];
+    "guardian approves?" -> "Worker subagent fixes compliance issues" [label="no"];
     "Worker subagent fixes code-quality issues" -> "Re-run task verification steps after review fixes";
     "Worker subagent fixes compliance issues" -> "Re-run task verification steps after review fixes";
     "Worker subagent fixes remaining issues" -> "Re-run task verification steps after review fixes";
@@ -163,11 +165,11 @@ digraph process {
     "More tasks remain?" -> "Dispatch worker subagent (./worker-prompt.md)" [label="yes"];
     "More tasks remain?" -> "Dispatch final reviews in parallel" [label="no"];
     "Dispatch final reviews in parallel" -> "Reviewer — whole implementation approves?";
-    "Dispatch final reviews in parallel" -> "standards-guardian — whole implementation approves?";
+    "Dispatch final reviews in parallel" -> "Guardian — whole implementation approves?";
     "Reviewer — whole implementation approves?" -> "Fix final review issues, re-run relevant verification, and re-review" [label="no"];
-    "Reviewer — whole implementation approves?" -> "standards-guardian — whole implementation approves?" [label="yes"];
-    "standards-guardian — whole implementation approves?" -> "Fix final review issues, re-run relevant verification, and re-review" [label="no"];
-    "standards-guardian — whole implementation approves?" -> "Use know-how:closing-out-work to close out work, get user review, then choose integration" [label="yes"];
+    "Reviewer — whole implementation approves?" -> "Guardian — whole implementation approves?" [label="yes"];
+    "Guardian — whole implementation approves?" -> "Fix final review issues, re-run relevant verification, and re-review" [label="no"];
+    "Guardian — whole implementation approves?" -> "Use know-how:closing-out-work to close out work, get user review, then choose integration" [label="yes"];
     "Fix final review issues, re-run relevant verification, and re-review" -> "Dispatch final reviews in parallel";
 }
 ````
@@ -215,8 +217,8 @@ Before dispatching Task 1, read the plan's `Execution Autonomy` and `Worktree St
 
 **Execution Autonomy:**
 
-- `Fully autonomous`: after a task clears required verification, and spec review, code-quality review, and standards-guardian all approve the same code state, mark it complete and continue to the next task.
-- `Checkpointed`: after a task clears required verification, and spec review, code-quality review, and standards-guardian all approve the same code state, mark it complete, report status, and wait for user approval before starting the next task.
+- `Fully autonomous`: after a task clears required verification, and spec review, code-quality review, and guardian all approve the same code state, mark it complete and continue to the next task.
+- `Checkpointed`: after a task clears required verification, and spec review, code-quality review, and guardian all approve the same code state, mark it complete, report status, and wait for user approval before starting the next task.
 
 **Worktree Strategy:**
 
@@ -225,20 +227,20 @@ Before dispatching Task 1, read the plan's `Execution Autonomy` and `Worktree St
 
 These approval pauses happen after the task's verification and review work are complete. They do not replace the review gates.
 
-If spec review finds an issue, cancel or discard the code-quality review and standards-guardian review for that code state, fix the spec issue, re-run the task's verification steps, and then start all three reviews again.
+If spec review finds an issue, cancel or discard the code-quality review and guardian review for that code state, fix the spec issue, re-run the task's verification steps, and then start all three reviews again.
 
-If code-quality review finds an issue after spec review approves, fix the code-quality issue, re-run the task's verification steps, and then start code-quality review and standards-guardian review again.
+If code-quality review finds an issue after spec review approves, fix the code-quality issue, re-run the task's verification steps, and then start code-quality review and guardian review again.
 
 Guardian optimization log entries for cancelled reviews are preserved — the gap was still observed.
 
 ## Review Authority
 
 - spec reviewer authoritative on scope.
-- spec review has precedence over code-quality review and standards-guardian for the current code state.
+- spec review has precedence over code-quality review and guardian for the current code state.
 - code-quality reviewer must stay within approved scope.
-- standards-guardian enforces documented conventions — its compliance findings can block task completion; its optimization suggestions are logged silently.
-- if spec review fails first, cancel or discard the code-quality and standards-guardian review results for that code state.
-- code-quality and standards-guardian feedback only apply after spec review approves the same code state.
+- Guardian enforces documented conventions — its compliance findings can block task completion; its optimization suggestions are logged silently.
+- if spec review fails first, cancel or discard the code-quality and guardian review results for that code state.
+- code-quality and guardian feedback only apply after spec review approves the same code state.
 
 ## Handling Worker Status
 
@@ -256,6 +258,7 @@ Worker subagents report one of four statuses. Handle each appropriately:
 
 ## Prompt Templates
 
+- `./scout-prompt.md` - Dispatch scout subagent for bounded reconnaissance
 - `./worker-prompt.md` - Dispatch worker subagent
 - `./spec-reviewer-prompt.md` - Dispatch reviewer for spec compliance
 - `./code-quality-reviewer-prompt.md` - Dispatch reviewer for code quality
@@ -266,7 +269,7 @@ Worker subagents report one of four statuses. Handle each appropriately:
 2. Dispatch three subagents in parallel:
    - `reviewer` for spec compliance
    - `reviewer` for code quality
-   - `standards-guardian` for project-standards enforcement
+   - `guardian` for project-standards enforcement
 3. Watch the spec reviewer first.
 4. If the spec reviewer reports any issue:
    - stop waiting for code-quality and guardian feedback
@@ -281,7 +284,7 @@ Worker subagents report one of four statuses. Handle each appropriately:
 6. If the code-quality reviewer reports an issue after spec approval:
    - send the issue to the worker
    - re-review code quality
-   - the standards-guardian is also re-dispatched with the updated code state
+   - the guardian is also re-dispatched with the updated code state
 7. Mark the task complete only when all three reviewers approve the same code
    state. Guardian's optimization suggestions are logged silently — they do not
    block task completion.
@@ -312,7 +315,7 @@ Worker: "Got it. Implementing now..."
   - Self-review: Found I missed --force flag, added it
 
 [Confirm required task verification passed]
-[Get git SHAs, Dispatch reviewers — spec compliance, code quality, and standards-guardian in parallel]
+[Get git SHAs, Dispatch reviewers — spec compliance, code quality, and guardian in parallel]
 Reviewer (spec compliance): ✅ Spec compliant - all listed requirements implemented, no unrequested behavior or options added
 Reviewer (code quality): Strengths: Good test coverage, clean. Issues: None. Approved.
 Standards guardian: ✅ No compliance violations found. Optimization suggestions logged.
@@ -331,7 +334,7 @@ Worker:
   - 8/8 tests passing
   - Self-review: No additional issues found in this pass
 
-[Dispatch reviewers — spec compliance, code quality, and standards-guardian in parallel]
+[Dispatch reviewers — spec compliance, code quality, and guardian in parallel]
 Reviewer (spec compliance): ❌ Issues:
   - Missing: Progress reporting (spec says "report every 100 items")
   - Extra: Added --json flag (not requested)
@@ -359,7 +362,7 @@ Reviewer (code quality): ✅ Approved
 ...
 
 [After all tasks]
-[Dispatch final reviews in parallel — reviewer (whole implementation) + standards-guardian]
+[Dispatch final reviews in parallel — reviewer (whole implementation) + guardian]
 Reviewer — whole implementation: Requirements satisfied, no blocking issues found.
 Standards guardian: Compliance sweep passed. Optimization suggestions surfaced at close-out.
 
@@ -390,7 +393,7 @@ Done!
 - Self-review catches issues before handoff
 - Parallel review gates
 - Review loops ensure fixes actually work
-- Final whole-implementation review and standards-guardian sweep before closing out work
+- Final whole-implementation review and guardian sweep before closing out work
 - Spec compliance prevents over/under-building
 - Code quality ensures implementation is well-built
 - Standards enforcement ensures project conventions and personal preferences are consistently applied
@@ -408,7 +411,7 @@ Done!
 **Never:**
 
 - Start implementation on main/master branch without explicit user consent
-- Skip reviews (spec compliance, code quality, OR standards-guardian)
+- Skip reviews (spec compliance, code quality, OR guardian)
 - Proceed with unfixed issues
 - Dispatch multiple implementation subagents in parallel (conflicts)
 - Make subagent read plan file (provide full text instead)
@@ -417,7 +420,7 @@ Done!
 - Accept "close enough" on spec compliance (spec reviewer found issues = not done)
 - Skip review loops (reviewer found issues = worker fixes = review again)
 - Let worker self-review replace actual review (both are needed)
-- Move to next task before **all** review gates (spec, code-quality, standards-guardian) approve the same code state
+- Move to next task before **all** review gates (spec, code-quality, guardian) approve the same code state
 - Wait for code-quality or guardian feedback after spec review already found an issue for the current code state
 - Reuse a code-quality or guardian result from a code state that spec review rejected
 - Ignore the plan's declared `Execution Autonomy` or `Worktree Strategy`
@@ -432,17 +435,17 @@ Done!
 
 **If reviewer finds issues:**
 
-- If spec review finds an issue first, cancel or discard the code-quality and standards-guardian reviews for that code state
+- If spec review finds an issue first, cancel or discard the code-quality and guardian reviews for that code state
 - Worker (same subagent) fixes the reported issue
 - Re-run the task's verification steps on the updated code
 - Start all three reviewers again on the updated code state
-- If spec review approves and code-quality review finds an issue, fix it, repeat code quality review, and re-dispatched standards-guardian with the updated code state
-- If spec review approves and standards-guardian finds a compliance violation, fix it, re-run verification, and dispatch all three reviewers again
+- If spec review approves and code-quality review finds an issue, fix it, repeat code quality review, and re-dispatched guardian with the updated code state
+- If spec review approves and guardian finds a compliance violation, fix it, re-run verification, and dispatch all three reviewers again
 - Don't skip re-reviews
 
 **After the final whole-implementation review:**
 
-- Final reviews are dispatched in parallel: `reviewer` for whole-implementation sweep and `standards-guardian` for final project-standards compliance sweep
+- Final reviews are dispatched in parallel: `reviewer` for whole-implementation sweep and `guardian` for final project-standards compliance sweep
 - both must approve the same code state
 - if blocking issues are found by either reviewer, fix them
 - re-run the relevant verification on the updated code

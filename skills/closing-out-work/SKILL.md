@@ -88,8 +88,16 @@ If you change anything here, return to verification before moving on.
 
 ### Step 4.5: Guardian Optimization Synthesis
 
-1. Dispatch the `standards-guardian` agent if it was not already dispatched
-   during per-task reviews.
+1. Dispatch the `guardian` agent if it was not already dispatched
+   during per-task reviews. Frame the task with explicit scope and output expectations:
+
+   ```
+   subagent({
+     agent: "guardian",
+     task: "Final project-standards compliance sweep for this implementation. Scope: all changed files in this work unit. Check against: AGENTS.md, project skill, pi-memory, reflections, optimization-log.md. Output: (1) any compliance violations found, (2) de-duplicated optimization suggestions, (3) cross-session auto-surfaces. Review changed files only — do not explore unrelated code. Return structured report."
+   })
+   ```
+
 2. The guardian produces a synthesized report:
    - Final project-standards compliance sweep (catches what per-task sweeps missed)
    - De-duplicated optimization suggestions (same gap flagged in multiple

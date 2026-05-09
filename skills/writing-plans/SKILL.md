@@ -191,7 +191,7 @@ If the decision is `Required`, write the failing test first and follow TDD stric
 **Review gates (parallel):**
 
 - [ ] **Whole-implementation reviewer:** comprehensive sweep
-- [ ] **standards-guardian:** final project-standards compliance sweep + optimization synthesis
+- [ ] **guardian:** final project-standards compliance sweep + optimization synthesis
 
 **Optimization:**
 
@@ -348,12 +348,12 @@ Both styles must follow the declared autonomy mode and worktree strategy exactly
 **If Subagent-Driven chosen:**
 
 - **REQUIRED SUB-SKILL:** Use know-how:subagent-driven-development
-- Fresh subagent per task + dedicated spec, code-quality, and standards-guardian review + close-out task handles integration
+- Fresh subagent per task + dedicated spec, code-quality, and guardian review + close-out task handles integration
 - Follow the plan's declared autonomy mode and worktree strategy
 
 **If Inline Execution chosen:**
 
 - **REQUIRED SUB-SKILL:** Use know-how:executing-plans
-- Execute the plan inline while performing required spec-compliance, code-quality, and standards-guardian review before a task is complete
+- Execute the plan inline while performing required spec-compliance, code-quality, and guardian review before a task is complete
 - Close-out task handles review, optimization synthesis, and integration
 ```
