@@ -14,7 +14,7 @@ Do not request scope-expanding changes. If a possible improvement would add beha
 
 ```
 Subagent dispatch — code quality reviewer:
-  Use the code-reviewer agent template
+  Use the `reviewer` agent with this template:
 
   WHAT_WAS_IMPLEMENTED: [from worker's report]
   PLAN_OR_REQUIREMENTS: Task N from [plan-file]
