@@ -65,7 +65,11 @@ Subagent dispatch — scout:
 
     Do not produce a comprehensive context document. Do not write a narrative
     summary. Do not include code snippets unless a question explicitly asks for
-    them. Bullet points only.
+    them. Bullet points only. 
+
+    <IMPORTANT>
+      DO NOT OUTPUT YOUR FINDING INTO A TEMP FILE
+    <IMPORTANT>
 
     ## When You're Done
 
@@ -77,6 +81,8 @@ Subagent dispatch — scout:
 
     If the task is too vague ("explore the codebase"), report:
     "NEEDS_SPECIFICITY: Task is too broad. Need specific files and questions."
+
+    You have been asked to write your report into a specific file, or any file of your choosing.
 
     If the listed files don't exist or paths are wrong, report what you found
     and stop. Do not guess at alternative paths.
