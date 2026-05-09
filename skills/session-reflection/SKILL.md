@@ -162,7 +162,7 @@ preferences. Run memory_lessons to check for corrections from past sessions.
 
 ### closing-out-work
 
-The closing-out-work skill now includes a reflection step (Step 4.5). When you
+The closing-out-work skill now includes a reflection step (Step 5). When you
 reach that step, produce a reflection covering everything from this work unit:
 decisions made, corrections received, recurring patterns, remaining work.
 

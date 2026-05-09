@@ -9,7 +9,7 @@ description: Use when implementation is complete, verification is passing, and y
 
 Close out implementation by verifying it, cleaning up residual artifacts, anticipating likely feedback, asking the user to review the work, and only after user confirmation presenting final integration options.
 
-**Core principle:** Verify -> determine context -> clean up -> anticipate feedback -> reflect -> ask for review -> feedback loop if needed -> then choose integration.
+**Core principle:** Verify -> determine context -> clean up -> anticipate feedback -> guardian optimization synthesis -> reflect -> ask for review -> feedback loop if needed -> then choose integration.
 
 **Announce at start:** "I'm using the closing-out-work skill to complete this work."
 
@@ -86,9 +86,25 @@ Look for:
 
 If you change anything here, return to verification before moving on.
 
-### Step 4.5: Reflect
+### Step 4.5: Guardian Optimization Synthesis
 
-Before presenting the work for review, capture what was learned:
+1. Dispatch the `standards-guardian` agent if it was not already dispatched
+   during per-task reviews.
+2. The guardian produces a synthesized report:
+   - Final project-standards compliance sweep (catches what per-task sweeps missed)
+   - De-duplicated optimization suggestions (same gap flagged in multiple
+     tasks → one recommendation)
+   - Cross-session auto-surfaces (gaps flagged 3+ times across sessions)
+3. Present the synthesis to the human as actionable decision points.
+4. For each suggestion: human approves, edits, or skips.
+5. For approved suggestions:
+   - Apply the doc/memory/skill changes
+   - Run `/reflect` to capture them as a session reflection
+6. Re-run verification if project docs were changed.
+
+### Step 5: Reflect
+
+Guardian optimization suggestions (if any) were handled in Step 4.5. Now capture any remaining project-level decisions:
 
 Call `/reflect` (or write the reflection manually) to record key decisions,
 user corrections, and recurring problems from this work.
@@ -107,13 +123,13 @@ Remove any stale facts via `memory_forget`.
 
 If this was trivial work with no decisions or corrections, skip this step.
 
-### Step 5: Ask The User To Review The Work
+### Step 6: Ask The User To Review The Work
 
 Ask the user to review the work now that verification, cleanup, and polish are complete.
 
 Do not present merge, PR, keep, or discard options before the user has had a chance to review and confirm the work is ready.
 
-### Step 6: Handle Feedback Loop
+### Step 7: Handle Feedback Loop
 
 If the user gives feedback, route back through the same gates in order:
 
@@ -125,7 +141,7 @@ If the user gives feedback, route back through the same gates in order:
 
 Do not skip back directly to final options after making changes.
 
-### Step 7: Present Final Options After User Confirmation
+### Step 8: Present Final Options After User Confirmation
 
 Only after the user confirms the work looks good.
 
@@ -151,7 +167,7 @@ Then present exactly these options:
 
 Keep the options concise. Git is the final integration stage here, not the purpose of the skill.
 
-### Step 8: Execute The Chosen Option
+### Step 9: Execute The Chosen Option
 
 #### Option 1: Commit changes
 

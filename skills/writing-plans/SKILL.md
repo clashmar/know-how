@@ -185,11 +185,39 @@ If the decision is `Required`, write the failing test first and follow TDD stric
 - [specific checks to perform]
 
 ---
+
+### Task N+1: Close Out
+
+**Review gates (parallel):**
+
+- [ ] **Whole-implementation reviewer:** comprehensive sweep
+- [ ] **standards-guardian:** final project-standards compliance sweep + optimization synthesis
+
+**Optimization:**
+
+- [ ] Review guardian's synthesized optimization suggestions
+- [ ] Approve, edit, or skip each suggestion
+- [ ] Apply agreed doc/memory/skill changes
+- [ ] `/reflect` approved improvements
+
+**Cleanup:**
+
+- [ ] Sweep for residual artifacts (temp files, dead code, stale comments)
+- [ ] Verify project docs are up to date
+
+**Verification:**
+
+- [ ] Run full project verification
+
+**Integrate:**
+
+- [ ] Human confirms work is ready
+- [ ] Commit / PR / keep as-is
 ```
 
 ## Task Structure When TDD Is Required
 
-`````markdown
+````markdown
 ### Task N: [Component Name]
 
 **Files:**
@@ -227,6 +255,10 @@ Expected: PASS
 
 Run: `[broader command]`
 Expected: `[expected result]`
+````
+
+The final task in every plan is always the Close Out task (see template above).
+Its gates are always manual — it verifies, reviews, and integrates.
 
 ## No Placeholders
 
@@ -247,6 +279,9 @@ Every step must contain the actual content an engineer needs. These are **plan f
 - DRY, YAGNI, follow the chosen testing strategy
 
 ## Task Structure When Testing Is Manual Only
+
+The final task in every plan is always the Close Out task (see template above).
+Its gates are always manual — it verifies, reviews, and integrates.
 
 ````markdown
 ### Task N: [Component Name]
@@ -276,7 +311,8 @@ Expected: `[specific success marker]`
 
 Expected: no automated tests beyond those explicitly called for by the plan
 ````
-`````
+
+```
 
 For `Manual only` tasks, do not add automated tests unless the plan is updated first.
 
@@ -312,9 +348,12 @@ Both styles must follow the declared autonomy mode and worktree strategy exactly
 **If Subagent-Driven chosen:**
 
 - **REQUIRED SUB-SKILL:** Use know-how:subagent-driven-development
-- Fresh subagent per task + two-stage review + follow the plan's declared autonomy mode and worktree strategy
+- Fresh subagent per task + dedicated spec, code-quality, and standards-guardian review + close-out task handles integration
+- Follow the plan's declared autonomy mode and worktree strategy
 
 **If Inline Execution chosen:**
 
 - **REQUIRED SUB-SKILL:** Use know-how:executing-plans
-- Execute the plan inline while following the plan's declared autonomy mode and worktree strategy
+- Execute the plan inline while performing required spec-compliance, code-quality, and standards-guardian review before a task is complete
+- Close-out task handles review, optimization synthesis, and integration
+```
