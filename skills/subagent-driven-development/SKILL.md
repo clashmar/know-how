@@ -33,7 +33,7 @@ The controller orchestrates. Workers read and implement. Never mix these roles.
 
 # Subagent-Driven Development
 
-Execute plan by dispatching a fresh worker subagent per task. After the task's verification steps from the plan pass, dispatch spec-compliance review, code-quality review, and guardian review in parallel. Spec review has precedence: if the spec reviewer finds an issue first, stop waiting for code-quality and guardian feedback, cancel or discard the concurrent code-quality and guardian reviews, fix the spec issue, re-run the task's verification steps, and then start all three reviews again. Task execution is serial, and a task completes only when all three reviewers (spec, code-quality, guardian) approve the same code state. The guardian also logs optimization suggestions to improve project conventions — these are surfaced at close-out and do not block task completion. Follow the plan's declared `Execution Autonomy` exactly. Keep work moving quickly.
+Execute plan by dispatching a fresh worker subagent per task. After the task's verification steps from the plan pass, dispatch spec-compliance review, code-quality review, and guardian review in parallel. Spec review has precedence: if the spec reviewer finds an issue first, stop waiting for code-quality and guardian feedback, cancel or discard the concurrent code-quality and guardian reviews, fix the spec issue, re-run the task's verification steps, and then start all three reviews again. Task execution is serial, and a task completes only when all three reviewers (spec, code-quality, guardian) approve the same code state. The maester handles optimization suggestions and process improvement at close-out — these do not block task completion. Follow the plan's declared `Execution Autonomy` exactly. Keep work moving quickly.
 
 **Why subagents:** You delegate tasks to specialized agents with isolated context. By precisely crafting their instructions and context, you ensure they stay focused and succeed at their task. They should never inherit your session's context or history — you construct exactly what they need. This also preserves your own context for coordination work.
 
@@ -50,10 +50,11 @@ Every subagent dispatch point in this skill maps to a specific pi agent:
 | Worker per task                   | `worker`   |
 | Spec compliance review            | `reviewer` |
 | Code quality review               | `reviewer` |
-| Standards enforcement             | `guardian` |
-| Final whole-implementation review | `reviewer` |
+| Standards enforcement (per-task)              | `guardian` |
+| Process optimization & memory (close-out) | `maester`  |
+| Final whole-implementation review          | `reviewer` |
 
-The `worker` agent handles implementation with fresh context. Workers, reviewers, and scouts all use `context: "fresh"` — the controller provides exactly what's needed in the task description rather than inheriting session history. The `guardian` uses `context: "fresh"` — it reads all sources from disk on every dispatch. The `reviewer` agent handles reviews with spec compliance or code quality prompt templates. The `guardian` agent enforces documented project conventions using its dedicated system prompt (see `~/.pi/agent/agents/guardian.md`).
+The `worker` agent handles implementation with fresh context. Workers, reviewers, and scouts all use `context: "fresh"` — the controller provides exactly what's needed in the task description rather than inheriting session history. The `guardian` uses `context: "fresh"` — it reads all sources from disk on every dispatch. The `reviewer` agent handles reviews with spec compliance or code quality prompt templates. The `guardian` agent enforces documented project conventions using its dedicated system prompt (see `~/.pi/agent/agents/guardian.md`). The `maester` agent handles process optimization and memory stewardship at close-out (see `~/.pi/agent/agents/maester.md`).
 
 <IMPORTANT>
 Keep things moving while maintaining quality gates. Instill urgency in reviewers to review quickly and workers to fix quickly. You are responsible for keeping things flowing, they are responsible for doing their part well and quickly. Call out delays and blockers, and keep the momentum going.
@@ -117,7 +118,7 @@ digraph process {
     "More tasks remain?" [shape=diamond];
     "Dispatch final reviews in parallel" [shape=box];
     "Reviewer — whole implementation approves?" [shape=diamond];
-    "guardian — whole implementation approves?" [shape=diamond];
+    "maester — process optimization & memory audit approves?" [shape=diamond];
     "Fix final review issues, re-run relevant verification, and re-review" [shape=box];
     "Use know-how:closing-out-work to close out work, get user review, then choose integration" [shape=box style=filled fillcolor=lightgreen];
 
@@ -165,11 +166,11 @@ digraph process {
     "More tasks remain?" -> "Dispatch worker subagent (./worker-prompt.md)" [label="yes"];
     "More tasks remain?" -> "Dispatch final reviews in parallel" [label="no"];
     "Dispatch final reviews in parallel" -> "Reviewer — whole implementation approves?";
-    "Dispatch final reviews in parallel" -> "Guardian — whole implementation approves?";
+    "Dispatch final reviews in parallel" -> "maester — process optimization & memory audit approves?";
     "Reviewer — whole implementation approves?" -> "Fix final review issues, re-run relevant verification, and re-review" [label="no"];
-    "Reviewer — whole implementation approves?" -> "Guardian — whole implementation approves?" [label="yes"];
-    "Guardian — whole implementation approves?" -> "Fix final review issues, re-run relevant verification, and re-review" [label="no"];
-    "Guardian — whole implementation approves?" -> "Use know-how:closing-out-work to close out work, get user review, then choose integration" [label="yes"];
+    "Reviewer — whole implementation approves?" -> "maester — process optimization & memory audit approves?" [label="yes"];
+    "maester — process optimization & memory audit approves?" -> "Fix final review issues, re-run relevant verification, and re-review" [label="no"];
+    "maester — process optimization & memory audit approves?" -> "Use know-how:closing-out-work to close out work, get user review, then choose integration" [label="yes"];
     "Fix final review issues, re-run relevant verification, and re-review" -> "Dispatch final reviews in parallel";
 }
 ````
@@ -289,8 +290,8 @@ Worker subagents report one of four statuses. Handle each appropriately:
    - re-review code quality
    - the guardian is also re-dispatched with the updated code state
 7. Mark the task complete only when all three reviewers approve the same code
-   state. Guardian's optimization suggestions are logged silently — they do not
-   block task completion.
+   state. Optimization suggestions are handled by the maester at close-out — they
+   do not block task completion.
 
 ## Example Workflow
 
@@ -321,7 +322,7 @@ Worker: "Got it. Implementing now..."
 [Get git SHAs, Dispatch reviewers — spec compliance, code quality, and guardian in parallel]
 Reviewer (spec compliance): ✅ Spec compliant - all listed requirements implemented, no unrequested behavior or options added
 Reviewer (code quality): Strengths: Good test coverage, clean. Issues: None. Approved.
-Standards guardian: ✅ No compliance violations found. Optimization suggestions logged.
+Standards guardian: ✅ No compliance violations found.
 
 [Mark Task 1 complete]
 [If `Execution Autonomy` is `Checkpointed`, report status and wait for user approval]
@@ -365,9 +366,9 @@ Reviewer (code quality): ✅ Approved
 ...
 
 [After all tasks]
-[Dispatch final reviews in parallel — reviewer (whole implementation) + guardian]
+[Dispatch final reviews in parallel — reviewer (whole implementation) + maester]
 Reviewer — whole implementation: Requirements satisfied, no blocking issues found.
-Standards guardian: Compliance sweep passed. Optimization suggestions surfaced at close-out.
+maester: Process optimization & memory audit passed. Optimization suggestions surfaced.
 
 [If either reviewer finds blocking issues, fix them, re-run relevant verification, and re-review before closing out]
 
@@ -396,7 +397,7 @@ Done!
 - Self-review catches issues before handoff
 - Parallel review gates
 - Review loops ensure fixes actually work
-- Final whole-implementation review and guardian sweep before closing out work
+- Final whole-implementation review and maester sweep before closing out work
 - Spec compliance prevents over/under-building
 - Code quality ensures implementation is well-built
 - Standards enforcement ensures project conventions and personal preferences are consistently applied
@@ -451,7 +452,7 @@ Done!
 
 **After the final whole-implementation review:**
 
-- Final reviews are dispatched in parallel: `reviewer` for whole-implementation sweep and `guardian` for final project-standards compliance sweep
+- Final reviews are dispatched in parallel: `reviewer` for whole-implementation sweep and `maester` for process optimization & memory audit
 - both must approve the same code state
 - if blocking issues are found by either reviewer, fix them
 - re-run the relevant verification on the updated code

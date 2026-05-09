@@ -157,7 +157,7 @@ For each task:
 3. Run verifications as specified
 4. Re-read the current task and confirm the implementation matches the task and plan without adding unrequested behavior. This is the mandatory spec-compliance review gate.
 5. Run a distinct code-quality review of the changed work before proceeding. This review is mandatory for every task. For risky, behavior-changing, or multi-file tasks, use know-how:requesting-code-review for a focused review.
-6. Run a guardian review of the changed work. This review checks adherence to documented project conventions (AGENTS.md, project skill, pi-memory, reflections). Guardian's optimization suggestions are logged silently — they do not block task completion. This review is mandatory for every task.
+6. Run a guardian review of the changed work. This review checks adherence to documented project conventions (AGENTS.md, project skill, pi-memory, reflections). Optimization suggestions are handled by the maester at close-out — they do not block task completion. This review is mandatory for every task.
 7. If any review changes code, re-run the task's required verification and all three review gates on the updated state
 8. Mark the same todo item as `completed`
 9. If `Execution Autonomy` is `Checkpointed`, report status and wait for user approval before starting the next task
@@ -166,10 +166,10 @@ For each task:
 
 After all tasks complete and verified:
 
-- Run final reviews in parallel: whole-implementation reviewer (comprehensive sweep) and guardian (final project-standards compliance sweep + optimization synthesis). Both must approve before closing out.
+- Run final reviews in parallel: whole-implementation reviewer (comprehensive sweep) and maester (process optimization + memory stewardship + optimization synthesis). Both must approve before closing out.
 - If either final review requires code changes, re-run the relevant verification and review on the updated code before continuing
 - Announce: "All implementation tasks complete. Executing close-out task."
-- The plan's close-out task handles verification, guardian optimization synthesis, cleanup, and integration.
+- The plan's close-out task handles verification, maester optimization synthesis, cleanup, and integration.
 
 ## When to Stop and Ask for Help
 
@@ -205,7 +205,7 @@ After all tasks complete and verified:
 - Don't create extra todo items for verification, review gates, or manual checks
 - Don't mark a task complete before spec-compliance review, code-quality review, and guardian review
 - If review changes code, re-run verification and re-review before completion
-- Don't skip the final parallel reviews (whole-implementation + guardian) before the close-out task
+- Don't skip the final parallel reviews (whole-implementation + maester) before the close-out task
 - Reference skills when plan says to
 - Stop when blocked, don't guess
 - Never start implementation on main/master branch without explicit user consent

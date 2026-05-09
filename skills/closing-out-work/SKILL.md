@@ -9,7 +9,7 @@ description: Use when implementation is complete, verification is passing, and y
 
 Close out implementation by verifying it, cleaning up residual artifacts, anticipating likely feedback, asking the user to review the work, and only after user confirmation presenting final integration options.
 
-**Core principle:** Verify -> determine context -> clean up -> anticipate feedback -> guardian optimization synthesis -> reflect -> ask for review -> feedback loop if needed -> then choose integration.
+**Core principle:** Verify -> determine context -> clean up -> anticipate feedback -> maester optimization synthesis -> reflect -> ask for review -> feedback loop if needed -> then choose integration.
 
 **Announce at start:** "I'm using the closing-out-work skill to complete this work."
 
@@ -86,22 +86,22 @@ Look for:
 
 If you change anything here, return to verification before moving on.
 
-### Step 4.5: Guardian Optimization Synthesis
+### Step 4.5: Maester Optimization Synthesis
 
-1. Dispatch the `guardian` agent if it was not already dispatched
-   during per-task reviews. Frame the task with explicit scope and output expectations:
+1. Dispatch the `maester` agent to perform process optimization and memory
+   stewardship at close-out:
 
    ```
    subagent({
-     agent: "guardian",
-     task: "Final project-standards compliance sweep for this implementation. Scope: all changed files in this work unit. Check against: AGENTS.md, project skill, pi-memory, reflections, optimization-log.md. Output: (1) any compliance violations found, (2) de-duplicated optimization suggestions, (3) cross-session auto-surfaces. Review changed files only — do not explore unrelated code. Return structured report."
+     agent: "maester",
+     task: "Close-out process optimization and memory stewardship sweep. Collect all per-task review outputs. Synthesize optimization suggestions, audit pi-memory for contradictions/staleness, detect cross-session patterns. Do NOT review code, specs, or conventions — that work is already done. Output: (1) de-duplicated optimization suggestions, (2) stale-memory audit, (3) cross-session auto-surfaces. Append suggestions to optimization-log.md."
    })
    ```
 
-2. The guardian produces a synthesized report:
-   - Final project-standards compliance sweep (catches what per-task sweeps missed)
+2. The maester produces a synthesized report:
    - De-duplicated optimization suggestions (same gap flagged in multiple
      tasks → one recommendation)
+   - Stale-memory audit (contradictions, duplicates, superseded facts)
    - Cross-session auto-surfaces (gaps flagged 3+ times across sessions)
 3. Present the synthesis to the human as actionable decision points.
 4. For each suggestion: human approves, edits, or skips.

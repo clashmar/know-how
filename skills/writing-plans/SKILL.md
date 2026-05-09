@@ -191,11 +191,11 @@ If the decision is `Required`, write the failing test first and follow TDD stric
 **Review gates (parallel):**
 
 - [ ] **Whole-implementation reviewer:** comprehensive sweep
-- [ ] **guardian:** final project-standards compliance sweep + optimization synthesis
+- [ ] **maester:** process optimization + memory stewardship + optimization synthesis
 
 **Optimization:**
 
-- [ ] Review guardian's synthesized optimization suggestions
+- [ ] Review maester's synthesized optimization suggestions
 - [ ] Approve, edit, or skip each suggestion
 - [ ] Apply agreed doc/memory/skill changes
 - [ ] `/reflect` approved improvements
