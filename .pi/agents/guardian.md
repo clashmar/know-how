@@ -8,8 +8,6 @@ description: |
   dispatch to enforce documented conventions. Also logs optimization suggestions
   to improve the standards themselves. Use at review points alongside spec and
   code-quality reviewers.
-model: inherit
-thinking: high
 tools: read, grep, find, ls, memory_search, bash
 inheritProjectContext: false
 defaultContext: fresh

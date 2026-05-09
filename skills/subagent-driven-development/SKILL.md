@@ -53,7 +53,7 @@ Every subagent dispatch point in this skill maps to a specific pi agent:
 | Standards enforcement             | `guardian` |
 | Final whole-implementation review | `reviewer` |
 
-The `worker` agent handles implementation with forked context. The `reviewer` agent handles reviews with spec compliance or code quality prompt templates. The `guardian` agent enforces documented project conventions using its dedicated system prompt (see `~/.pi/agent/agents/guardian.md`).
+The `worker` agent handles implementation with fresh context. Workers, reviewers, and scouts all use `context: "fresh"` — the controller provides exactly what's needed in the task description rather than inheriting session history. The one exception is the `guardian`, which uses `context: "fork"` so it can see the full session history to detect conventions drift. The `reviewer` agent handles reviews with spec compliance or code quality prompt templates. The `guardian` agent enforces documented project conventions using its dedicated system prompt (see `~/.pi/agent/agents/guardian.md`).
 
 <IMPORTANT>
 Keep things moving while maintaining quality gates. Instill urgency in reviewers to review quickly and workers to fix quickly. You are responsible for keeping things flowing, they are responsible for doing their part well and quickly. Call out delays and blockers, and keep the momentum going.
@@ -269,7 +269,7 @@ Worker subagents report one of four statuses. Handle each appropriately:
 ## Per-Task Review Flow
 
 1. Run the task's verification steps from the plan.
-2. Dispatch three subagents in parallel:
+2. Dispatch three subagents in parallel — reviewers with `context: "fresh"`, guardian with `context: "fork"`:
    - `reviewer` for spec compliance
    - `reviewer` for code quality
    - `guardian` for project-standards enforcement
