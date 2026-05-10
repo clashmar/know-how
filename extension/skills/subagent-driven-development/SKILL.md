@@ -20,6 +20,8 @@ YOU MUST NOT:
 - Implement anything yourself
 - Read files sequentially to "prepare"
 
+⚠️ HARD GATE: MAX 3 concurrent subagents ⚠️
+
 THE TEST: If you have typed "read" more than once since SDD was invoked,
 you are already violating this skill. STOP. Dispatch.
 

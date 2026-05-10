@@ -20,6 +20,7 @@ import {
 	PROJECT_SKILLS_DIR,
 } from "./skill-discovery";
 import { registerReadMode } from "./read-mode";
+import { beforeAgentStart } from "./session-start";
 
 // ---------------------------------------------------------------------------
 // Path resolution
@@ -308,13 +309,10 @@ const loadSkillContent = (skillName: string): string | null => {
 	return content;
 };
 
-// ---------------------------------------------------------------------------
-// Extension entry point
-// ---------------------------------------------------------------------------
-
 export default function (pi: ExtensionAPI) {
 	dispatchExtension(pi);
 	registerReadMode(pi);
+	beforeAgentStart(pi);
 
 	// Expose skills and project skills directories for pi auto-discovery
 	pi.on("resources_discover", async (_event, _ctx) => {
@@ -385,6 +383,7 @@ export default function (pi: ExtensionAPI) {
 			},
 		};
 	});
+
 
 	// Inject catch-up context on first user message of each session
 	pi.on("before_agent_start", async (event, ctx) => {

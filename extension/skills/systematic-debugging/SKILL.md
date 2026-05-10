@@ -114,6 +114,8 @@ You MUST complete each phase before proceeding to the next.
 
    **Dispatch parallel agents for multi-component debugging:**
 
+   ⚠️ HARD GATE: MAX 3 concurrent subagents ⚠️ 
+
    For each component boundary, dispatch a `scout` subagent via `subagent` PARALLEL mode
    with `tasks` array and `concurrency`. Each task gets one component boundary to
    investigate, with specific instructions on what to check and a stop boundary.
