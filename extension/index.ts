@@ -6,7 +6,8 @@
  * skills directory for pi discovery.
  */
 
-import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import type { ExtensionAPI, SessionEntry } from "@mariozechner/pi-coding-agent";
+import type { MemoryStore, SemanticEntry } from "@samfp/pi-memory/store";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -51,16 +52,21 @@ const extractAndStripFrontmatter = (
 // pi-memory lazy import (best-effort — if not installed, catch-up uses files only)
 // ---------------------------------------------------------------------------
 
-let _piMemory: any;
+type PiMemoryModule = {
+	resolveDbPath: (cwd: string) => string;
+	MemoryStore: typeof MemoryStore;
+};
 
-function getPiMemory(): any {
-	if (_piMemory !== undefined) return _piMemory;
+let _piMemory: PiMemoryModule | null | undefined;
+
+function getPiMemory(): PiMemoryModule | null {
+	if (_piMemory !== undefined) return _piMemory ?? null;
 	try {
-		_piMemory = require("@samfp/pi-memory");
+		_piMemory = require("@samfp/pi-memory") as PiMemoryModule;
 	} catch {
 		_piMemory = null;
 	}
-	return _piMemory;
+	return _piMemory ?? null;
 }
 
 // ---------------------------------------------------------------------------
@@ -164,12 +170,12 @@ function buildCatchUpBlock(projectName: string): CatchUpResult | null {
 
 	let piFacts: string[] = [];
 	if (piMemory) {
-		let store: any = null;
+		let store: MemoryStore | null = null;
 		try {
 			const dbPath = piMemory.resolveDbPath(process.cwd());
 			store = new piMemory.MemoryStore(dbPath);
 			const results = store.searchSemantic(projectName, 10);
-			piFacts = results.map((r: any) => `${r.key}: ${r.value}`);
+			piFacts = results.map((r: SemanticEntry) => `${r.key}: ${r.value}`);
 		} catch {
 			// pi-memory query failed — continue without it
 		} finally {
@@ -395,7 +401,7 @@ export default function (pi: ExtensionAPI) {
 		// Count user messages in current session
 		const entries = ctx.sessionManager.getEntries();
 		const userMessageCount = entries.filter(
-			(e) => e.type === "message" && (e as any).message?.role === "user",
+			(e) => e.type === 'message' && (e as { message: { role: string } }).message.role === 'user',
 		).length;
 
 		if (userMessageCount >= 5) {

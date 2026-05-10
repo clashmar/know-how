@@ -1,12 +1,18 @@
 {
   "compilerOptions": {
     "strict": true,
+    "ignoreDeprecations": "6.0",
     "target": "ES2022",
     "module": "commonjs",
     "moduleResolution": "bundler",
     "esModuleInterop": true,
     "types": ["node"],
-    "noEmit": true
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@samfp/pi-memory": ["./node_modules/@samfp/pi-memory/src/index.ts"],
+      "@samfp/pi-memory/store": ["./node_modules/@samfp/pi-memory/src/store.ts"]
+    }
   },
-  "include": ["extensions/**/*.ts"]
+  "include": ["extension/**/*.ts"]
 }
