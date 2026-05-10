@@ -1,17 +1,17 @@
 ---
 name: closing-out-work
-description: Use when implementation is complete, verification is passing, and you need to close out the work with cleanup, review, and final integration choices
+description: Use when implementation is complete, verification is passing, and you need to close out the work with cleanup, review, process optimization, reflection, and final integration choices
 ---
 
 # Closing Out Work
 
 ## Overview
 
-Close out implementation by verifying it, cleaning up residual artifacts, anticipating likely feedback, asking the user to review the work, and only after user confirmation presenting final integration options.
+Close out implementation by verifying it, giving the testing artifacts, cleaning up residual artifacts, anticipating likely feedback, asking the user to review the work, optimizing and reflecting on the process, and presenting final integration options.
 
-**Core principle:** Verify -> determine context -> clean up -> anticipate feedback -> maester optimization synthesis -> reflect -> ask for review -> feedback loop if needed -> then choose integration.
+**Core principle:** Verify -> help user testing -> clean up -> anticipate feedback -> ask for review -> feedback loop if needed -> optimize and reflect -> integrate.
 
-**Announce at start:** "I'm using the closing-out-work skill to complete this work."
+**Announce at start:** "I'm using the closing-out-work skill to complete this work. Verifying state before moving on to feedback, process optimization, and final integration options."
 
 ## The Process
 
@@ -30,7 +30,7 @@ npm test / cargo test / pytest / go test ./...
 
 If verification fails, do not continue to integration decisions or cleanup shortcuts.
 
-### Step 1.5: Prepare Manual Verification Artifacts
+### Step 2: Prepare Manual Verification Artifacts
 
 Before moving to integration context, prepare manual verification artifacts
 for the human reviewer.
@@ -50,7 +50,7 @@ items with either pre-confirmed results or clear expectations for what a
 human should see. The goal is to make review as fast and confident as
 possible.
 
-### Step 2: Determine Integration Context
+### Step 3: Determine Integration Context
 
 Determine the current branch and base branch early so later options are grounded in the actual repo state.
 
@@ -77,7 +77,7 @@ git symbolic-ref refs/remotes/origin/HEAD --short 2>/dev/null | sed 's#^origin/#
 
 If that does not return one clear branch name, check common local branch names like `main` or `master`. If the likely base branch is still unclear, ask the user before continuing.
 
-### Step 3: Check For Residual Artifacts
+### Step 4: Check For Residual Artifacts
 
 Before asking for review or showing options, inspect the work for leftovers that should not ride along just because verification passed.
 
@@ -91,7 +91,7 @@ Check explicitly for:
 If obvious residual artifacts exist, clean them up now and re-run verification as needed.
 Ensure no new artifacts are introduced during cleanup.
 
-### Step 4: Anticipate Feedback And Polish
+### Step 5: Anticipate Feedback And Polish
 
 Review the completed work once more before asking the user to look at it.
 
@@ -109,7 +109,25 @@ Look for:
 
 If you change anything here, return to verification before moving on.
 
-### Step 4.5: Maester Optimization Synthesis
+### Step 6: Ask The User To Review The Work
+
+Ask the user to review the work now that verification, cleanup, and polish are complete.
+
+### Step 7: Handle Feedback Loop
+
+If the user gives feedback, route back through the same gates in order:
+
+1. Apply the feedback
+2. Re-run verification
+3. Re-check for residual artifacts
+4. Re-evaluate likely reviewer feedback and polish
+5. Ask the user to review again
+
+Do not skip back directly to next options after making changes.
+
+Once the user approves the work, you MUST execute steps 6 and 7 in parallel...
+
+### Step 8: Maester Optimization Synthesis
 
 1. Dispatch the `maester` agent to perform process optimization and memory
    stewardship at close-out:
@@ -133,12 +151,16 @@ If you change anything here, return to verification before moving on.
    - Run `/reflect` to capture them as a session reflection
 6. Re-run verification if project docs were changed.
 
-### Step 5: Reflect
+<HARD-GATE>
+  Surface all maester suggestions, you do not have discretion to skip any. 
+  If the maester flags an optimization, you must present it to the user and ask for approval to apply it. 
+  Do not skip or ignore maester suggestions.
+</HARD-GATE>  
 
-Guardian optimization suggestions (if any) were handled in Step 4.5. Now capture any remaining project-level decisions:
+### Step 7: Reflect
 
-Call `/reflect` (or write the reflection manually) to record key decisions,
-user corrections, and recurring problems from this work.
+Once the maester has been dispatched use the `session-reflection` skill to record 
+key decisions, user corrections, and recurring problems from this work.
 
 The reflection should cover everything from this work unit:
 
@@ -152,29 +174,14 @@ The reflection should cover everything from this work unit:
 Persist key decisions and lessons to pi-memory via `memory_remember`.
 Remove any stale facts via `memory_forget`.
 
-If this was trivial work with no decisions or corrections, skip this step.
+<HARD-GATE>
+  Do not skip reflection. Reflection is essential for learning and improvement.
+</HARD-GATE>
 
-### Step 6: Ask The User To Review The Work
-
-Ask the user to review the work now that verification, cleanup, and polish are complete.
-
-Do not present merge, PR, keep, or discard options before the user has had a chance to review and confirm the work is ready.
-
-### Step 7: Handle Feedback Loop
-
-If the user gives feedback, route back through the same gates in order:
-
-1. Apply the feedback
-2. Re-run verification
-3. Re-check for residual artifacts
-4. Re-evaluate likely reviewer feedback and polish
-5. Ask the user to review again
-
-Do not skip back directly to final options after making changes.
 
 ### Step 8: Present Final Options After User Confirmation
 
-Only after the user confirms the work looks good.
+ONLY AFTER maester suggestions have been surfaced and the reflection is written, present the user with final integration options based on the branch and worktree context determined in Step 2:
 
 **If the plan declared `Worktree Strategy: Worktree`** (detected in Step 2), present both the merge-back and the integration options together — the user chooses whether to proceed:
 
