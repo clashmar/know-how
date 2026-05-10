@@ -209,7 +209,7 @@ cd $REPO_ROOT
 git merge <worktree-branch>
 
 # Clean up the worktree
-git worktree remove ../<project>-<feature>
+git worktree remove ../<worktree-branch>
 git branch -d <worktree-branch>  # optional, branch is merged
 ```
 

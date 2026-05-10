@@ -169,6 +169,8 @@ Work directly on the current branch when the changes are low-risk or don't benef
 
 The worktree, when chosen, is always created from the current branch — not from main. This means if you're on a feature branch, the worktree branches from that feature branch.
 
+The worktree directory is named the same as the branch for simplicity (e.g. branch `auth-refactor` → worktree at `../auth-refactor`). Only one name to remember.
+
 ## Execution Autonomy
 
 As the final part of the planning process, let the user choose both the `Execution Autonomy` and `Worktree Strategy`. Stop and present a picker with arrow-key navigation and `Enter` to confirm before finalizing the plan. Do not infer either choice from context.

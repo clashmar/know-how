@@ -113,15 +113,16 @@ REPO_ROOT=$(git rev-parse --show-toplevel)
 git status --porcelain
 # If dirty: "Working tree has uncommitted changes. Commit them first (outside this workflow) or abort?"
 
-# 3. Derive a worktree branch name from the plan
+# 3. Derive a branch name from the plan
 #    e.g. plan title "Add Auth Refactor" → branch: "feature-auth-refactor"
 #    Sanitize: lowercase, hyphens, no special chars
+#    The worktree directory is named the same as the branch for simplicity
 
 # 4. Create the worktree from the current branch
-git worktree add ../<project>-<feature> -b <feature-branch> $CURRENT_BRANCH
+git worktree add ../<branch-name> -b <branch-name> $CURRENT_BRANCH
 
 # 5. Work from the worktree
-cd ../<project>-<feature>
+cd ../<branch-name>
 ```
 
 The agent now works entirely inside the worktree. Tests and file edits happen there.
