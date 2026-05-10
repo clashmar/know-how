@@ -150,16 +150,8 @@ const READ_MODE_TOOLS = [
 const READ_ONLY_ROLES = new Set(["scout", "reviewer", "guardian"]);
 const WRITE_CAPABLE_ROLES = new Set(["worker", "maester"]);
 
-// Standard ANSI colors
-const ANSI_BLUE_BG = "\x1b[44m";
-const ANSI_GREEN_BG = "\x1b[42m";
-const ANSI_WHITE_FG = "\x1b[97m";
-
 // Editor reference — updated on toggle
 let modeEditor: ModeAwareEditor | undefined;
-
-// Widget component — registered once, mutated in-place to keep Map position
-let widgetComponent: { render: () => string[]; invalidate: () => void } | undefined;
 
 // ── Extension ───────────────────────────────────────────────────────
 
@@ -172,23 +164,7 @@ export function registerReadMode(pi: ExtensionAPI): void {
     return pi.getAllTools().map((t) => t.name);
   }
 
-  function updateStatus(ctx: ExtensionContext): void {
-    const label = roleLocked
-      ? ` ${ANSI_BLUE_BG}${ANSI_WHITE_FG} READ ONLY (role-locked: ${agentRole}) \x1b[49m`
-      : readModeEnabled
-      ? ` ${ANSI_BLUE_BG}${ANSI_WHITE_FG} READ ONLY \x1b[49m`
-      : ` ${ANSI_GREEN_BG}${ANSI_WHITE_FG} WRITE \x1b[49m`;
-
-    if (widgetComponent) {
-      widgetComponent.render = () => [label];
-      widgetComponent.invalidate();
-    } else {
-      ctx.ui.setWidget("read-mode", () => {
-        widgetComponent = { render: () => [label], invalidate: () => {} };
-        return widgetComponent;
-      });
-    }
-
+  function updateStatus(): void {
     modeEditor?.setMode(readModeEnabled, roleLocked, agentRole);
   }
 
@@ -201,7 +177,7 @@ export function registerReadMode(pi: ExtensionAPI): void {
     readModeEnabled = true;
     pi.setActiveTools(READ_MODE_TOOLS);
     ctx.ui.notify("Read mode — write/edit disabled.", "info");
-    updateStatus(ctx);
+    updateStatus();
     persistState();
   }
 
@@ -214,7 +190,7 @@ export function registerReadMode(pi: ExtensionAPI): void {
     readModeEnabled = false;
     pi.setActiveTools(getAllToolNames());
     ctx.ui.notify("Write mode — full access restored.", "info");
-    updateStatus(ctx);
+    updateStatus();
     persistState();
   }
 
@@ -247,7 +223,7 @@ export function registerReadMode(pi: ExtensionAPI): void {
   });
 
   pi.on("before_agent_start", async (event, ctx) => {
-    updateStatus(ctx);
+    updateStatus();
 
     if (roleLocked) {
       return {
@@ -309,7 +285,7 @@ export function registerReadMode(pi: ExtensionAPI): void {
       pi.setActiveTools(READ_MODE_TOOLS);
     }
 
-    updateStatus(ctx);
+    updateStatus();
     persistState();
 
     ctx.ui.setEditorComponent((tui, theme, kb) => {
