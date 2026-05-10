@@ -3,13 +3,43 @@ import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import { Text } from "@earendil-works/pi-tui";
 import { Type } from "@sinclair/typebox";
 import {
   type SubagentState,
-  WIDGET_KEY,
+  DISPATCH_KEY,
+  ANIMATION_INTERVAL_MS,
   createInitialState,
 } from "./types";
-import { renderWidget, stopWidgetAnimation } from "./widget";
+import { buildView } from "./render";
+
+const resultAnimations = new Map<string, ReturnType<typeof setInterval>>();
+
+function hasRunningStates(states: SubagentState[]): boolean {
+  return states.some(s => s.status === "running" || s.status === "pending");
+}
+
+function startResultAnimation(toolCallId: string, context: { invalidate(): void }): void {
+  if (resultAnimations.has(toolCallId)) return;
+
+  const timer = setInterval(() => {
+    context.invalidate();
+  }, ANIMATION_INTERVAL_MS);
+
+  if (typeof timer === "object" && "unref" in timer) {
+    (timer as unknown as { unref(): void }).unref();
+  }
+
+  resultAnimations.set(toolCallId, timer);
+}
+
+function stopResultAnimation(toolCallId: string): void {
+  const timer = resultAnimations.get(toolCallId);
+  if (timer) {
+    clearInterval(timer);
+    resultAnimations.delete(toolCallId);
+  }
+}
 
 // ── Types ────────────────────────────────────────────────────────
 
@@ -73,7 +103,8 @@ function resolveAgentConfig(agentName: string, raw: SubagentSettings): AgentMode
 function readSettings(): SubagentSettings {
   const settingsPath = path.join(os.homedir(), ".pi", "agent", "settings.json");
   try {
-    return JSON.parse(fs.readFileSync(settingsPath, "utf-8")) as SubagentSettings;
+    const raw: unknown = JSON.parse(fs.readFileSync(settingsPath, "utf-8"));
+    return raw as SubagentSettings;
   } catch {
     return {};
   }
@@ -287,13 +318,13 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
         createInitialState(t.agent, firstModel)
       );
 
-      renderWidget(ctx, states);
 
       async function runTask(index: number): Promise<void> {
         const task = tasks[index]!;
         const state = states[index]!;
+        const startedAt = Date.now();
         state.status = "running";
-        state.lastActivityAt = Date.now();
+        state.lastActivityAt = startedAt;
 
         try {
           const response = await dispatchAgent(
@@ -327,11 +358,11 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
             },
           );
           state.status = "done";
-          state.durationMs = Date.now() - (state.lastActivityAt ?? Date.now());
+          state.durationMs = Date.now() - startedAt;
           results[index] = response;
         } catch (err) {
           state.status = "failed";
-          state.durationMs = Date.now() - (state.lastActivityAt ?? Date.now());
+          state.durationMs = Date.now() -startedAt;
           state.error = err instanceof Error ? err.message : String(err);
           results[index] = `Error: ${state.error}`;
         }
@@ -351,9 +382,8 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
       }
       await Promise.all(running);
 
-      stopWidgetAnimation();
       if (ctx.hasUI) {
-        try { ctx.ui.setWidget(WIDGET_KEY, undefined); } catch {}
+        try { ctx.ui.setWidget(DISPATCH_KEY, undefined); } catch {}
       }
 
       const output = tasks
@@ -362,7 +392,20 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
 
       return {
         content: [{ type: "text" as const, text: output }],
+        details: { states },
       };
+    },
+    renderResult(result, options, theme, context) {
+      const states = (result.details as { states?: SubagentState[] }).states;
+      if (!states) return new Text("(no subagent state)");
+
+      if (hasRunningStates(states)) {
+        startResultAnimation(context.toolCallId, context);
+      } else {
+        stopResultAnimation(context.toolCallId);
+      }
+
+      return buildView(states, options.expanded, theme);
     },
   });
 }

@@ -50,13 +50,13 @@ export function createInitialState(agent: string, model: string): SubagentState 
   };
 }
 
-export const WIDGET_KEY = "subagent-dispatch";
-export const WIDGET_ANIMATION_MS = 80;
+export const DISPATCH_KEY = "subagent-dispatch";
+export const ANIMATION_INTERVAL_MS = 80;
 
 export const SPINNER = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
 
 export function spinnerFrame(): string {
-  return SPINNER[Math.floor(Date.now() / WIDGET_ANIMATION_MS) % SPINNER.length];
+  return SPINNER[Math.floor(Date.now() / ANIMATION_INTERVAL_MS) % SPINNER.length];
 }
 
 export function formatDuration(ms: number): string {

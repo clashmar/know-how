@@ -30,12 +30,9 @@ and nobody can see it in version control.
 
 ### Code style: No `any` types
 
-Do not use `any` in TypeScript code — no type annotations, no casts. The project
+Do not use `any` in TypeScript code — no `any` type annotations. The project
 uses `strict: true` which already implies `noImplicitAny`. Prefer `unknown` with
-explicit narrowing, or a well-typed union.
-
-**Exception:** JSON deserialization from external sources (e.g., `readSettings()`)
-may receive `unknown` and be narrowed, but must not be typed as `any`.
+explicit narrowing, or a well-typed union. **`as` type assertions are acceptable narrowing** when the right-hand side is a specific type (not `any`).
 
 ## Red Flags
 
