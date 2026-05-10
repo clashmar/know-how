@@ -24,10 +24,9 @@ directory first, then falling back to `~/.pi/agent/agents/`.
 ### Edit the source, not the install target
 
 `scripts/install` copies files from this repo to `~/.pi/agent/extensions/know-how/`
-and `~/.pi/agent/agents/`. **Always edit files inside this repo**, then re-run
-`./scripts/install` to propagate changes. Editing files under `~/.pi/agent/`
-directly means the change is wiped on the next install and nobody can see it in
-version control.
+and `~/.pi/agent/agents/`. **Always edit files inside this repo**.
+Editing files under `~/.pi/agent/` directly means the change is wiped on the next install
+and nobody can see it in version control.
 
 ### Code style: No `any` types
 

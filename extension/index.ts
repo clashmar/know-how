@@ -71,12 +71,30 @@ function getPiMemory(): PiMemoryModule | null {
 }
 
 // ---------------------------------------------------------------------------
+// Git root canonicalization (worktree-aware project name resolution)
+// ---------------------------------------------------------------------------
+
+function getGitRoot(cwd: string): string | null {
+	try {
+		const result = require("child_process").execSync(
+			"git rev-parse --show-toplevel",
+			{ cwd, encoding: "utf8", stdio: ["pipe", "pipe", "ignore"] },
+		);
+		return result.trim();
+	} catch {
+		return null;
+	}
+}
+
+// ---------------------------------------------------------------------------
 // Project name derivation (matches writing-plans convention)
 // ---------------------------------------------------------------------------
 
 function getProjectName(cwd: string): string {
+	const gitRoot = getGitRoot(cwd);
+	const baseDir = gitRoot || cwd;
 	return path
-		.basename(cwd)
+		.basename(baseDir)
 		.toLowerCase()
 		.replace(/[^a-z0-9]+/g, "-")
 		.replace(/^-|-$/g, "");
@@ -437,10 +455,13 @@ export default function (pi: ExtensionAPI) {
 					if (skillContent) {
 						// Inject bootstrap + skill content as a steer message
 						const bootstrap = getBootstrapContent();
+						const directive = `--- COMMAND: /know-how ${key} executed ---
+Please follow the ${route.skill} skill below. This is not background context.
+Execute its procedure now.`;
 						pi.sendMessage(
 							{
 								customType: "know-how-skill-load",
-								content: `${bootstrap ?? ""}\n\n<LOADED_SKILL name="${route.skill}">\n${skillContent}\n</LOADED_SKILL>`,
+								content: `${bootstrap ?? ""}\n\n${directive}\n\n<LOADED_SKILL name="${route.skill}">\n${skillContent}\n</LOADED_SKILL>`,
 								display: false,
 							},
 							{ deliverAs: "steer", triggerTurn: true },
@@ -526,8 +547,9 @@ export default function (pi: ExtensionAPI) {
 				ctx.ui.notify("session-reflection skill not found", "error");
 				return;
 			}
+			const topicSuffix = args ? ` ${args}` : "";
 			const bootstrap = getBootstrapContent();
-			let content = `${bootstrap ?? ""}\n\n<LOADED_SKILL name="session-reflection">\n${skillContent}\n</LOADED_SKILL>`;
+			let content = `${bootstrap ?? ""}\n\n--- COMMAND: /reflect${topicSuffix} executed ---\nYou MUST follow the session-reflection skill below. This is not background context.\nExecute its procedure now.\n\n<LOADED_SKILL name="session-reflection">\n${skillContent}\n</LOADED_SKILL>`;
 			if (args) {
 				content += `\n\nUser specified topic: ${args}`;
 			}

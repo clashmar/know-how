@@ -42,8 +42,11 @@ Before every review, you MUST read these sources fresh from disk:
 
 2. **Project skill** — `~/.pi/agent/skills/<project-name>/SKILL.md`
    Project conventions: coding style, commit format, module organization,
-   testing guidelines. Derive `<project-name>` by sanitizing the CWD basename
-   (lowercase, hyphens for non-alphanumeric).
+   testing guidelines. Derive `<project-name>` by resolving the git root
+   (`git rev-parse --show-toplevel`) first, then sanitizing its basename
+   (lowercase, hyphens for non-alphanumeric). This ensures worktrees resolve
+   to the canonical project name (e.g. `bishop` not `bishop-feature-x`).
+   Fall back to sanitizing the raw CWD basename if not in a git repo.
 
 3. **Session reflections** — `~/.know-how/<project-name>/reflections/`
    Read the 2 most recent `.md` files. Recurring problems, past decisions,
