@@ -6,12 +6,19 @@
  * skills directory for pi discovery.
  */
 
-import type { ExtensionAPI, SessionEntry } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import type { MemoryStore, SemanticEntry } from "@samfp/pi-memory/store";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import dispatchExtension from "./dispatch";
+import {
+	extractAndStripFrontmatter,
+	findProjectSkill,
+	getProjectName,
+	loadProjectSkill,
+	PROJECT_SKILLS_DIR,
+} from "./skill-discovery";
 import { registerReadMode } from "./read-mode";
 
 // ---------------------------------------------------------------------------
@@ -20,35 +27,6 @@ import { registerReadMode } from "./read-mode";
 
 const SKILLS_DIR = path.resolve(__dirname, "skills");
 const USING_KNOW_HOW_PATH = path.join(SKILLS_DIR, "using-know-how", "SKILL.md");
-
-// ---------------------------------------------------------------------------
-// Frontmatter extraction
-// ---------------------------------------------------------------------------
-
-const extractAndStripFrontmatter = (
-	content: string,
-): { frontmatter: Record<string, string>; content: string } => {
-	const match = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
-	if (!match) return { frontmatter: {}, content };
-
-	const frontmatterStr = match[1];
-	const body = match[2];
-	const frontmatter: Record<string, string> = {};
-
-	for (const line of frontmatterStr.split("\n")) {
-		const colonIdx = line.indexOf(":");
-		if (colonIdx > 0) {
-			const key = line.slice(0, colonIdx).trim();
-			const value = line
-				.slice(colonIdx + 1)
-				.trim()
-				.replace(/^["']|["']$/g, "");
-			frontmatter[key] = value;
-		}
-	}
-
-	return { frontmatter, content: body };
-};
 
 // ---------------------------------------------------------------------------
 // pi-memory lazy import (best-effort — if not installed, catch-up uses files only)
@@ -69,36 +47,6 @@ function getPiMemory(): PiMemoryModule | null {
 		_piMemory = null;
 	}
 	return _piMemory ?? null;
-}
-
-// ---------------------------------------------------------------------------
-// Git root canonicalization (worktree-aware project name resolution)
-// ---------------------------------------------------------------------------
-
-function getGitRoot(cwd: string): string | null {
-	try {
-		const result = require("child_process").execSync(
-			"git rev-parse --show-toplevel",
-			{ cwd, encoding: "utf8", stdio: ["pipe", "pipe", "ignore"] },
-		);
-		return result.trim();
-	} catch {
-		return null;
-	}
-}
-
-// ---------------------------------------------------------------------------
-// Project name derivation (matches writing-plans convention)
-// ---------------------------------------------------------------------------
-
-function getProjectName(cwd: string): string {
-	const gitRoot = getGitRoot(cwd);
-	const baseDir = gitRoot || cwd;
-	return path
-		.basename(baseDir)
-		.toLowerCase()
-		.replace(/[^a-z0-9]+/g, "-")
-		.replace(/^-|-$/g, "");
 }
 
 // ---------------------------------------------------------------------------
@@ -368,12 +316,12 @@ export default function (pi: ExtensionAPI) {
 	dispatchExtension(pi);
 	registerReadMode(pi);
 
-	// Expose skills directory for pi auto-discovery
+	// Expose skills and project skills directories for pi auto-discovery
 	pi.on("resources_discover", async (_event, _ctx) => {
-		if (fs.existsSync(SKILLS_DIR)) {
-			return { skillPaths: [SKILLS_DIR] };
-		}
-		return {};
+		const paths: string[] = [];
+		if (fs.existsSync(SKILLS_DIR)) paths.push(SKILLS_DIR);
+		if (fs.existsSync(PROJECT_SKILLS_DIR)) paths.push(PROJECT_SKILLS_DIR);
+		return paths.length > 0 ? { skillPaths: paths } : {};
 	});
 
 	// Inject bootstrap into the first user message of each session
@@ -392,6 +340,47 @@ export default function (pi: ExtensionAPI) {
 			message: {
 				customType: "know-how-bootstrap",
 				content: bootstrap,
+				display: false,
+			},
+		};
+	});
+
+	// Auto-inject matching project skill on session start
+	// Skip in subagent sessions — parent already has the project skill
+	const isSubagent = process.env.PI_SUBAGENT_CHILD === "1";
+
+	pi.on("before_agent_start", async (_event, ctx) => {
+		if (isSubagent) return;
+
+		const skillName = findProjectSkill(ctx.cwd);
+		if (!skillName) return; // No matching project skill — silent no-op
+
+		const skill = loadProjectSkill(skillName);
+		if (!skill) return; // Skill exists but file is empty — no-op
+
+		// Prevent double-injection within the same session
+		const customType = `project-skill-${skillName}`;
+		const entries = ctx.sessionManager.getEntries();
+		const alreadyInjected = entries.some(
+			(e) => e.type === "custom" && e.customType === customType,
+		);
+		if (alreadyInjected) return;
+
+		ctx.ui.notify(`Auto-loaded project skill: ${skillName}`, "info");
+
+		return {
+			message: {
+				customType,
+				content: [
+					`<PROJECT_SKILL name="${skillName}" auto-loaded="true">`,
+					`The ${skillName} project skill is ALREADY LOADED — you are currently following it.`,
+					`Do NOT read ${skillName}/SKILL.md again — that would be redundant.`,
+					``,
+					`Skill: ${skill.description}`,
+					``,
+					skill.content,
+					`</PROJECT_SKILL>`,
+				].join("\n"),
 				display: false,
 			},
 		};
