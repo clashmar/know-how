@@ -486,7 +486,7 @@ Done!
 
 - **know-how:writing-plans** - Creates the plan this skill executes
 - **know-how:requesting-code-review** - Code review template for reviewer subagents
-- **know-how:closing-out-work** - Close out work after all tasks, get user review, then choose integration
+- **know-how:closing-out-work** - Close out work after all tasks, get user review, optimize and reflect, then choose integration
 
 **Subagents should use:**
 
