@@ -9,10 +9,7 @@
   "license": "MIT",
   "pi": {
     "extensions": [
-      "./extensions"
-    ],
-    "skills": [
-      "./skills"
+      "./extension"
     ]
   },
   "devDependencies": {

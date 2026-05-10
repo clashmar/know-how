@@ -2,9 +2,9 @@ import { spawn } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
-import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { truncateToWidth } from "@earendil-works/pi-tui";
-import { Type, type Static } from "@sinclair/typebox";
+import { Type } from "@sinclair/typebox";
 
 // ── Types ────────────────────────────────────────────────────────
 
@@ -20,14 +20,27 @@ const SubagentParams = Type.Object({
   concurrency: Type.Optional(Type.Integer({ minimum: 1, default: 4 })),
 });
 
-type SubagentInput = Static<typeof SubagentParams>;
-
 interface SubagentStatus {
   agent: string;
   status: "pending" | "running" | "done" | "failed";
   line?: string;
   durationMs?: number;
   error?: string;
+}
+
+interface AgentOverride {
+  model?: string;
+  fallbackModels?: string[];
+  inheritProjectContext?: boolean;
+  thinking?: string;
+}
+
+interface SubagentSettings {
+  defaultProvider?: string;
+  defaultModel?: string;
+  subagents?: {
+    agentOverrides?: Record<string, AgentOverride>;
+  };
 }
 
 // ── Constants ────────────────────────────────────────────────────
@@ -45,9 +58,8 @@ interface AgentModelConfig {
   thinkingLevel?: string;
 }
 
-function resolveAgentConfig(agentName: string, settings: any): AgentModelConfig {
-  // Per-agent override from subagents.agentOverrides
-  const override = settings?.subagents?.agentOverrides?.[agentName];
+function resolveAgentConfig(agentName: string, raw: SubagentSettings): AgentModelConfig {
+  const override = raw.subagents?.agentOverrides?.[agentName];
   if (override) {
     return {
       model: override.model?.toString(),
@@ -63,10 +75,10 @@ function resolveAgentConfig(agentName: string, settings: any): AgentModelConfig 
   return {};
 }
 
-function readSettings(): any {
+function readSettings(): SubagentSettings {
   const settingsPath = path.join(os.homedir(), ".pi", "agent", "settings.json");
   try {
-    return JSON.parse(fs.readFileSync(settingsPath, "utf-8"));
+    return JSON.parse(fs.readFileSync(settingsPath, "utf-8")) as SubagentSettings;
   } catch {
     return {};
   }
