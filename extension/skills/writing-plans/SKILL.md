@@ -169,7 +169,7 @@ Work directly on the current branch when the changes are low-risk or don't benef
 
 The worktree, when chosen, is always created from the current branch — not from main. This means if you're on a feature branch, the worktree branches from that feature branch.
 
-The worktree directory is named the same as the branch for simplicity (e.g. branch `auth-refactor` → worktree at `../auth-refactor`). Only one name to remember.
+The worktree directory is named the same as the branch for simplicity (e.g. `<project-name>-auth-refactor` → worktree at `../<project-name>-auth-refactor`). Prepend the project name (derived from the git root directory name) so worktrees identify their repo at a glance. Only one name to remember.
 
 ## Execution Autonomy
 

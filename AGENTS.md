@@ -1,5 +1,7 @@
 # Know-How
 
+The current year is 2026.
+
 Process know-how for the pi coding agent. Skills, extensions, agents, and specs
 that define how pi agents work, what conventions they enforce, and how the
 process improves over time.
@@ -46,3 +48,76 @@ may receive `unknown` and be narrowed, but must not be typed as `any`.
 - **System process rules in repo AGENTS.md.** Global workflow conventions
   (parallel exploration, git write rules, etc.) belong in
   `~/.pi/agent/AGENTS.md`. The repo's AGENTS.md is for repo-level conventions.
+
+- **Editing installed copies instead of source.**
+
+## One Source of Truth
+
+If a value, string, or behavior is defined in one place and consumed in another, the consuming code MUST derive from the source of truth instead of hardcoding the value. This is **especially important in tests**, where hardcoded "magic strings" or values are a correctness bug.
+
+GOOD:
+
+```ts
+  if (panel.type === PANEL_TYPE_FILE_TREE) {
+    // ...
+  }
+```
+
+BAD:
+
+```ts
+  if (panel.type === "file-tree") {
+    // ...
+  }
+```
+
+This extends beyond individual strings to whole systems: shared construction APIs, centralized lookup structures, interface-based infrastructure, and factory registration each eliminates scattered reimplementations of the same logic:
+
+GOOD:
+
+```ts
+  const tab = workspace.createTab()
+    .withTitle("Output")
+    .withPanel(new OutputPanel(logStream))
+    .withKeybinding("ctrl-l", "clear-output")
+    .build();
+
+  const active = workspace.activePane();
+```
+
+BAD:
+
+```ts
+  const tab = new Tab();
+  tab.title = "Output";
+  tab.panels.push(new OutputPanel(logStream));
+  workspace.tabs.push(tab);
+  workspace.keybindings.set("ctrl-l", "clear-output");
+
+  for (const pane of workspace.panes) {
+    if (pane.hasFocus) { ... }
+  }
+```
+
+Before adding a new type, interface, or subsystem, search for an existing equivalent and reuse it where possible; repeated behavior is a signal to extract a shared abstraction. Before marking a feature complete, review whether any logic introduced during implementation is already handled elsewhere or could be shared with an existing subsystem.
+
+## Comments
+
+Always write `/** ... */` JSDoc comments for public APIs but do not explain implementation details: doc comments say WHAT not HOW:
+
+GOOD: /** Finds a panel by its ID. */
+BAD: /**O(n): iterates through the panel list and compares each ID to find a match.*/
+
+Keep other comments to a MINIMUM (one line max) but prefer self-documenting code with readable/meaningful names.
+If a comment is being used to protect future regressions, consider using `console.assert()` or a custom type:
+
+```ts
+console.assert(
+  !this.hasLifecycleHooks<T>(),
+  `replaceComponent bypasses lifecycle hooks for ${typeName}. Use insertComponent or removeComponent instead.`
+);
+```
+
+Don't leave historical baggage from old implementations/iterations that make any kind of reference to how things used to work:
+"This function does NOT load from 'old-path'" or "Added a new case to handle the new XYZ value" is noise nobody asked for.
+What matters is what it does now; git history is there if we want to know how it got that way.

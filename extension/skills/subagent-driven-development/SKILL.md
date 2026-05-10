@@ -192,12 +192,18 @@ REPO_ROOT=$(git rev-parse --show-toplevel)
 git status --porcelain
 # If dirty: "Working tree has uncommitted changes. Commit them first (outside this workflow) or abort?"
 
-# 3. Derive a branch name from the plan
-#    e.g. plan title "Add Auth Refactor" → branch: "feature-auth-refactor"
-#    The worktree directory is named the same as the branch for simplicity
+# 3. Derive the project name from the git root directory name
+#    e.g. /Users/lash/Personal/bishop → "bishop"
+#    Sanitize: lowercase, hyphens for non-alphanumeric runs
+PROJECT_NAME=$(basename "$REPO_ROOT" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g; s/^-//; s/-$//')
 
-# 4. Create the worktree from the current branch
-git worktree add ../<branch-name> -b <branch-name> $CURRENT_BRANCH
+# 4. Derive a branch name from the plan
+#    e.g. plan title "Add Auth Refactor" → branch: "feature-auth-refactor"
+#    Prepend the project name so worktrees identify their repo at a glance
+#    Full result: "bishop-feature-auth-refactor"
+
+# 5. Create the worktree from the current branch
+git worktree add ../${PROJECT_NAME}-<branch-name> -b ${PROJECT_NAME}-<branch-name> $CURRENT_BRANCH
 ```
 
 Each subagent task includes `cwd: /path/to/worktree` so they edit files there.
