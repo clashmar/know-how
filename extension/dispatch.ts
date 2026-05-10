@@ -2,7 +2,8 @@ import { spawn } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
-import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent";
+import { truncateToWidth } from "@earendil-works/pi-tui";
 import { Type, type Static } from "@sinclair/typebox";
 
 // ── Types ────────────────────────────────────────────────────────
@@ -262,8 +263,9 @@ function formatDuration(ms: number): string {
   return `${minutes}m ${remainingSeconds}s`;
 }
 
-function renderWidget(statuses: SubagentStatus[]): string[] {
+function renderWidget(statuses: SubagentStatus[], width?: number): string[] {
   const frame = Math.floor(Date.now() / 100) % SPINNER.length;
+  const maxWidth = width ?? 50;
   const lines: string[] = [];
   for (const s of statuses) {
     let line: string;
@@ -281,7 +283,7 @@ function renderWidget(statuses: SubagentStatus[]): string[] {
         line = `✗ ${s.agent} (failed${s.error ? `: ${s.error.slice(0, 80)}` : ""})`;
         break;
     }
-    lines.push(line);
+    lines.push(truncateToWidth(line, maxWidth, "..."));
   }
   return lines;
 }
@@ -312,7 +314,7 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
         widgetInterval = setInterval(() => {
           try {
             ctx.ui.setWidget(WIDGET_KEY, () => ({
-              render: () => renderWidget(statuses),
+              render: (width?: number) => renderWidget(statuses, width),
               invalidate: () => {},
             }));
           } catch {
@@ -388,6 +390,7 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
 
       return {
         content: [{ type: "text" as const, text: output }],
+        details: null,
       };
     },
   });

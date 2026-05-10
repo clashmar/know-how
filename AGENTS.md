@@ -17,8 +17,9 @@ process improves over time.
 ## Red Flags
 
 - **Historical baggage in changes.** Don't reference how things used to work.
-  "This skill does NOT load from <old-path>" is noise nobody asked for.
+  "This skill does NOT load from `old-path` is noise nobody asked for.
   What matters is what it does now.
+  
 - **System process rules in repo AGENTS.md.** Global workflow conventions
   (parallel exploration, git write rules, etc.) belong in
   `~/.pi/agent/AGENTS.md`. The repo's AGENTS.md is for repo-level conventions.
