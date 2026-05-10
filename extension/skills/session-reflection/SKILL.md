@@ -186,7 +186,8 @@ directly from `~/.know-how/<project>/reflections/` using the read tool.
 ### Supplement with pi-memory
 
 Run memory_search for the project name to find additional stored facts and
-preferences. Run memory_lessons to check for corrections from past sessions.
+preferences. Run memory_search with a lesson-related query (e.g.
+`"lessons"` or `"corrections"`) to check for corrections from past sessions.
 
 ## Integration Points
 
