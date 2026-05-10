@@ -14,33 +14,17 @@ fi
 
 SOURCE_EXTENSION_DIR="$REPO_ROOT/extension"
 EXTENSION_KNOW_HOW_DIR="$CONFIG_DIR/extensions/know-how"
-AGENTS_DIR="$CONFIG_DIR/agents"
 
 if [ ! -f "$SOURCE_EXTENSION_DIR/index.ts" ]; then
     echo "Source extension not found: $SOURCE_EXTENSION_DIR/index.ts" >&2
     exit 1
 fi
 
-mkdir -p "$AGENTS_DIR"
-
 rm -rf "$EXTENSION_KNOW_HOW_DIR"
 
 cp -r "$SOURCE_EXTENSION_DIR" "$EXTENSION_KNOW_HOW_DIR"
 
-# Install agents from extension bundle
-if [ -d "$SOURCE_EXTENSION_DIR/agents" ]; then
-    for agent_file in "$SOURCE_EXTENSION_DIR/agents"/*.md; do
-        if [ -f "$agent_file" ]; then
-            agent_name="$(basename "$agent_file")"
-            cp "$agent_file" "$AGENTS_DIR/$agent_name"
-            echo "Agent:     $AGENTS_DIR/$agent_name"
-        fi
-    done
-fi
-
-echo ""
-echo "Installed know-how for pi into $CONFIG_DIR"
-echo "Extension: $EXTENSION_KNOW_HOW_DIR"
+echo "Installed know-how extension: $EXTENSION_KNOW_HOW_DIR"
 echo ""
 echo "The extension auto-discovers skills, so the symlink is optional but"
 echo "useful for /skills browsing. The extension's resources_discover hook"

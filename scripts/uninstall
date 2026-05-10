@@ -13,22 +13,24 @@ else
 fi
 
 EXTENSION_DIR="$CONFIG_DIR/extensions"
-EXTENSION_FILE="$EXTENSION_DIR/know-how.ts"
+EXTENSION_KNOW_HOW_DIR="$EXTENSION_DIR/know-how"
 SKILLS_LINK="$CONFIG_DIR/skills/know-how"
-AGENTS_DIR="$CONFIG_DIR/agents"
 
-rm -f "$EXTENSION_FILE"
+# Remove the extension
+rm -rf "$EXTENSION_KNOW_HOW_DIR"
+
+# Remove legacy artifacts
+rm -f "$EXTENSION_DIR/know-how.ts"
 rm -rf "$SKILLS_LINK"
 
-# Remove installed agents
+# Clean up any agents installed by older versions of this script
 if [ -d "$REPO_ROOT/extension/agents" ]; then
     for agent_file in "$REPO_ROOT/extension/agents"/*.md; do
         if [ -f "$agent_file" ]; then
             agent_name="$(basename "$agent_file")"
-            rm -f "$AGENTS_DIR/$agent_name"
-            echo "Removed agent: $AGENTS_DIR/$agent_name"
+            rm -f "$CONFIG_DIR/agents/$agent_name"
         fi
     done
 fi
 
-echo "Removed know-how from $CONFIG_DIR"
+echo "Removed know-how extension: $EXTENSION_KNOW_HOW_DIR"
