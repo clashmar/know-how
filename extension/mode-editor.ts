@@ -48,8 +48,12 @@ export class ModeAwareEditor extends CustomEditor {
 
     const result: string[] = [];
 
-    // Top border — thick line
-    result.push(color("━").repeat(width));
+    // Top border — mode label left-aligned
+    const modeLabelText = this.editorMode === "write" ? " WRITE " : " READ ";
+    const labelLen = modeLabelText.length;
+    const leftLen = 2;
+    const rightLen = Math.max(0, width - leftLen - labelLen);
+    result.push(color("━".repeat(leftLen)) + color(modeLabelText) + color("━".repeat(rightLen)));
 
     // Content lines (between top and bottom borders)
     for (let i = 1; i < bottomBorderIdx; i++) {
