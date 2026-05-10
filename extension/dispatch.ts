@@ -3,8 +3,43 @@ import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
-import { truncateToWidth } from "@earendil-works/pi-tui";
+import { Text } from "@earendil-works/pi-tui";
 import { Type } from "@sinclair/typebox";
+import {
+  type SubagentState,
+  DISPATCH_KEY,
+  ANIMATION_INTERVAL_MS,
+  createInitialState,
+} from "./types";
+import { buildView } from "./render";
+
+const resultAnimations = new Map<string, ReturnType<typeof setInterval>>();
+
+function hasRunningStates(states: SubagentState[]): boolean {
+  return states.some(s => s.status === "running" || s.status === "pending");
+}
+
+function startResultAnimation(toolCallId: string, context: { invalidate(): void }): void {
+  if (resultAnimations.has(toolCallId)) return;
+
+  const timer = setInterval(() => {
+    context.invalidate();
+  }, ANIMATION_INTERVAL_MS);
+
+  if (typeof timer === "object" && "unref" in timer) {
+    (timer as unknown as { unref(): void }).unref();
+  }
+
+  resultAnimations.set(toolCallId, timer);
+}
+
+function stopResultAnimation(toolCallId: string): void {
+  const timer = resultAnimations.get(toolCallId);
+  if (timer) {
+    clearInterval(timer);
+    resultAnimations.delete(toolCallId);
+  }
+}
 
 // ── Types ────────────────────────────────────────────────────────
 
@@ -17,17 +52,10 @@ const TaskParam = Type.Object({
 
 const SubagentParams = Type.Object({
   cwd: Type.Optional(Type.String()),
+  cwd: Type.Optional(Type.String()),
   tasks: Type.Array(TaskParam),
   concurrency: Type.Optional(Type.Integer({ minimum: 1, default: 4 })),
 });
-
-interface SubagentStatus {
-  agent: string;
-  status: "pending" | "running" | "done" | "failed";
-  line?: string;
-  durationMs?: number;
-  error?: string;
-}
 
 interface AgentOverride {
   model?: string;
@@ -47,8 +75,6 @@ interface SubagentSettings {
 // ── Constants ────────────────────────────────────────────────────
 
 const KNOW_HOW_AGENTS_DIR = path.resolve(__dirname, "agents");
-const WIDGET_KEY = "subagent-dispatch";
-const SPINNER = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
 
 // ── Agent Resolution ─────────────────────────────────────────────
 
@@ -79,7 +105,8 @@ function resolveAgentConfig(agentName: string, raw: SubagentSettings): AgentMode
 function readSettings(): SubagentSettings {
   const settingsPath = path.join(os.homedir(), ".pi", "agent", "settings.json");
   try {
-    return JSON.parse(fs.readFileSync(settingsPath, "utf-8")) as SubagentSettings;
+    const raw: unknown = JSON.parse(fs.readFileSync(settingsPath, "utf-8"));
+    return raw as SubagentSettings;
   } catch {
     return {};
   }
@@ -215,6 +242,25 @@ function extractResponse(stdout: string): string {
   return text;
 }
 
+function buildModelList(settings: SubagentSettings, agentName?: string): string[] {
+  const defaultModelId = settings?.defaultProvider && settings?.defaultModel
+    ? `${settings.defaultProvider}/${settings.defaultModel}`
+    : undefined;
+
+  if (agentName) {
+    const config = resolveAgentConfig(agentName, settings);
+    return [
+      ...(config.model
+        ? [config.thinkingLevel ? `${config.model}:${config.thinkingLevel}` : config.model]
+        : defaultModelId ? [defaultModelId] : []
+      ),
+      ...(config.fallbackModels || []),
+    ];
+  }
+
+  return defaultModelId ? [defaultModelId] : [];
+}
+
 async function dispatchAgent(
   agentName: string,
   task: string,
@@ -228,24 +274,12 @@ async function dispatchAgent(
   const config = resolveAgentConfig(agentName, settings);
   const agentPrompt = readAgentPrompt(agentFile);
 
-  // Build model list: per-agent override → top-level defaultModel → hardcoded fallback
-  const defaultModelId = settings?.defaultProvider && settings?.defaultModel
-    ? `${settings.defaultProvider}/${settings.defaultModel}`
-    : settings?.defaultModel
-    ? settings.defaultModel
-    : undefined;
-
-  const models = [
-    ...(config.model
-      ? [config.thinkingLevel ? `${config.model}:${config.thinkingLevel}` : config.model]
-      : defaultModelId ? [defaultModelId] : ["google/gemini-3-flash"]
-    ),
-    ...(config.fallbackModels || []),
-  ];
+  const models = buildModelList(settings, agentName);
+  const candidates = models.length > 0 ? models : [undefined];
 
   let lastError: Error | undefined;
 
-  for (const model of models) {
+  for (const model of candidates) {
     try {
       const { args, tempDir } = buildPiArgs({
         agentName, agentPrompt, task, reads, model,
@@ -265,42 +299,6 @@ async function dispatchAgent(
   throw lastError || new Error(`All models failed for agent "${agentName}"`);
 }
 
-// ── Helper Functions for TUI ────────────────────────────────────
-
-function formatDuration(ms: number): string {
-  if (ms < 1000) return `${ms}ms`;
-  const seconds = Math.round(ms / 1000);
-  if (seconds < 60) return `${seconds}s`;
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  return `${minutes}m ${remainingSeconds}s`;
-}
-
-function renderWidget(statuses: SubagentStatus[], width?: number): string[] {
-  const frame = Math.floor(Date.now() / 100) % SPINNER.length;
-  const maxWidth = width ?? 50;
-  const lines: string[] = [];
-  for (const s of statuses) {
-    let line: string;
-    switch (s.status) {
-      case "pending":
-        line = `⠿ ${s.agent} · waiting...`;
-        break;
-      case "running":
-        line = `${SPINNER[frame]} ${s.agent}${s.line ? ` · ${s.line}` : ""}`;
-        break;
-      case "done":
-        line = `✓ ${s.agent} (done, ${formatDuration(s.durationMs || 0)})`;
-        break;
-      case "failed":
-        line = `✗ ${s.agent} (failed${s.error ? `: ${s.error.slice(0, 80)}` : ""})`;
-        break;
-    }
-    lines.push(truncateToWidth(line, maxWidth, "..."));
-  }
-  return lines;
-}
-
 // ── Extension ────────────────────────────────────────────────────
 
 export default function dispatchExtension(pi: ExtensionAPI): void {
@@ -312,38 +310,25 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
       "fresh context, and returns response text inline. No file writes.",
     parameters: SubagentParams,
 
-    async execute(toolCallId, params, signal, onUpdate, ctx) {
+    async execute(toolCallId, params, signal, _onUpdate, ctx) {
       const tasks = params.tasks;
       const concurrency = params.concurrency ?? 4;
       const results: string[] = [];
-      const statuses: SubagentStatus[] = tasks.map((t) => ({
-        agent: t.agent,
-        status: "pending" as const,
-      }));
 
-      // Widget renderer
-      let widgetInterval: ReturnType<typeof setInterval> | undefined;
-      if (ctx.hasUI) {
-        widgetInterval = setInterval(() => {
-          try {
-            ctx.ui.setWidget(WIDGET_KEY, () => ({
-              render: (width?: number) => renderWidget(statuses, width),
-              invalidate: () => {},
-            }));
-          } catch {
-            // Widget may fail if context is stale
-          }
-        }, 100);
-      }
+      const firstModel = buildModelList(readSettings())[0] ?? "unknown";
+      const states: SubagentState[] = tasks.map(t =>
+        createInitialState(t.agent, firstModel)
+      );
 
       const workDir = params.cwd ?? ctx.cwd;
 
-      // Run each task
       async function runTask(index: number): Promise<void> {
         const task = tasks[index]!;
-        const status = statuses[index]!;
-        status.status = "running";
-        const startTime = Date.now();
+        const state = states[index]!;
+        const startedAt = Date.now();
+        state.status = "running";
+        state.lastActivityAt = startedAt;
+
         try {
           const response = await dispatchAgent(
             task.agent,
@@ -352,29 +337,42 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
             workDir,
             signal,
             (chunk: string) => {
-              // Show latest meaningful line in the widget
-              const clean = chunk.replace(/\x1b\[[0-9;]*m/g, "").trim();
-              if (clean) {
-                // Take first line, truncate to fit terminal — pi-tui crashes on oversize lines
-                status.line = clean.split("\n")[0]!.slice(0, 50);
+              const clean = chunk.replace(/\x1b\[[0-9;]*m/g, "");
+
+              const toolMatch = clean.match(/(?:Tool|tool):\s*(\S+)/);
+              if (toolMatch) {
+                state.toolCount++;
+                state.currentTool = toolMatch[1]!;
+                state.currentToolStartedAt = Date.now();
+                state.recentTools.push({
+                  tool: toolMatch[1]!,
+                  args: clean.trim().slice(0, 100)
+                });
+                if (state.recentTools.length > 5) state.recentTools.shift();
               }
+
+              const lines = clean.split("\n").filter(l => l.trim());
+              for (const line of lines) {
+                state.recentOutput.push(line.trim().slice(0, 120));
+                if (state.recentOutput.length > 10) state.recentOutput.shift();
+              }
+
+              state.lastActivityAt = Date.now();
             },
           );
-          status.status = "done";
-          status.durationMs = Date.now() - startTime;
+          state.status = "done";
+          state.durationMs = Date.now() - startedAt;
           results[index] = response;
-        } catch (error) {
-          status.status = "failed";
-          status.durationMs = Date.now() - startTime;
-          status.error = error instanceof Error ? error.message : String(error);
-          results[index] = `Error: ${status.error}`;
+        } catch (err) {
+          state.status = "failed";
+          state.durationMs = Date.now() -startedAt;
+          state.error = err instanceof Error ? err.message : String(err);
+          results[index] = `Error: ${state.error}`;
         }
       }
 
-      // Concurrent execution
       let nextIndex = 0;
       const running = new Set<Promise<void>>();
-
       while (nextIndex < tasks.length || running.size > 0) {
         while (nextIndex < tasks.length && running.size < concurrency) {
           const p = runTask(nextIndex++);
@@ -385,28 +383,32 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
           await Promise.race(running);
         }
       }
-
       await Promise.all(running);
 
-      // Clear widget
-      if (widgetInterval) {
-        clearInterval(widgetInterval);
-        try {
-          ctx.ui.setWidget(WIDGET_KEY, undefined);
-        } catch {
-          // Ignore stale context errors
-        }
+      if (ctx.hasUI) {
+        try { ctx.ui.setWidget(DISPATCH_KEY, undefined); } catch {}
       }
 
-      // Format output
       const output = tasks
         .map((task, i) => `## ${task.agent}\n${results[i] || "(no output)"}`)
         .join("\n\n");
 
       return {
         content: [{ type: "text" as const, text: output }],
-        details: null,
+        details: { states },
       };
+    },
+    renderResult(result, options, theme, context) {
+      const states = (result.details as { states?: SubagentState[] }).states;
+      if (!states) return new Text("(no subagent state)");
+
+      if (hasRunningStates(states)) {
+        startResultAnimation(context.toolCallId, context);
+      } else {
+        stopResultAnimation(context.toolCallId);
+      }
+
+      return buildView(states, options.expanded, theme);
     },
   });
 }
