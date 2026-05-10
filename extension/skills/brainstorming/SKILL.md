@@ -11,6 +11,8 @@ Help turn rough ideas into an approved design and a written spec before implemen
 Do not invoke implementation skills, write code, scaffold projects, or make behavior changes until you have presented a design and the user has approved it.
 <GATE>
 
+⚠️ HARD GATE: MAX 3 concurrent subagents ⚠️ 
+
 ## Checklist
 
 <IMPORTANT>
