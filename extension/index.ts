@@ -12,6 +12,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import dispatchExtension from "./dispatch";
+import { registerReadMode } from "./read-mode";
 
 // ---------------------------------------------------------------------------
 // Path resolution
@@ -365,6 +366,7 @@ const loadSkillContent = (skillName: string): string | null => {
 
 export default function (pi: ExtensionAPI) {
 	dispatchExtension(pi);
+	registerReadMode(pi);
 
 	// Expose skills directory for pi auto-discovery
 	pi.on("resources_discover", async (_event, _ctx) => {
