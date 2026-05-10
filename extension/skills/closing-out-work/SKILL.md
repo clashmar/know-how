@@ -129,7 +129,7 @@ Once the user approves the work, you MUST execute steps 6 and 7 in parallel...
 
 ### Step 8: Maester Optimization Synthesis
 
-1. Dispatch the `maester` agent to perform process optimization and memory
+1. Dispatch EXACTLY ONE `maester` agent to perform process optimization and memory
    stewardship at close-out:
 
    ```
