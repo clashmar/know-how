@@ -399,30 +399,6 @@ export default function (pi: ExtensionAPI) {
 		};
 	});
 
-	// Prompt for reflection on session exit (non-blocking)
-	pi.on("session_before_switch", async (_event, ctx) => {
-		// Count user messages in current session
-		const entries = ctx.sessionManager.getEntries();
-		const userMessageCount = entries.filter(
-			(e) => e.type === 'message' && (e as { message: { role: string } }).message.role === 'user',
-		).length;
-
-		if (userMessageCount >= 5) {
-			ctx.ui.setStatus(
-				"know-how",
-				"💭 Consider /reflect to capture what you learned",
-			);
-			// Clear after 5 seconds — non-blocking, does not delay exit
-			setTimeout(() => {
-				try {
-					ctx.ui.setStatus("know-how", "");
-				} catch {
-					/* ctx stale — harmless */
-				}
-			}, 5000);
-		}
-	});
-
 	// Register /know-how command with workflow menu
 	pi.registerCommand("know-how", {
 		description:
