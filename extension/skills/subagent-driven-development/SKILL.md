@@ -45,14 +45,14 @@ Execute plan by dispatching a fresh worker subagent per task. After the task's v
 
 Every subagent dispatch point in this skill maps to a specific pi agent:
 
-| Role                              | pi Agent   |
-| --------------------------------- | ---------- |
-| Worker per task                   | `worker`   |
-| Spec compliance review            | `reviewer` |
-| Code quality review               | `reviewer` |
+| Role                                          | pi Agent   |
+| --------------------------------------------- | ---------- |
+| Worker per task                               | `worker`   |
+| Spec compliance review                        | `reviewer` |
+| Code quality review                           | `reviewer` |
 | Standards enforcement (per-task)              | `guardian` |
-| Process optimization & memory (close-out) | `maester`  |
-| Final whole-implementation review          | `reviewer` |
+| Process optimization & memory (close-out)     | `maester`  |
+| Final whole-implementation review             | `reviewer` |
 
 The `worker` agent handles implementation with fresh context. Workers, reviewers, and scouts all use `context: "fresh"` — the controller provides exactly what's needed in the task description rather than inheriting session history. The `guardian` uses `context: "fresh"` — it reads all sources from disk on every dispatch. The `reviewer` agent handles reviews with spec compliance or code quality prompt templates. The `guardian` agent enforces documented project conventions using its dedicated system prompt (see `~/.pi/agent/agents/guardian.md`). The `maester` agent handles process optimization and memory stewardship at close-out (see `~/.pi/agent/agents/maester.md`).
 
@@ -206,7 +206,7 @@ PROJECT_NAME=$(basename "$REPO_ROOT" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z
 git worktree add ../${PROJECT_NAME}-<branch-name> -b ${PROJECT_NAME}-<branch-name> $CURRENT_BRANCH
 ```
 
-Each subagent task includes `cwd: /path/to/worktree` so they edit files there.
+When dispatching subagents, set `cwd: /path/to/worktree` on the subagent tool call so all subagents start in the worktree directory. This ensures relative `reads` paths resolve against the worktree rather than the source repo.
 File edits and tests happen in the worktree. The original checkout stays untouched.
 **Git write operations (commit, push, merge) are not performed by subagents during
 task execution.** All git integration is gated behind user review — at checkpoints
@@ -281,6 +281,8 @@ Worker subagents report one of four statuses. Handle each appropriately:
    - `reviewer` for spec compliance
    - `reviewer` for code quality
    - `guardian` for project-standards enforcement
+
+   **If a worktree is being used**, set `cwd: /path/to/worktree` on the subagent tool call so all subagents (reviewers and guardian) start in the worktree directory. This ensures the guardian resolves the correct project name via git root.
 3. Watch the spec reviewer first.
 4. If the spec reviewer reports any issue:
    - stop waiting for code-quality and guardian feedback
@@ -374,6 +376,8 @@ Reviewer (code quality): ✅ Approved
 
 [After all tasks]
 [Dispatch final reviews in parallel — reviewer (whole implementation) + maester]
+// If a worktree is being used, set `cwd: /path/to/worktree` on the subagent tool call.
+// Reviewers read source files and maester resolves project name via git root — both need the right CWD.
 Reviewer — whole implementation: Requirements satisfied, no blocking issues found.
 maester: Process optimization & memory audit passed. Optimization suggestions surfaced.
 

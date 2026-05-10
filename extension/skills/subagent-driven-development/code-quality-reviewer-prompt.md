@@ -19,11 +19,13 @@ Subagent dispatch — code quality reviewer:
   WHAT_WAS_IMPLEMENTED: [from worker's report]
   PLAN_OR_REQUIREMENTS: Task N from [plan-file]
   DIFF: [output of `git diff` against the base branch or commit — workers do not commit, so the diff is from uncommitted changes]
+  WORK_FROM: [directory — set to the worktree path when reviewing worktree-based changes]
   DESCRIPTION: [task summary]
 ```
 
 Use `git diff` against the base branch/commit to see all changes
-for this task. Review the current file state directly.
+for this task. Review the current file state directly. If `WORK_FROM` is set,
+resolve file reads against that directory — it tells you where the code lives.
 
 **In addition to standard code quality concerns, the reviewer should check:**
 

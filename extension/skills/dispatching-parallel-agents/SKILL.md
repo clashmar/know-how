@@ -13,6 +13,8 @@ When you have multiple unrelated failures (different test files, different subsy
 
 **Core principle:** Dispatch one agent per independent problem domain. Let them work concurrently.
 
+**Path resolution:** All `reads` paths in the template examples below are relative. They resolve against the subagent's working directory, which inherits from your current directory (`ctx.cwd`). If the target code lives in a different directory (e.g., a worktree), set `cwd: /path/to/target` on the subagent tool call to ensure paths resolve correctly. Alternatively, use absolute paths in `reads`.
+
 ## When to Use
 
 ```dot
@@ -87,6 +89,7 @@ subagent({
     { agent: "worker", task: "Fix tool-approval-race-conditions.test.ts failures", reads: ["src/agents/tool-approval-race-conditions.test.ts"] }
   ],
   concurrency: 3
+  // If target code is in a different directory, add: cwd: "/path/to/worktree"
 })
 ```
 

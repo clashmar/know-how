@@ -4,9 +4,11 @@ Use this template when dispatching a spec compliance reviewer subagent.
 
 **Purpose:** Verify worker built what was requested (nothing more, nothing less)
 
+**Before dispatching:** If the code being reviewed is in a worktree, set `cwd: /path/to/worktree` on the subagent tool call. The reviewer's working directory will match the worktree, so relative `reads` paths resolve correctly.
+
 Code-quality review may run concurrently. Stay focused on requirements compliance only, and do not spend time on general code-style suggestions unless they block compliance.
 
-```
+```md
 Subagent dispatch — spec reviewer:
   task: "Review spec compliance for Task N"
   system_prompt: |
@@ -37,6 +39,8 @@ Subagent dispatch — spec reviewer:
     - Look for extra features they didn't mention
 
     ## Your Job
+
+    Work from: [directory]
 
     Read the implementation code and verify:
 

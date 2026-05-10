@@ -16,6 +16,7 @@ const TaskParam = Type.Object({
 });
 
 const SubagentParams = Type.Object({
+  cwd: Type.Optional(Type.String()),
   tasks: Type.Array(TaskParam),
   concurrency: Type.Optional(Type.Integer({ minimum: 1, default: 4 })),
 });
@@ -335,6 +336,8 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
         }, 100);
       }
 
+      const workDir = params.cwd ?? ctx.cwd;
+
       // Run each task
       async function runTask(index: number): Promise<void> {
         const task = tasks[index]!;
@@ -346,7 +349,7 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
             task.agent,
             task.task,
             task.reads,
-            ctx.cwd,
+            workDir,
             signal,
             (chunk: string) => {
               // Show latest meaningful line in the widget
