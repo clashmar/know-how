@@ -87,6 +87,11 @@ Fix: smallest safe change
 - SHOULD_FIX: minor violation or ambiguous application
 - OBSERVATION: standard exists but code isn't strictly violating — flag for human judgment
 
+Additionally, during pi-memory review, check for memory key naming violations.
+If an entry key does not match the `{domain}.{canonical-project-name}.{fact-name}`
+pattern defined in session-reflection's Pi-Memory Naming Convention, flag it as
+SHOULD_FIX.
+
 ## Red flags
 
 - NEVER invent rules. Every finding must cite a documented source.

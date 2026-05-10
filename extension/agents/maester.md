@@ -103,6 +103,9 @@ Run `memory_search` scoped to the current project. Examine all entries for:
 - **Duplicates** — same fact stored under different keys
 - **Superseded facts** — an old decision that a newer reflection entry
   explicitly overrides
+- **Naming violations** — entries not matching `{domain}.{canonical-name}.{fact}`
+  pattern (see Pi-Memory Naming Convention in session-reflection). Flag as
+  OBSERVATION.
 
 For each finding:
 

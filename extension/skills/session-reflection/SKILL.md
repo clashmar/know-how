@@ -139,6 +139,36 @@ Push only entries future sessions genuinely need. Don't spam.
 | Project convention established    | `project.<project>.<convention>` | fact                                       |
 | User correction that should stick | `lesson`                         | lesson (use memory_remember type="lesson") |
 
+### Pi-Memory Naming Convention
+
+All pi-memory facts MUST use the following key format:
+
+```
+{domain}.{canonical-project-name}.{fact-name}
+```
+
+**Domains:**
+
+| Domain       | Purpose                                                                 | Example                              |
+|--------------|-------------------------------------------------------------------------|--------------------------------------|
+| `project.`   | Conventions, structure, APIs, and project-level facts                   | `project.bishop.commit-format`       |
+| `decision.`  | Settled architectural choices with reasoning                            | `decision.bishop.room_grid_api`      |
+| `lesson.`    | Learned corrections (use `type: "lesson"`)                              | Lesson with category                 |
+
+**Canonical project name:**
+
+The project name is derived from the **git root directory name**, NOT the CWD or worktree name. This ensures all agents working on the same project — regardless of worktree — store and retrieve facts under the same key. The normalization logic is:
+
+- lowercased
+- non-alphanumeric runs replaced with `-`
+- leading/trailing `-` stripped
+
+Examples:
+- Worktree `~/Personal/bishop-feature-x` → canonical project is `bishop`
+- Direct checkout `~/Personal/bishop` → canonical project is `bishop`
+
+**Enforcement:** The guardian checks memory keys during per-task review. The maester audits for key-pattern violations during close-out stale-memory sweeps. If a fact uses an unexpected namespace, flag it as a naming violation.
+
 ## How to Catch Up
 
 ### On session start
