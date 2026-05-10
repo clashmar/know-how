@@ -15,11 +15,7 @@ import path from "node:path";
 // Path resolution
 // ---------------------------------------------------------------------------
 
-const SKILLS_DIR = (() => {
-	const deployed = path.resolve(__dirname, "../skills", "know-how");
-	if (fs.existsSync(deployed)) return deployed;
-	return path.resolve(__dirname, "../skills");
-})();
+const SKILLS_DIR = path.resolve(__dirname, "skills");
 const USING_KNOW_HOW_PATH = path.join(SKILLS_DIR, "using-know-how", "SKILL.md");
 
 // ---------------------------------------------------------------------------
@@ -303,7 +299,7 @@ const SKILL_ROUTES: Record<string, { label: string; skill: string }> = {
 		label: "execute-plan — Execute a plan task-by-task",
 		skill: "executing-plans",
 	},
-	debug: {
+	"debug": {
 		label: "debug — Systematic root-cause debugging",
 		skill: "systematic-debugging",
 	},
@@ -315,7 +311,7 @@ const SKILL_ROUTES: Record<string, { label: string; skill: string }> = {
 		label: "close-out — Verify, clean up, and integrate finished work",
 		skill: "closing-out-work",
 	},
-	reflect: {
+	"reflect": {
 		label:
 			"reflect — Capture session reflection (decisions, corrections, lessons)",
 		skill: "session-reflection",
@@ -489,6 +485,29 @@ export default function (pi: ExtensionAPI) {
 				MENU_OPTIONS,
 			);
 			if (!choice) return;
+
+			// Special case: catch-up from menu must call buildCatchUpBlock, not load skill
+			if (choice === SKILL_ROUTES["catch-up"].label) {
+				const projectName = getProjectName(ctx.cwd);
+				const result = buildCatchUpBlock(projectName);
+				if (result) {
+					pi.sendMessage(
+						{
+							customType: "know-how-catch-up",
+							content: result.block,
+							display: false,
+						},
+						{ deliverAs: "steer" },
+					);
+					ctx.ui.notify(result.summary, "info");
+				} else {
+					ctx.ui.notify(
+						"No reflections or project memory found for this project.",
+						"info",
+					);
+				}
+				return;
+			}
 
 			// Find matching route
 			for (const [key, { label, skill }] of Object.entries(SKILL_ROUTES)) {

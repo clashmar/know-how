@@ -30,6 +30,26 @@ npm test / cargo test / pytest / go test ./...
 
 If verification fails, do not continue to integration decisions or cleanup shortcuts.
 
+### Step 1.5: Prepare Manual Verification Artifacts
+
+Before moving to integration context, prepare manual verification artifacts
+for the human reviewer.
+
+- Gather the observable output produced by the plan's verification commands
+  (log output, curl responses, diffs, screenshots). Present them with clear
+  success/failure annotations.
+- For each check in the plan's testing approach, state what the reviewer
+  should look for and what the expected outcome is.
+- If a check is easy for the agent to run (logging commands, diffs, trivial
+  curl calls), run it and include the result so the reviewer doesn't have to.
+- If a check requires human judgment (UI layout, visual polish, subjective
+  correctness), note the success criteria and leave it for the reviewer.
+
+This step produces a review-ready artifact: a checklist of "verify this"
+items with either pre-confirmed results or clear expectations for what a
+human should see. The goal is to make review as fast and confident as
+possible.
+
 ### Step 2: Determine Integration Context
 
 Determine the current branch and base branch early so later options are grounded in the actual repo state.
@@ -83,6 +103,9 @@ Look for:
 - unclear naming or structure
 - missing cleanup from the final implementation
 - small follow-up fixes that are faster to address now than in review
+- Can a reviewer independently verify correctness without running the code?
+  If not, add logging, observable output, or a verification command
+  before proceeding.
 
 If you change anything here, return to verification before moving on.
 

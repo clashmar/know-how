@@ -77,6 +77,38 @@ Plans should explicitly avoid brittle, low-value tests such as:
 - giant unit tests for cosmetic-only behavior
 - tests that mostly lock in implementation details
 
+### Observability & Manual Verification
+
+Every plan must specify how the result will be verified without relying solely
+on automated tests. Manual verification makes changes reviewable and testable
+by someone who wasn't in the implementation session.
+
+Include at least one observable verification command or check for the work
+as a whole. Choose the category that fits:
+
+- **Data/logic changes:** Include a logging command, debug output, or assertion
+  that a reviewer can run to see the expected outcome.
+  *Example: `RUST_LOG=debug cargo run -- --process-file input.json | grep "processed:"`*
+
+- **UI/visual changes:** Describe what to look for — which elements, positions,
+  colors, interactions. Be specific enough that someone unfamiliar with the
+  feature can verify it.
+  *Example: "The save button is now disabled when the form is empty. Expected:
+  greyed out, not clickable."*
+
+- **API/service changes:** Provide exact curl/HTTPie/gRPCurl commands with the
+  expected response body or status code.
+  *Example: `curl -X POST http://localhost:8080/api/items -d '{"name":"test"}' | jq '.id'`*
+
+- **Config/environment changes:** Show the expected diff or validation command.
+  *Example: `diff expected-config.yaml actual-config.yaml` or
+  `cargo check 2>&1 | grep -i "error"`*
+
+If a change cannot be observed without automation (no visual feedback, no CLI
+output, no API), add a logging or instrumentation step to the implementation.
+The rule: a reviewer who wasn't in the session should be able to independently
+verify correctness.
+
 ## Scope Check
 
 If the spec covers multiple independent subsystems, it should have been broken into sub-project specs during brainstorming. If it wasn't, suggest breaking this into separate plans — one per subsystem. Each plan should produce working, testable software on its own.
@@ -182,7 +214,8 @@ If the decision is `Required`, write the failing test first and follow TDD stric
 
 **Manual verification:**
 
-- [specific checks to perform]
+- Observable verification command or check (see Observability section above)
+- [any additional task-specific checks]
 
 ---
 

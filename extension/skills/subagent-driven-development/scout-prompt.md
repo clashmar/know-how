@@ -6,7 +6,7 @@ Use this template when dispatching a scout subagent for codebase reconnaissance.
 provides exact files to read and specific questions to answer. The scout reads
 only what's listed, answers only what's asked, and stops.
 
-```
+``` md
 Subagent dispatch — scout:
   task: "Scout: [specific question or file set]"
   reads: ["path/to/file1.rs", "path/to/file2.rs", "path/to/tests/"]
@@ -68,7 +68,7 @@ Subagent dispatch — scout:
     them. Bullet points only. 
 
     <IMPORTANT>
-      DO NOT OUTPUT YOUR FINDING INTO A TEMP FILE
+      DO NOT OUTPUT YOUR FINDINGS INTO A TEMP FILE
     <IMPORTANT>
 
     ## When You're Done
@@ -81,8 +81,6 @@ Subagent dispatch — scout:
 
     If the task is too vague ("explore the codebase"), report:
     "NEEDS_SPECIFICITY: Task is too broad. Need specific files and questions."
-
-    You have been asked to write your report into a specific file, or any file of your choosing.
 
     If the listed files don't exist or paths are wrong, report what you found
     and stop. Do not guess at alternative paths.
