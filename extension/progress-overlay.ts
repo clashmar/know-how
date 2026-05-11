@@ -15,7 +15,6 @@ import { formatDuration, formatTokens } from "./types";
 interface AgentViewModel {
   index: number;
   progress: SubagentState;
-  result?: { output: string };
 }
 
 /** Subset of ExtensionCommandContext needed by the progress overlay. */
@@ -32,6 +31,8 @@ const ROLE_BG_COLORS: Record<string, number> = {
 };
 const DEFAULT_BG_COLOR = 236;
 const PICKER_BG_COLOR = 59;
+const MAX_RUNNING_TOOL_LINES = 3;
+const MAX_RUNNING_OUTPUT_LINES = 14;
 
 function roleBgFn(agent: string): (s: string) => string {
   const color = ROLE_BG_COLORS[agent] ?? DEFAULT_BG_COLOR;
@@ -42,8 +43,7 @@ function roleBgFn(agent: string): (s: string) => string {
 
 function getAgentViewModel(details: DispatchDetails, index: number): AgentViewModel {
   const progress = details.progress[index]!;
-  const result = details.results[index];
-  return { index, progress, result };
+  return { index, progress };
 }
 
 function buildMetadataLine(progress: SubagentState, theme: Theme): string {
@@ -68,7 +68,7 @@ function buildRunningView(vm: AgentViewModel, theme: Theme, width: number): Cont
 
   if (vm.progress.recentTools.length > 0) {
     container.addChild(new Text(theme.fg("text", "Recent tools:"), 0, 0));
-    for (const tool of vm.progress.recentTools) {
+    for (const tool of vm.progress.recentTools.slice(-MAX_RUNNING_TOOL_LINES)) {
       container.addChild(new Text(
         truncateToWidth(theme.fg("text", `  • ${tool.tool}`), innerWidth, "..."),
         0, 0,
@@ -79,32 +79,12 @@ function buildRunningView(vm: AgentViewModel, theme: Theme, width: number): Cont
   if (vm.progress.recentOutput.length > 0) {
     container.addChild(new Spacer(1));
     container.addChild(new Text(theme.fg("text", "Output:"), 0, 0));
-    for (const line of vm.progress.recentOutput) {
-      for (const wrapped of wrapTextWithAnsi(theme.fg("text", `  ${line}`), innerWidth)) {
-        container.addChild(new Text(wrapped, 0, 0));
-      }
-    }
-  }
 
-  return container;
-}
+    const wrappedOutput = vm.progress.recentOutput.flatMap((line) =>
+      wrapTextWithAnsi(theme.fg("text", `  ${line}`), innerWidth),
+    );
 
-function buildDoneView(vm: AgentViewModel, theme: Theme, width: number): Container {
-  const container = new Container();
-  const innerWidth = Math.max(width - 4, 40);
-
-  const statusIcon = theme.fg("success", "✓");
-  container.addChild(new Text(
-    `${statusIcon} ${theme.bold(vm.progress.agent)} — done`,
-    0, 0,
-  ));
-  container.addChild(new Text(buildMetadataLine(vm.progress, theme), 0, 0));
-  container.addChild(new Spacer(1));
-
-  const output = vm.result?.output?.trim() || "No final report text returned.";
-  const lines = output.split("\n");
-  for (const line of lines) {
-    for (const wrapped of wrapTextWithAnsi(theme.fg("text", line), innerWidth)) {
+    for (const wrapped of wrappedOutput.slice(-MAX_RUNNING_OUTPUT_LINES)) {
       container.addChild(new Text(wrapped, 0, 0));
     }
   }
@@ -166,19 +146,17 @@ class DetailOverlay {
     }
 
     const vm = getAgentViewModel(details, this.index);
-    let content: Container;
-    if (vm.progress.status === "running" || vm.progress.status === "pending") {
-      content = buildRunningView(vm, this.theme, width);
-    } else if (vm.progress.status === "done") {
-      content = buildDoneView(vm, this.theme, width);
-    } else {
-      content = buildFailedView(vm, this.theme, width);
-    }
-
-    if (isDispatchComplete(details)) {
+    if (vm.progress.status === "done" || isDispatchComplete(details)) {
       this.closed = true;
       this.done();
       return [];
+    }
+
+    let content: Container;
+    if (vm.progress.status === "running" || vm.progress.status === "pending") {
+      content = buildRunningView(vm, this.theme, width);
+    } else {
+      content = buildFailedView(vm, this.theme, width);
     }
 
     const bgFn = roleBgFn(vm.progress.agent);

@@ -427,7 +427,11 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
         lastUpdate = now;
         const details: DispatchDetails = {
           mode: "parallel",
-          results: states.map(s => ({ agent: s.agent, task: "", output: "" })),
+          results: tasks.map((task, i) => ({
+            agent: task.agent,
+            task: task.task,
+            output: results[i] ?? "",
+          })),
           progress: states.map(s => ({ ...s })),
           dispatchStartedAt,
         };
