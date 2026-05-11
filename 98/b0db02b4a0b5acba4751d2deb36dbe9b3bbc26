@@ -1,0 +1,26 @@
+extension/skills/writing-plans/SKILL.md
+  ai_agent 232-233
+  s_5fcd2bb6c50097::t_c49de81061e8b0 226
+extension/skills/executing-plans/SKILL.md
+  s_5fcd2bb6c50097::t_664cf9e16df753 176-177,179,215
+extension/skills/subagent-driven-development/SKILL.md
+  s_5fcd2bb6c50097::t_08c90813bea831 121,168-169,171-172,376,378,381,408,463-464,466-467
+AGENTS.md
+  s_5fcd2bb6c50097::t_5be3fa9d2d61dd 55-66
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "98b0db02b4a0b5acba4751d2deb36dbe9b3bbc26",
+  "prompts": {},
+  "sessions": {
+    "s_5fcd2bb6c50097": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e1730-5558-775b-b541-19a94c7fd5c0",
+        "model": "claude-sonnet-4.6"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
