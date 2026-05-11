@@ -1,0 +1,28 @@
+extension/render.ts
+  s_a6e04d00abea6d::t_322d91b2f45bcd 56,66-67
+  s_a6e04d00abea6d::t_6679f4108da002 199
+  s_a6e04d00abea6d::t_607bc845f29b25 17
+  s_a6e04d00abea6d::t_e86123e645129b 3
+extension/progress-overlay.ts
+  s_a6e04d00abea6d::t_04f1798cadc16a 242
+  s_a6e04d00abea6d::t_18a337d1c8d266 243,245,247-248,250-252
+  s_a6e04d00abea6d::t_0aca2dd0227f33 244,246,249,253-254
+  s_a6e04d00abea6d::t_a308815898d94f 8
+  s_a6e04d00abea6d::t_170b9a0aba1178 83-85,107-109
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "055b019a4d3ba00a6fbd673db951e8876acc86c7",
+  "prompts": {},
+  "sessions": {
+    "s_a6e04d00abea6d": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e1700-454e-72c1-8c01-820e41f09432",
+        "model": "claude-opus-4.6"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
