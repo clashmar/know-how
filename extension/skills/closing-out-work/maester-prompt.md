@@ -1,5 +1,7 @@
 # Maester Close-Out Prompt Template
 
+<!-- Keep context fields consistent with the "What you do" section of extension/agents/maester.md -->
+
 Use this template when dispatching the maester agent at close-out.
 Fill in all `<…>` placeholders from this session's context before dispatching.
 
