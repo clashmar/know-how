@@ -52,7 +52,7 @@ function stateStats(state: SubagentState, theme: Theme): string {
   if (state.toolCount > 0) parts.push(`${state.toolCount} tool${state.toolCount === 1 ? "" : "s"}`);
   if (state.tokens > 0) parts.push(`${formatTokens(state.tokens)} tok`);
   if (state.durationMs > 0) parts.push(formatDuration(state.durationMs));
-  else if (state.status === "running") parts.push(formatDuration(now - (state.currentToolStartedAt ?? now)));
+  else if (state.status === "running") parts.push(formatDuration(now - (state.lastActivityAt ?? now)));
   if (state.model) parts.push(state.model);
   return statJoin(theme, parts);
 }

@@ -13,32 +13,13 @@ import {
 } from "./types";
 import { buildView } from "./render";
 
+/** Module-level state shared between execute and renderCall for live updates. */
+let liveStates: SubagentState[] = [];
+
 const resultAnimations = new Map<string, ReturnType<typeof setInterval>>();
 
 function hasRunningStates(states: SubagentState[]): boolean {
   return states.some(s => s.status === "running" || s.status === "pending");
-}
-
-function startResultAnimation(toolCallId: string, context: { invalidate(): void }): void {
-  if (resultAnimations.has(toolCallId)) return;
-
-  const timer = setInterval(() => {
-    context.invalidate();
-  }, ANIMATION_INTERVAL_MS);
-
-  if (typeof timer === "object" && "unref" in timer) {
-    (timer as unknown as { unref(): void }).unref();
-  }
-
-  resultAnimations.set(toolCallId, timer);
-}
-
-function stopResultAnimation(toolCallId: string): void {
-  const timer = resultAnimations.get(toolCallId);
-  if (timer) {
-    clearInterval(timer);
-    resultAnimations.delete(toolCallId);
-  }
 }
 
 // ── Types ────────────────────────────────────────────────────────
@@ -51,7 +32,6 @@ const TaskParam = Type.Object({
 });
 
 const SubagentParams = Type.Object({
-  cwd: Type.Optional(Type.String()),
   cwd: Type.Optional(Type.String()),
   tasks: Type.Array(TaskParam),
   concurrency: Type.Optional(Type.Integer({ minimum: 1, default: 4 })),
@@ -319,6 +299,7 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
       const states: SubagentState[] = tasks.map(t =>
         createInitialState(t.agent, firstModel)
       );
+      liveStates = states;
 
       const workDir = params.cwd ?? ctx.cwd;
 
@@ -328,6 +309,7 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
         const startedAt = Date.now();
         state.status = "running";
         state.lastActivityAt = startedAt;
+        let lineBuffer = "";
 
         try {
           const response = await dispatchAgent(
@@ -337,24 +319,40 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
             workDir,
             signal,
             (chunk: string) => {
-              const clean = chunk.replace(/\x1b\[[0-9;]*m/g, "");
+              lineBuffer += chunk;
+              const rawLines = lineBuffer.split("\n");
+              lineBuffer = rawLines.pop()!;
 
-              const toolMatch = clean.match(/(?:Tool|tool):\s*(\S+)/);
-              if (toolMatch) {
-                state.toolCount++;
-                state.currentTool = toolMatch[1]!;
-                state.currentToolStartedAt = Date.now();
-                state.recentTools.push({
-                  tool: toolMatch[1]!,
-                  args: clean.trim().slice(0, 100)
-                });
-                if (state.recentTools.length > 5) state.recentTools.shift();
-              }
+              for (const rawLine of rawLines) {
+                // Try JSONL for token usage
+                try {
+                  const entry = JSON.parse(rawLine.trim());
+                  if (entry.type === "message_end" && entry.message?.usage) {
+                    state.tokens += entry.message.usage.input + entry.message.usage.output;
+                  }
+                  continue;
+                } catch {
+                  // Not JSON — normal text output, fall through
+                }
 
-              const lines = clean.split("\n").filter(l => l.trim());
-              for (const line of lines) {
-                state.recentOutput.push(line.trim().slice(0, 120));
+                const clean = rawLine.replace(/\x1b\[[0-9;]*m/g, "");
+                if (!clean.trim()) continue;
+
+                state.recentOutput.push(clean.trim().slice(0, 120));
                 if (state.recentOutput.length > 10) state.recentOutput.shift();
+
+                // Track tools
+                const toolMatch = clean.match(/(?:Tool|tool):\s*(\S+)/);
+                if (toolMatch) {
+                  state.toolCount++;
+                  state.currentTool = toolMatch[1]!;
+                  state.currentToolStartedAt = Date.now();
+                  state.recentTools.push({
+                    tool: toolMatch[1]!,
+                    args: clean.trim().slice(0, 100)
+                  });
+                  if (state.recentTools.length > 5) state.recentTools.shift();
+                }
               }
 
               state.lastActivityAt = Date.now();
@@ -398,17 +396,28 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
         details: { states },
       };
     },
-    renderResult(result, options, theme, context) {
-      const states = (result.details as { states?: SubagentState[] }).states;
-      if (!states) return new Text("(no subagent state)");
+    renderCall(_args, theme, context) {
+      if (liveStates.length === 0) return new Text("initialising…");
 
-      if (hasRunningStates(states)) {
-        startResultAnimation(context.toolCallId, context);
+      if (hasRunningStates(liveStates)) {
+        if (!resultAnimations.has(context.toolCallId)) {
+          const timer = setInterval(() => {
+            context.invalidate();
+          }, ANIMATION_INTERVAL_MS);
+          if (typeof timer === "object" && "unref" in timer) {
+            (timer as unknown as { unref(): void }).unref();
+          }
+          resultAnimations.set(context.toolCallId, timer);
+        }
       } else {
-        stopResultAnimation(context.toolCallId);
+        const timer = resultAnimations.get(context.toolCallId);
+        if (timer) {
+          clearInterval(timer);
+          resultAnimations.delete(context.toolCallId);
+        }
       }
 
-      return buildView(states, options.expanded, theme);
+      return buildView(liveStates, false, theme);
     },
   });
 }
