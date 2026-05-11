@@ -13,10 +13,14 @@ import {
 } from "./types";
 import { isInReadMode } from "./read-mode";
 import { renderResultView } from "./render";
+import { openProgressOverlay } from "./progress-overlay";
 import { readSettings, type Settings } from "./settings";
 
 /** Module-level state shared between execute and renderCall for live updates. */
 let liveStates: SubagentState[] = [];
+
+/** Snapshot of the most recent dispatch, retained for /progress. */
+let latestDispatchDetails: DispatchDetails | undefined;
 
 // ── Types ────────────────────────────────────────────────────────
 
@@ -281,6 +285,8 @@ async function dispatchAgent(
 
 // ── Extension ────────────────────────────────────────────────────
 
+
+
 /** Registers the subagent dispatch tool with the pi extension API. */
 export default function dispatchExtension(pi: ExtensionAPI): void {
   pi.registerTool({
@@ -313,14 +319,20 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
         const now = Date.now();
         if (now - lastUpdate < UPDATE_THROTTLE_MS) return;
         lastUpdate = now;
+        const details: DispatchDetails = {
+          mode: "parallel",
+          results: tasks.map((task, i) => ({
+            agent: task.agent,
+            task: task.task,
+            output: results[i] ?? "",
+          })),
+          progress: states.map(s => ({ ...s })),
+          dispatchStartedAt,
+        };
+        latestDispatchDetails = details;
         _onUpdate?.({
           content: [{ type: "text" as const, text: `${states.filter(s => s.status !== "pending").length}/${states.length} agents started` }],
-          details: {
-            mode: "parallel" as const,
-            results: states.map(s => ({ agent: s.agent, task: "", output: "" })),
-            progress: states.map(s => ({ ...s })),
-            dispatchStartedAt,
-          },
+          details,
         });
       }
 
@@ -388,9 +400,9 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
                     for (const part of content) {
                       if (part.type === "text" && part.text) {
                         const lines = part.text.split("\n").filter(l => l.trim());
-                        for (const line of lines.slice(-5)) {
-                          state.recentOutput.push(line.trim().slice(0, 120));
-                          if (state.recentOutput.length > 10) state.recentOutput.shift();
+                        for (const line of lines.slice(-10)) {
+                          state.recentOutput.push(line.trim().slice(0, 200));
+                          if (state.recentOutput.length > 50) state.recentOutput.shift();
                         }
                       }
                     }
@@ -416,6 +428,7 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
 
       let nextIndex = 0;
       const running = new Set<Promise<void>>();
+      pushUpdate(); // immediate first update so render gets the new dispatchStartedAt
       while (nextIndex < tasks.length || running.size > 0) {
         while (nextIndex < tasks.length && running.size < concurrency) {
           const p = runTask(nextIndex++);
@@ -438,18 +451,21 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
         .map((task, i) => `## ${task.agent}\n${results[i] || "(no output)"}`)
         .join("\n\n");
 
+      const details: DispatchDetails = {
+        mode: "parallel",
+        results: tasks.map((task, i) => ({
+          agent: task.agent,
+          task: task.task,
+          output: results[i] || "(no output)",
+        })),
+        progress: states.map(s => ({ ...s })),
+        dispatchStartedAt,
+      };
+      latestDispatchDetails = details;
+
       return {
         content: [{ type: "text" as const, text: output }],
-        details: {
-          mode: "parallel" as const,
-          results: tasks.map((task, i) => ({
-            agent: task.agent,
-            task: task.task,
-            output: results[i] || "(no output)",
-          })),
-          progress: states.map(s => ({ ...s })),
-          dispatchStartedAt,
-        },
+        details,
       };
     },
     renderCall(_args, theme, _context) {
@@ -466,6 +482,20 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
         theme,
         context,
       );
+    },
+  });
+
+  pi.registerCommand("progress", {
+    description: "Open the subagent dispatch progress overlay",
+    handler: async (_args, ctx) => {
+      if (!ctx.hasUI) {
+        return;
+      }
+      if (!latestDispatchDetails || latestDispatchDetails.progress.length === 0) {
+        ctx.ui.notify("No subagent dispatch available yet.", "info");
+        return;
+      }
+      openProgressOverlay(ctx, () => latestDispatchDetails);
     },
   });
 }
