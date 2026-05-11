@@ -1,0 +1,26 @@
+extension/dispatch.ts
+  s_a6e04d00abea6d::t_57f47141153134 16,510
+extension/progress-overlay.ts
+  s_a6e04d00abea6d::t_dce2c0f231093c 8,291,325
+  s_a6e04d00abea6d::t_42a8988b91e813 9,11,21-22,306
+  s_a6e04d00abea6d::t_cfde5069666c58 34
+  s_a6e04d00abea6d::t_ea38e1862843c7 227
+  s_a6e04d00abea6d::t_dae51c4d957556 289-290,323-324
+  s_a6e04d00abea6d::t_1d185ce2b199ba 310,334
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "2db36bfa9e5a49da95718f0c36ac7dc8a0be4f72",
+  "prompts": {},
+  "sessions": {
+    "s_a6e04d00abea6d": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e1700-454e-72c1-8c01-820e41f09432",
+        "model": "claude-sonnet-4.6"
+      },
+      "human_author": null
+    }
+  }
+}
