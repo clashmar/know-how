@@ -1,0 +1,9 @@
+extension/dispatch.ts
+  ai_agent 16,50-56,211-212,218,220-222,238,249-250,256-260,268-275,299-303,309-324
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "43717b5acc4d420e5262fe51e096087bfde7098a",
+  "prompts": {}
+}
