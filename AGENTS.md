@@ -21,6 +21,28 @@ The install script (`scripts/install`) copies these agent definitions from
 (`extension/dispatch.ts`) resolves agent prompts by looking in the bundled
 directory first, then falling back to `~/.pi/agent/agents/`.
 
+## Commit Messages
+
+Use the conventional commit format:
+
+```md
+type(scope): short description
+```
+
+- **type**: `feat`, `fix`, `refactor`, `docs`, `chore`, `test`
+- **scope**: the affected area, e.g. `skills`, `dispatch`, `agents`, `install`
+- Description is lowercase, no trailing period, under 72 characters total
+
+Examples:
+
+```md
+feat(skills): add verification-before-completion skill
+fix(dispatch): resolve agent lookup falling back incorrectly
+refactor(agents): rename guardian to sentinel
+docs(agents): document maester close-out responsibilities
+chore(install): update copy targets for new skills directory
+```
+
 ## Contribution Guidelines
 
 ### Edit the source, not the install target

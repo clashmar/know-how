@@ -8,6 +8,7 @@
     "esModuleInterop": true,
     "types": ["node"],
     "noEmit": true,
+    "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
       "@samfp/pi-memory": ["./node_modules/@samfp/pi-memory/src/index.ts"],
@@ -15,5 +16,8 @@
       "@earendil-works/pi-tui": ["./node_modules/@earendil-works/pi-tui/src/index.ts"]
     }
   },
-  "include": ["extension/**/*.ts"]
+  "include": ["extension/**/*.ts"],
+  "exclude": [
+    "extension/skills/systematic-debugging/condition-based-waiting-example.ts"
+  ]
 }
