@@ -1,0 +1,4 @@
+#!/bin/bash
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+./node_modules/.bin/tsc --noEmit && echo "✓ No TypeScript errors"
