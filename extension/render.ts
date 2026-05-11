@@ -49,12 +49,9 @@ function statJoin(theme: Theme, parts: string[]): string {
 }
 
 function stateStats(state: SubagentState, theme: Theme): string {
-  const now = Date.now();
   const parts: string[] = [];
   if (state.toolCount > 0) parts.push(`${state.toolCount} tool${state.toolCount === 1 ? "" : "s"}`);
   if (state.tokens > 0) parts.push(`${formatTokens(state.tokens)} tok`);
-  if (state.durationMs > 0) parts.push(formatDuration(state.durationMs));
-  else if (state.status === "running") parts.push(formatDuration(now - (state.lastActivityAt ?? now)));
   if (state.model) parts.push(state.model);
   return statJoin(theme, parts);
 }
@@ -152,7 +149,7 @@ function renderExpandedSingle(state: SubagentState, theme: Theme, width: number)
 }
 
 /** Multi-agent tree layout */
-function renderMultiAgent(states: SubagentState[], theme: Theme, width: number): Container {
+function renderMultiAgent(states: SubagentState[], theme: Theme, width: number, dispatchStartedAt: number): Container {
   const container = new Container();
   const innerWidth = width - 4;
 
@@ -170,8 +167,10 @@ function renderMultiAgent(states: SubagentState[], theme: Theme, width: number):
   headerParts.push(`${done}/${states.length} done`);
   if (failed > 0) headerParts.push(`${failed} failed`);
 
+  const elapsed = formatDuration(Date.now() - dispatchStartedAt);
+
   container.addChild(new Text(
-    truncateToWidth(`${glyph} ${bold(theme, "dispatch")} ${dim(theme, "·")} ${dim(theme, headerParts.join(", "))}`, innerWidth, "..."),
+    truncateToWidth(`${glyph} ${bold(theme, "dispatch")} ${dim(theme, "·")} ${dim(theme, elapsed)} ${dim(theme, "·")} ${dim(theme, headerParts.join(", "))}`, innerWidth, "..."),
     0, 0,
   ));
 
@@ -205,8 +204,6 @@ export function renderResultView(
   theme: Theme,
   context: { invalidate: () => void; state: Record<string, unknown> },
 ): Component {
-  const width = process.stdout.columns || 120;
-
   if (!details || details.progress.length === 0) {
     return new Text("no progress data", 0, 0);
   }
@@ -234,7 +231,7 @@ export function renderResultView(
     }
   }
 
-  return buildView(states, false, theme);
+  return buildView(states, false, theme, details.dispatchStartedAt);
 }
 
 /** Renders subagent states as a compact, expanded, or multi-agent tree layout. */
@@ -242,6 +239,7 @@ export function buildView(
   states: SubagentState[],
   expanded: boolean,
   theme: Theme,
+  dispatchStartedAt: number,
 ): Component {
   const width = process.stdout.columns || 120;
 
@@ -253,5 +251,5 @@ export function buildView(
       : renderCompactSingle(states[0]!, theme, width);
   }
 
-  return renderMultiAgent(states, theme, width);
+  return renderMultiAgent(states, theme, width, dispatchStartedAt);
 }
