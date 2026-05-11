@@ -1,0 +1,25 @@
+extension/skills/dispatching-parallel-agents/scout-prompt.md
+  s_b5c505faea1a0c::t_95e7d4c4909cc1 1-87
+extension/skills/brainstorming/SKILL.md
+  s_b5c505faea1a0c::t_f5484fdb22ca90 21,67
+extension/skills/systematic-debugging/SKILL.md
+  s_b5c505faea1a0c::t_eb0003bad1c12f 122
+extension/skills/subagent-driven-development/SKILL.md
+  s_b5c505faea1a0c::t_504d8753663fae 30,270
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "c10ba5ccb8cb3e5812427d4435b9aae1d363a80f",
+  "prompts": {},
+  "sessions": {
+    "s_b5c505faea1a0c": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e1757-8e54-728c-8d2f-0e6ba98fe923",
+        "model": "claude-sonnet-4.6"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
