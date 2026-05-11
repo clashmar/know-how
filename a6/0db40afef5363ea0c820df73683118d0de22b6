@@ -1,0 +1,19 @@
+extension/skills/session-reflection/SKILL.md
+  s_7dc5905924e1c3::t_6add2c2c3fa6de 33-35,38,41-43,46-47
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "a60db40afef5363ea0c820df73683118d0de22b6",
+  "prompts": {},
+  "sessions": {
+    "s_7dc5905924e1c3": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e173e-7dd4-7662-9e1d-0a59a5196d82",
+        "model": "claude-sonnet-4.6"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
