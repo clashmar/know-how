@@ -52,6 +52,18 @@ and `~/.pi/agent/agents/`. **Always edit files inside this repo**.
 Editing files under `~/.pi/agent/` directly means the change is wiped on the next install
 and nobody can see it in version control.
 
+**Path translation — before editing any file, map the installed path to the source path:**
+
+| Installed path | Source path in this repo |
+| --- | --- |
+| `~/.pi/agent/extensions/know-how/skills/X/SKILL.md` | `extension/skills/X/SKILL.md` |
+| `~/.pi/agent/agents/X.md` | `extension/agents/X.md` |
+
+Skill files are often read from the installed path because that is where the session
+system loads them from. That is fine. But **writes always go to the source path**.
+If you have just read a file from `~/.pi/agent/extensions/know-how/`, translate the
+path before calling edit or write.
+
 ### Code style: No `any` types
 
 Do not use `any` in TypeScript code — no `any` type annotations. The project

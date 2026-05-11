@@ -118,9 +118,8 @@ digraph process {
     "Create worktree from current branch" [shape=box];
     "Work on current branch" [shape=box];
     "More tasks remain?" [shape=diamond];
-    "Dispatch final reviews in parallel" [shape=box];
+    "Dispatch final review" [shape=box];
     "Reviewer — whole implementation approves?" [shape=diamond];
-    "maester — process optimization & memory audit approves?" [shape=diamond];
     "Fix final review issues, re-run relevant verification, and re-review" [shape=box];
     "Use know-how:closing-out-work to close out work, get user review, then choose integration" [shape=box style=filled fillcolor=lightgreen];
 
@@ -166,14 +165,11 @@ digraph process {
     "Execution Autonomy is Checkpointed?" -> "More tasks remain?" [label="no"];
     "Report status and wait for user approval" -> "More tasks remain?";
     "More tasks remain?" -> "Dispatch worker subagent (./worker-prompt.md)" [label="yes"];
-    "More tasks remain?" -> "Dispatch final reviews in parallel" [label="no"];
-    "Dispatch final reviews in parallel" -> "Reviewer — whole implementation approves?";
-    "Dispatch final reviews in parallel" -> "maester — process optimization & memory audit approves?";
+    "More tasks remain?" -> "Dispatch final review" [label="no"];
+    "Dispatch final review" -> "Reviewer — whole implementation approves?";
     "Reviewer — whole implementation approves?" -> "Fix final review issues, re-run relevant verification, and re-review" [label="no"];
-    "Reviewer — whole implementation approves?" -> "maester — process optimization & memory audit approves?" [label="yes"];
-    "maester — process optimization & memory audit approves?" -> "Fix final review issues, re-run relevant verification, and re-review" [label="no"];
-    "maester — process optimization & memory audit approves?" -> "Use know-how:closing-out-work to close out work, get user review, then choose integration" [label="yes"];
-    "Fix final review issues, re-run relevant verification, and re-review" -> "Dispatch final reviews in parallel";
+    "Reviewer — whole implementation approves?" -> "Use know-how:closing-out-work to close out work, get user review, then choose integration" [label="yes"];
+    "Fix final review issues, re-run relevant verification, and re-review" -> "Dispatch final review";
 }
 ````
 
@@ -377,13 +373,12 @@ Reviewer (code quality): ✅ Approved
 ...
 
 [After all tasks]
-[Dispatch final reviews in parallel — reviewer (whole implementation) + maester]
+[Dispatch final reviewer — reviewer (whole implementation)]
 // If a worktree is being used, set `cwd: /path/to/worktree` on the subagent tool call.
-// Reviewers read source files and maester resolves project name via git root — both need the right CWD.
+// Reviewer reads source files — set cwd to the worktree path if using one.
 Reviewer — whole implementation: Requirements satisfied, no blocking issues found.
-maester: Process optimization & memory audit passed. Optimization suggestions surfaced.
 
-[If either reviewer finds blocking issues, fix them, re-run relevant verification, and re-review before closing out]
+[If the reviewer finds blocking issues, fix them, re-run relevant verification, and re-review before closing out]
 
 Done!
 ```
@@ -410,7 +405,7 @@ Done!
 - Self-review catches issues before handoff
 - Parallel review gates
 - Review loops ensure fixes actually work
-- Final whole-implementation review and maester sweep before closing out work
+- Final whole-implementation review before closing out work
 - Spec compliance prevents over/under-building
 - Code quality ensures implementation is well-built
 - Standards enforcement ensures project conventions and personal preferences are consistently applied
@@ -465,12 +460,11 @@ Done!
 
 **After the final whole-implementation review:**
 
-- Final reviews are dispatched in parallel: `reviewer` for whole-implementation sweep and `maester` for process optimization & memory audit
-- both must approve the same code state
-- if blocking issues are found by either reviewer, fix them
+- Dispatch a `reviewer` for a whole-implementation sweep
+- if blocking issues are found, fix them
 - re-run the relevant verification on the updated code
-- send the whole implementation back for both final reviews again
-- do not move to `closing-out-work` until both reviewers approve
+- send the whole implementation back for review again
+- do not move to `closing-out-work` until the reviewer approves
 
 **In both autonomy modes:**
 

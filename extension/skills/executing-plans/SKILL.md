@@ -173,10 +173,10 @@ For each task:
 
 After all tasks complete and verified:
 
-- Run final reviews in parallel: whole-implementation reviewer (comprehensive sweep) and maester (process optimization + memory stewardship + optimization synthesis). Both must approve before closing out.
-- If either final review requires code changes, re-run the relevant verification and review on the updated code before continuing
+- Run a final whole-implementation review (comprehensive sweep). It must approve before closing out.
+- If the final review requires code changes, re-run verification and the review on the updated code before continuing
 - Announce: "All implementation tasks complete. Executing close-out task."
-- The plan's close-out task handles verification, maester optimization synthesis, cleanup, and integration.
+- The plan's close-out task handles verification, cleanup, and integration.
 
 ## When to Stop and Ask for Help
 
@@ -212,7 +212,7 @@ After all tasks complete and verified:
 - Don't create extra todo items for verification, review gates, or manual checks
 - Don't mark a task complete before spec-compliance review, code-quality review, and guardian review
 - If review changes code, re-run verification and re-review before completion
-- Don't skip the final parallel reviews (whole-implementation + maester) before the close-out task
+- Don't skip the final whole-implementation review before the close-out task
 - Reference skills when plan says to
 - Stop when blocked, don't guess
 - Never start implementation on main/master branch without explicit user consent

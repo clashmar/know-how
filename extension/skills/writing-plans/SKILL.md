@@ -223,17 +223,16 @@ If the decision is `Required`, write the failing test first and follow TDD stric
 
 ### Task N+1: Close Out
 
-**Review gates (parallel):**
+**Review gate:**
 
 - [ ] **Whole-implementation reviewer:** comprehensive sweep
-- [ ] **maester:** process optimization + memory stewardship + optimization synthesis
 
 **Optimization:**
 
-- [ ] Review maester's synthesized optimization suggestions
+- [ ] Present optimization suggestions
+- [ ] `/reflect`
 - [ ] Approve, edit, or skip each suggestion
 - [ ] Apply agreed doc/memory/skill changes
-- [ ] `/reflect` approved improvements
 
 **Cleanup:**
 
