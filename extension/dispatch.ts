@@ -318,6 +318,7 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
         createInitialState(t.agent, firstModel)
       );
       liveStates = states;
+      const dispatchStartedAt = Date.now();
 
       const workDir = params.cwd ?? ctx.cwd;
 
@@ -397,6 +398,7 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
               }
 
               state.lastActivityAt = Date.now();
+              pushUpdate();
             },
           );
           state.status = "done";
@@ -423,6 +425,7 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
             mode: "parallel" as const,
             results: states.map(s => ({ agent: s.agent, task: "", output: "" })),
             progress: states.map(s => ({ ...s })),
+            dispatchStartedAt,
           },
         });
       }
@@ -461,6 +464,7 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
             output: results[i] || "(no output)",
           })),
           progress: states.map(s => ({ ...s })),
+          dispatchStartedAt,
         },
       };
     },

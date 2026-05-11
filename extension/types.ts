@@ -78,6 +78,7 @@ export interface DispatchDetails {
   mode: "parallel";
   results: DispatchResult[];
   progress: SubagentState[];
+  dispatchStartedAt: number;
 }
 
 /** Result returned from a completed subagent dispatch. */
