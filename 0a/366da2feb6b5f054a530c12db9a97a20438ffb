@@ -1,0 +1,29 @@
+extension/progress-overlay.ts
+  s_a6e04d00abea6d::t_42133595f625df 187-188
+  s_a6e04d00abea6d::t_55e21911bf5188 70-81
+  s_a6e04d00abea6d::t_29dc1e5415cda5 106,143,150,155-157,185-186,192,284,317
+  s_a6e04d00abea6d::t_132c665c43e1da 261-282,285-313,318
+  s_a6e04d00abea6d::t_232ac1350f7d2a 62
+  s_a6e04d00abea6d::t_914c2ba800bcd8 140-141,144-148,154,161-182
+  s_a6e04d00abea6d::t_e0431110ff1f99 151-152,322
+  s_a6e04d00abea6d::t_8aa03f3e911e30 8-29
+extension/dispatch.ts
+  s_a6e04d00abea6d::t_6c29bdbb207932 509
+  s_a6e04d00abea6d::t_1b00f6e218c74f 395-397
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "0a366da2feb6b5f054a530c12db9a97a20438ffb",
+  "prompts": {},
+  "sessions": {
+    "s_a6e04d00abea6d": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e1700-454e-72c1-8c01-820e41f09432",
+        "model": "claude-opus-4.6"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
