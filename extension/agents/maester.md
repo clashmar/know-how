@@ -6,7 +6,6 @@ description: |
   for contradictions/staleness, detect cross-session patterns, and surface
   process improvement recommendations.
 tools: read, grep, find, ls, memory_search, bash
-inheritProjectContext: false
 defaultContext: fresh
 skills: session-reflection
 ---

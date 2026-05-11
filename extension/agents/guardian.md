@@ -10,7 +10,6 @@ description: |
   stewardship — the maester agent handles those at close-out. Use at per-task
   review points alongside spec and code-quality reviewers.
 tools: read, grep, find, ls, memory_search, bash
-inheritProjectContext: false
 defaultContext: fresh
 skills: session-reflection
 ---

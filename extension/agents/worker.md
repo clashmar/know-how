@@ -3,7 +3,6 @@ name: worker
 description: Implements tasks from plans — writes code, runs tests, self-reviews
 tools: read, grep, find, ls, bash, write, edit
 systemPromptMode: replace
-inheritProjectContext: false
 inheritSkills: false
 ---
 
