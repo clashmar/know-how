@@ -167,7 +167,8 @@ function renderMultiAgent(states: SubagentState[], theme: Theme, width: number, 
   headerParts.push(`${done}/${states.length} done`);
   if (failed > 0) headerParts.push(`${failed} failed`);
 
-  const elapsed = formatDuration(Date.now() - dispatchStartedAt);
+  const hasStarted = states.some(s => s.status !== "pending");
+  const elapsed = hasStarted ? formatDuration(Date.now() - dispatchStartedAt) : "starting";
 
   container.addChild(new Text(
     truncateToWidth(`${glyph} ${bold(theme, "dispatch")} ${dim(theme, "·")} ${dim(theme, elapsed)} ${dim(theme, "·")} ${dim(theme, headerParts.join(", "))}`, innerWidth, "..."),

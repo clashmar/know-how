@@ -440,6 +440,7 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
 
       let nextIndex = 0;
       const running = new Set<Promise<void>>();
+      pushUpdate(); // immediate first update so render gets the new dispatchStartedAt
       while (nextIndex < tasks.length || running.size > 0) {
         while (nextIndex < tasks.length && running.size < concurrency) {
           const p = runTask(nextIndex++);
