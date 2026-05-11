@@ -13,7 +13,7 @@ import {
 } from "./types";
 import { isInReadMode } from "./read-mode";
 import { renderResultView } from "./render";
-import { openProgressOverlay, type OverlayContext } from "./progress-overlay";
+import { openProgressOverlay } from "./progress-overlay";
 
 /** Module-level state shared between execute and renderCall for live updates. */
 let liveStates: SubagentState[] = [];
@@ -507,7 +507,7 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
         ctx.ui.notify("No subagent dispatch available yet.", "info");
         return;
       }
-      openProgressOverlay(ctx as OverlayContext, () => latestDispatchDetails);
+      openProgressOverlay(ctx, () => latestDispatchDetails);
     },
   });
 }

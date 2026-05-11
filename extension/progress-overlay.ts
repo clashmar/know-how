@@ -5,15 +5,12 @@
  * Index-based agent resolution ensures repeated agent types map correctly.
  */
 
-import { Box, Container, Text, Spacer, truncateToWidth, matchesKey, Key, type Component } from "@earendil-works/pi-tui";
+import { Box, Container, Text, Spacer, truncateToWidth, matchesKey, Key, type Component, type TUI, type KeybindingsManager } from "@earendil-works/pi-tui";
+import type { ExtensionCommandContext, Theme } from "@mariozechner/pi-coding-agent";
 import type { DispatchDetails, SubagentState } from "./types";
-import { formatDuration, formatTokens, spinnerFrame } from "./types";
+import { formatDuration, formatTokens } from "./types";
 
 // ── Type Definitions ──────────────────────────────────────────────
-
-interface TuiContext {
-  requestRender?: () => void;
-}
 
 interface AgentViewModel {
   index: number;
@@ -21,22 +18,8 @@ interface AgentViewModel {
   result?: { output: string };
 }
 
-interface Theme {
-  bold(text: string): string;
-  fg(color: string, text: string): string;
-  bg(color: string, text: string): string;
-}
-
-/** Shape of the UI context required by the progress overlay. */
-export interface OverlayContext {
-  ui: {
-    custom: <T>(
-      factory: (tui: TuiContext, theme: Theme, keybindings: unknown, done: (result: T) => void) => Component,
-      options?: { overlay: boolean }
-    ) => Promise<T>;
-    notify: (message: string, type: string) => void;
-  };
-}
+/** Subset of ExtensionCommandContext needed by the progress overlay. */
+export type OverlayContext = Pick<ExtensionCommandContext, "ui" | "hasUI">;
 
 // ── Role Colors ───────────────────────────────────────────────────
 
@@ -48,6 +31,7 @@ const ROLE_BG_COLORS: Record<string, number> = {
   maester: 58,
 };
 const DEFAULT_BG_COLOR = 236;
+const PICKER_BG_COLOR = 59;
 
 function roleBgFn(agent: string): (s: string) => string {
   const color = ROLE_BG_COLORS[agent] ?? DEFAULT_BG_COLOR;
@@ -240,7 +224,7 @@ class PickerOverlay {
 
   render(width: number): string[] {
     const innerWidth = Math.max(width - 4, 40);
-    const box = new Box(1, 1, (s: string) => this.theme.bg("customMessageBg", s));
+    const box = new Box(1, 1, (s: string) => `\x1b[48;5;${PICKER_BG_COLOR}m${s}\x1b[49m`);
 
     box.addChild(new Text(this.theme.bold("Select Agent"), 0, 0));
     box.addChild(new Spacer(1));
@@ -302,8 +286,9 @@ export function openProgressOverlay(
 }
 
 function openPickerOverlay(ctx: OverlayContext, getDetails: DispatchDetailsGetter): void {
-  ctx.ui.custom(
-    (tui: TuiContext, theme: Theme, _keybindings: unknown, done: (result: unknown) => void) => {
+  // eslint-disable-next-line -- factory signature is structurally compatible but Theme class vs interface mismatch
+  void (ctx.ui.custom as (factory: unknown, options: unknown) => Promise<unknown>)(
+    (tui: TUI, theme: Theme, _keybindings: KeybindingsManager, done: (result: unknown) => void) => {
       const details = getDetails()!;
       const picker = new PickerOverlay(details, theme);
 
@@ -318,11 +303,11 @@ function openPickerOverlay(ctx: OverlayContext, getDetails: DispatchDetailsGette
 
       return {
         render: (w: number) => picker.render(w),
-        handleInput: (data: string) => { picker.handleInput(data); tui.requestRender?.(); },
+        handleInput: (data: string) => { picker.handleInput(data); tui.requestRender(); },
         invalidate: () => picker.invalidate(),
       };
     },
-    { overlay: true },
+    { overlay: true, overlayOptions: { margin: 2 } },
   );
 }
 
@@ -335,8 +320,9 @@ function openDetailOverlay(
   getDetails: DispatchDetailsGetter,
   index: number,
 ): void {
-  ctx.ui.custom(
-    (tui: TuiContext, theme: Theme, _keybindings: unknown, done: (result: unknown) => void) => {
+  // eslint-disable-next-line -- factory signature is structurally compatible but Theme class vs interface mismatch
+  void (ctx.ui.custom as (factory: unknown, options: unknown) => Promise<unknown>)(
+    (_tui: TUI, theme: Theme, _keybindings: KeybindingsManager, done: (result: unknown) => void) => {
       const detail = new DetailOverlay(getDetails, index, theme, () => done(null));
 
       return {
@@ -345,6 +331,6 @@ function openDetailOverlay(
         invalidate: () => detail.invalidate(),
       };
     },
-    { overlay: true },
+    { overlay: true, overlayOptions: { margin: 2 } },
   );
 }
