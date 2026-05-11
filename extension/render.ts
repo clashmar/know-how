@@ -4,9 +4,11 @@ import { Container, Text, Spacer, truncateToWidth } from "@earendil-works/pi-tui
 import type { Component } from "@earendil-works/pi-tui";
 import {
   type SubagentState,
+  type DispatchDetails,
   spinnerFrame,
   formatDuration,
   formatTokens,
+  ANIMATION_INTERVAL_MS,
 } from "./types";
 
 interface Theme {
@@ -197,6 +199,45 @@ function renderMultiAgent(states: SubagentState[], theme: Theme, width: number):
   return container;
 }
 
+/** Renders live subagent progress for renderResult. */
+export function renderResultView(
+  details: DispatchDetails | undefined,
+  theme: Theme,
+  context: { invalidate: () => void; state: Record<string, unknown> },
+): Component {
+  const width = process.stdout.columns || 120;
+
+  if (!details || details.progress.length === 0) {
+    return new Text("no progress data", 0, 0);
+  }
+
+  const states = details.progress;
+  const hasRunning = states.some(s => s.status === "running" || s.status === "pending");
+
+  // Animation timer — re-render while agents are running
+  const ANIM_KEY = "subagentResultAnimationTimer";
+  if (hasRunning) {
+    if (!context.state[ANIM_KEY]) {
+      const timer = setInterval(() => {
+        try { context.invalidate(); } catch { /* stale ctx */ }
+      }, ANIMATION_INTERVAL_MS);
+      if (typeof timer === "object" && "unref" in timer) {
+        (timer as unknown as { unref(): void }).unref();
+      }
+      context.state[ANIM_KEY] = timer;
+    }
+  } else {
+    const timer = context.state[ANIM_KEY] as ReturnType<typeof setInterval> | undefined;
+    if (timer) {
+      clearInterval(timer);
+      delete context.state[ANIM_KEY];
+    }
+  }
+
+  return buildView(states, false, theme);
+}
+
+/** Renders subagent states as a compact, expanded, or multi-agent tree layout. */
 export function buildView(
   states: SubagentState[],
   expanded: boolean,

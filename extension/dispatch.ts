@@ -8,20 +8,14 @@ import { Type } from "@sinclair/typebox";
 import {
   type SubagentState,
   DISPATCH_KEY,
-  ANIMATION_INTERVAL_MS,
   createInitialState,
+  type DispatchDetails,
 } from "./types";
 import { isInReadMode } from "./read-mode";
-import { buildView } from "./render";
+import { renderResultView } from "./render";
 
 /** Module-level state shared between execute and renderCall for live updates. */
 let liveStates: SubagentState[] = [];
-
-const resultAnimations = new Map<string, ReturnType<typeof setInterval>>();
-
-function hasRunningStates(states: SubagentState[]): boolean {
-  return states.some(s => s.status === "running" || s.status === "pending");
-}
 
 // ── Types ────────────────────────────────────────────────────────
 
@@ -135,7 +129,8 @@ function buildPiArgs(params: {
     taskText = `[Read from: ${params.reads.join(", ")}]\n\n${taskText}`;
   }
 
-  args.push("--print");
+  args.push("--mode", "json");
+  args.push("-p");
   args.push("--no-session");
 
   // Write system prompt to temp file, pass file path (matching pi-subagents approach)
@@ -194,8 +189,14 @@ function spawnPi(
     child.stdin?.end();
 
     child.on("close", (code) => {
-      if (code === 0 || code === null) {
+      if (code === 0) {
         resolve(extractResponse(stdout));
+      } else if (code === null) {
+        reject(
+          new Error(
+            `Subagent "${agentName}" was killed by signal`
+          )
+        );
       } else {
         reject(
           new Error(
@@ -217,11 +218,25 @@ function spawnPi(
 }
 
 function extractResponse(stdout: string): string {
-  // Strip ANSI escape codes
-  let text = stdout.replace(/\x1b\[[0-9;]*m/g, "");
-  // Remove trailing whitespace
-  text = text.trim();
-  return text;
+  // With --mode json, stdout is JSONL. Extract assistant message text.
+  const parts: string[] = [];
+  for (const line of stdout.split("\n")) {
+    if (!line.trim()) continue;
+    let evt: { type?: string; message?: { role?: string; content?: Array<{ type?: string; text?: string }> } };
+    try {
+      evt = JSON.parse(line.trim()) as typeof evt;
+    } catch {
+      continue;
+    }
+    if (evt.type === "message_end" && evt.message?.role === "assistant" && evt.message.content) {
+      for (const part of evt.message.content) {
+        if (part.type === "text" && part.text) {
+          parts.push(part.text);
+        }
+      }
+    }
+  }
+  return parts.join("\n").trim();
 }
 
 function buildModelList(settings: SubagentSettings, agentName?: string): string[] {
@@ -283,12 +298,13 @@ async function dispatchAgent(
 
 // ── Extension ────────────────────────────────────────────────────
 
+/** Registers the subagent dispatch tool with the pi extension API. */
 export default function dispatchExtension(pi: ExtensionAPI): void {
   pi.registerTool({
     name: "subagent",
     label: "Subagent Dispatch",
     description:
-      "Dispatch agents in parallel. Each agent runs with --print --no-session, " +
+      "Dispatch agents in parallel. Each agent runs with --mode json -p, " +
       "fresh context, and returns response text inline. No file writes.",
     parameters: SubagentParams,
 
@@ -326,34 +342,57 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
               lineBuffer = rawLines.pop()!;
 
               for (const rawLine of rawLines) {
-                // Try JSONL for token usage
+                if (!rawLine.trim()) continue;
+
+                let evt: { type?: string; message?: { usage?: { input?: number; output?: number } }; toolName?: string };
                 try {
-                  const entry = JSON.parse(rawLine.trim());
-                  if (entry.type === "message_end" && entry.message?.usage) {
-                    state.tokens += entry.message.usage.input + entry.message.usage.output;
-                  }
-                  continue;
+                  evt = JSON.parse(rawLine.trim()) as typeof evt;
                 } catch {
-                  // Not JSON — normal text output, fall through
+                  continue;
                 }
 
-                const clean = rawLine.replace(/\x1b\[[0-9;]*m/g, "");
-                if (!clean.trim()) continue;
-
-                state.recentOutput.push(clean.trim().slice(0, 120));
-                if (state.recentOutput.length > 10) state.recentOutput.shift();
-
-                // Track tools
-                const toolMatch = clean.match(/(?:Tool|tool):\s*(\S+)/);
-                if (toolMatch) {
+                // tool_execution_start
+                if (evt.type === "tool_execution_start" && evt.toolName) {
                   state.toolCount++;
-                  state.currentTool = toolMatch[1]!;
+                  state.currentTool = evt.toolName;
+                  state.currentToolArgs = undefined;
                   state.currentToolStartedAt = Date.now();
                   state.recentTools.push({
-                    tool: toolMatch[1]!,
-                    args: clean.trim().slice(0, 100)
+                    tool: evt.toolName,
+                    args: ""
                   });
                   if (state.recentTools.length > 5) state.recentTools.shift();
+                  continue;
+                }
+
+                // tool_execution_end
+                if (evt.type === "tool_execution_end") {
+                  state.currentTool = undefined;
+                  state.currentToolArgs = undefined;
+                  state.currentToolStartedAt = undefined;
+                  continue;
+                }
+
+                // message_end - accumulate tokens and extract output lines
+                if (evt.type === "message_end" && evt.message) {
+                  const usage = evt.message.usage;
+                  if (usage) {
+                    state.tokens += (usage.input || 0) + (usage.output || 0);
+                  }
+                  // Extract text content for recent output
+                  const content = (evt.message as { content?: Array<{ type?: string; text?: string }> }).content;
+                  if (Array.isArray(content)) {
+                    for (const part of content) {
+                      if (part.type === "text" && part.text) {
+                        const lines = part.text.split("\n").filter(l => l.trim());
+                        for (const line of lines.slice(-5)) {
+                          state.recentOutput.push(line.trim().slice(0, 120));
+                          if (state.recentOutput.length > 10) state.recentOutput.shift();
+                        }
+                      }
+                    }
+                  }
+                  continue;
                 }
               }
 
@@ -365,10 +404,27 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
           results[index] = response;
         } catch (err) {
           state.status = "failed";
-          state.durationMs = Date.now() -startedAt;
+          state.durationMs = Date.now() - startedAt;
           state.error = err instanceof Error ? err.message : String(err);
           results[index] = `Error: ${state.error}`;
         }
+      }
+
+      // Throttled onUpdate: push partial results to trigger renderResult re-renders
+      let lastUpdate = 0;
+      const UPDATE_THROTTLE_MS = 100;
+      function pushUpdate() {
+        const now = Date.now();
+        if (now - lastUpdate < UPDATE_THROTTLE_MS) return;
+        lastUpdate = now;
+        _onUpdate?.({
+          content: [{ type: "text" as const, text: `${states.filter(s => s.status !== "pending").length}/${states.length} agents started` }],
+          details: {
+            mode: "parallel" as const,
+            results: states.map(s => ({ agent: s.agent, task: "", output: "" })),
+            progress: states.map(s => ({ ...s })),
+          },
+        });
       }
 
       let nextIndex = 0;
@@ -380,9 +436,11 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
           p.finally(() => running.delete(p));
         }
         if (running.size > 0) {
+          pushUpdate();
           await Promise.race(running);
         }
       }
+      pushUpdate(); // final update
       await Promise.all(running);
 
       if (ctx.hasUI) {
@@ -395,31 +453,31 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
 
       return {
         content: [{ type: "text" as const, text: output }],
-        details: { states },
+        details: {
+          mode: "parallel" as const,
+          results: tasks.map((task, i) => ({
+            agent: task.agent,
+            task: task.task,
+            output: results[i] || "(no output)",
+          })),
+          progress: states.map(s => ({ ...s })),
+        },
       };
     },
-    renderCall(_args, theme, context) {
+    renderCall(_args, theme, _context) {
       if (liveStates.length === 0) return new Text("initialising…");
-
-      if (hasRunningStates(liveStates)) {
-        if (!resultAnimations.has(context.toolCallId)) {
-          const timer = setInterval(() => {
-            context.invalidate();
-          }, ANIMATION_INTERVAL_MS);
-          if (typeof timer === "object" && "unref" in timer) {
-            (timer as unknown as { unref(): void }).unref();
-          }
-          resultAnimations.set(context.toolCallId, timer);
-        }
-      } else {
-        const timer = resultAnimations.get(context.toolCallId);
-        if (timer) {
-          clearInterval(timer);
-          resultAnimations.delete(context.toolCallId);
-        }
-      }
-
-      return buildView(liveStates, false, theme);
+      const agentList = liveStates.map(s => s.agent).join(", ");
+      return new Text(
+        `${theme.fg("toolTitle", theme.bold("subagent"))} dispatch (${liveStates.length}): ${theme.fg("accent", agentList)}`,
+        0, 0,
+      );
+    },
+    renderResult(result, _options, theme, context) {
+      return renderResultView(
+        result.details as DispatchDetails | undefined,
+        theme,
+        context,
+      );
     },
   });
 }
