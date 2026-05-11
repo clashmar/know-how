@@ -1,0 +1,19 @@
+extension/skills/closing-out-work/maester-prompt.md
+  s_7dc5905924e1c3::t_0579d23efe4e3a 3-4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "b2d8450109caadb3c7fb5f58b2bd17f4b43872c7",
+  "prompts": {},
+  "sessions": {
+    "s_7dc5905924e1c3": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e173e-7dd4-7662-9e1d-0a59a5196d82",
+        "model": "claude-sonnet-4.6"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
