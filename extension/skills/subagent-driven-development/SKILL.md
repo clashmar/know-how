@@ -27,7 +27,7 @@ you are already violating this skill. STOP. Dispatch.
 
 WHAT TO DO INSTEAD:
 
-- Need to understand the codebase? → Dispatch a bounded scout subagent (see `./scout-prompt.md`). Every scout MUST get: specific files to read, specific questions to answer, a stop boundary, and a conciseness directive. Never dispatch a scout with a vague mandate like "explore the codebase."
+- Need to understand the codebase? → Dispatch a bounded scout subagent (see `../dispatching-parallel-agents/scout-prompt.md`). Every scout MUST get: specific files to read, specific questions to answer, a stop boundary, and a conciseness directive. Never dispatch a scout with a vague mandate like "explore the codebase."
 - Need context for a task? → Include it in the worker's task description
 - Plan file not in context? → READ IT ONCE, then dispatch
 
@@ -267,7 +267,7 @@ Worker subagents report one of four statuses. Handle each appropriately:
 
 ## Prompt Templates
 
-- `./scout-prompt.md` - Dispatch scout subagent for bounded reconnaissance
+- `../dispatching-parallel-agents/scout-prompt.md` - Dispatch scout subagent for bounded reconnaissance
 - `./worker-prompt.md` - Dispatch worker subagent
 - `./spec-reviewer-prompt.md` - Dispatch reviewer for spec compliance
 - `./code-quality-reviewer-prompt.md` - Dispatch reviewer for code quality

@@ -18,7 +18,7 @@ Do not invoke implementation skills, write code, scaffold projects, or make beha
 <IMPORTANT>
 Create a task for each of these items and complete them in order:
 
-1. **Explore project context** — dispatch parallel `scout` agents with bounded tasks (see `./subagent-driven-development/scout-prompt.md`). Each scout gets: specific files to read, specific questions to answer, a stop boundary, and a conciseness directive. Gather all results before continuing. Never dispatch a scout with a vague mandate like "explore the codebase."
+1. **Explore project context** — dispatch parallel `scout` agents with bounded tasks (see `./dispatching-parallel-agents/scout-prompt.md`). Each scout gets: specific files to read, specific questions to answer, a stop boundary, and a conciseness directive. Gather all results before continuing. Never dispatch a scout with a vague mandate like "explore the codebase."
 2. **Ask clarifying questions** — one at a time, focused on purpose and constraints
 3. **Propose 2-3 approaches** — include trade-offs and a recommendation
 4. **Present the design** — scale detail to complexity, get approval section by section
@@ -64,7 +64,7 @@ The terminal state is invoking `know-how:writing-plans`.
 
 **Understanding the idea:**
 
-- **Explore the current project state first using parallel `scout` agents.** Identify independent read domains (e.g., "the editor module," "the render pipeline," "test coverage") and dispatch one `scout` per domain. Each scout task MUST include: exact files to read, 2-4 specific questions to answer, a stop boundary ("stop after reading listed files"), and a conciseness directive ("bullet list under 500 words"). Use the `subagent` PARALLEL mode with `tasks` array and `concurrency`. See `./subagent-driven-development/scout-prompt.md` for the full template. Never dispatch a scout without these four elements — unbounded scouts burn tokens without producing useful results. Gather all results before drawing conclusions or asking questions.
+- **Explore the current project state first using parallel `scout` agents.** Identify independent read domains (e.g., "the editor module," "the render pipeline," "test coverage") and dispatch one `scout` per domain. Each scout task MUST include: exact files to read, 2-4 specific questions to answer, a stop boundary ("stop after reading listed files"), and a conciseness directive ("bullet list under 500 words"). Use the `subagent` PARALLEL mode with `tasks` array and `concurrency`. See `./dispatching-parallel-agents/scout-prompt.md` for the full template. Never dispatch a scout without these four elements — unbounded scouts burn tokens without producing useful results. Gather all results before drawing conclusions or asking questions.
 - If the request covers multiple independent subsystems, decompose it before refining details
 - Ask one question per message
 - Prefer multiple choice when it makes the trade-off clearer

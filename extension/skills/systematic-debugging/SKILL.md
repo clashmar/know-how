@@ -119,7 +119,7 @@ You MUST complete each phase before proceeding to the next.
    For each component boundary, dispatch a `scout` subagent via `subagent` PARALLEL mode
    with `tasks` array and `concurrency`. Each task gets one component boundary to
    investigate, with specific instructions on what to check and a stop boundary.
-   Use the scout-prompt.md template for task structure — every scout MUST have:
+   Use the `dispatching-parallel-agents/scout-prompt.md` template for task structure — every scout MUST have:
    specific files to read, specific questions, a stop boundary, and a conciseness directive.
 
    ```
