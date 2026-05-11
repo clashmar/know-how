@@ -1,0 +1,23 @@
+extension/dispatch.ts
+  s_2001cba77496a0::t_0be4f8d99f3f15 309-321,323-326
+  s_2001cba77496a0::t_eaebdfccd8be42 238,249-250,258,268-275
+  s_2001cba77496a0::t_01705f0f6a275c 256-257,259-260
+  s_2001cba77496a0::t_db8cd65b7e1596 322
+  s_2001cba77496a0::t_3270553f6bd98e 16,50-56,211
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "5ac2f8110fc973a2acd854453bab4b1d53716237",
+  "prompts": {},
+  "sessions": {
+    "s_2001cba77496a0": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e16f6-53fe-7553-9781-97f6c411c72e",
+        "model": "claude-opus-4.6"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
