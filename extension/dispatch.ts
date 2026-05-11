@@ -11,6 +11,7 @@ import {
   ANIMATION_INTERVAL_MS,
   createInitialState,
 } from "./types";
+import { isInReadMode } from "./read-mode";
 import { buildView } from "./render";
 
 const resultAnimations = new Map<string, ReturnType<typeof setInterval>>();
@@ -192,6 +193,7 @@ function spawnPi(
         ...process.env,
         PI_SUBAGENT_CHILD: "1",
         PI_SUBAGENT_CHILD_AGENT: agentName,
+        ...(isInReadMode() ? { PI_FORCE_READ_MODE: "1" } : {}),
       },
       stdio: ["pipe", "pipe", "pipe"],
     });

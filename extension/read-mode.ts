@@ -150,15 +150,22 @@ const READ_MODE_TOOLS = [
 const READ_ONLY_ROLES = new Set(["scout", "reviewer", "guardian"]);
 const WRITE_CAPABLE_ROLES = new Set(["worker", "maester"]);
 
+// ── Module-level state (exported for dispatch.ts) ─────────────────
+let readModeEnabled = true;
+let agentRole: string | undefined;
+let roleLocked = false;
+
+/** Returns true if the orchestrator is currently in read mode. */
+export function isInReadMode(): boolean {
+  return readModeEnabled;
+}
+
 // Editor reference — updated on toggle
 let modeEditor: ModeAwareEditor | undefined;
 
 // ── Extension ───────────────────────────────────────────────────────
 
 export function registerReadMode(pi: ExtensionAPI): void {
-  let readModeEnabled = true;
-  let agentRole: string | undefined;
-  let roleLocked = false;
 
   function getAllToolNames(): string[] {
     return pi.getAllTools().map((t) => t.name);
@@ -239,7 +246,8 @@ export function registerReadMode(pi: ExtensionAPI): void {
         message: { customType: "read-mode-context", content: "[Read mode — write/edit blocked]", display: false },
         systemPrompt:
           event.systemPrompt +
-          "\n\n⚠️ READ MODE ACTIVE. You cannot write files. Dispatch scouts and reviewers freely. Do NOT dispatch workers — run /write first.",
+          "\n\n⚠️ READ MODE ACTIVE. You cannot write files. Do not dispatch workers or maesters — they will also be read-only." +
+          "Scouts and reviewers are fine. Ask the user to switch to write mode (/write) before attempting edits.",
       };
     }
 
@@ -271,11 +279,14 @@ export function registerReadMode(pi: ExtensionAPI): void {
     const isSubagent = process.env.PI_SUBAGENT_CHILD === "1";
     agentRole = process.env.PI_SUBAGENT_CHILD_AGENT || undefined;
 
-    if (isSubagent && agentRole && READ_ONLY_ROLES.has(agentRole)) {
+    // Read-mode propagation: if parent forced read mode, lock regardless of role
+    const forceReadOnly = process.env.PI_FORCE_READ_MODE === "1";
+
+    if (forceReadOnly || (isSubagent && agentRole && READ_ONLY_ROLES.has(agentRole))) {
       roleLocked = true;
       readModeEnabled = true;
       pi.setActiveTools(READ_MODE_TOOLS);
-    } else if (isSubagent && agentRole && WRITE_CAPABLE_ROLES.has(agentRole)) {
+    } else if (!forceReadOnly && isSubagent && agentRole && WRITE_CAPABLE_ROLES.has(agentRole)) {
       roleLocked = false;
       readModeEnabled = false;
       pi.setActiveTools(getAllToolNames());
