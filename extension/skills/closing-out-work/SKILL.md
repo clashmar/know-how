@@ -130,14 +130,10 @@ Once the user approves the work, you MUST execute steps 6 and 7 in parallel...
 ### Step 8: Maester Optimization Synthesis
 
 1. Dispatch EXACTLY ONE `maester` agent to perform process optimization and memory
-   stewardship at close-out:
+   stewardship at close-out.
 
-   ```
-   subagent({
-     agent: "maester",
-     task: "Close-out process optimization and memory stewardship sweep. Collect all per-task review outputs. Synthesize optimization suggestions, audit pi-memory for contradictions/staleness, detect cross-session patterns. Do NOT review code, specs, or conventions — that work is already done. Output: (1) de-duplicated optimization suggestions, (2) stale-memory audit, (3) cross-session auto-surfaces. Append suggestions to optimization-log.md."
-   })
-   ```
+   Fill in all `<…>` placeholders from this session's context, then dispatch
+   (see `./maester-prompt.md`).
 
 2. The maester produces a synthesized report:
    - De-duplicated optimization suggestions (same gap flagged in multiple
@@ -283,6 +279,10 @@ Always:
 - sweep for residual artifacts before review
 - ask the user to review before presenting final options
 - loop back through verification, cleanup, polish, and review after feedback
+
+## Prompt Templates
+
+- `./maester-prompt.md` — Dispatch maester for close-out optimisation synthesis
 
 ## Integration
 
