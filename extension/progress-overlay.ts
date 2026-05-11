@@ -5,7 +5,7 @@
  * Index-based agent resolution ensures repeated agent types map correctly.
  */
 
-import { Container, Text, Spacer, truncateToWidth, matchesKey, Key, type Component } from "@earendil-works/pi-tui";
+import { Box, Container, Text, Spacer, truncateToWidth, matchesKey, Key, type Component } from "@earendil-works/pi-tui";
 import type { DispatchDetails, SubagentState } from "./types";
 import { formatDuration, formatTokens, spinnerFrame } from "./types";
 
@@ -24,6 +24,7 @@ interface AgentViewModel {
 interface Theme {
   bold(text: string): string;
   fg(color: string, text: string): string;
+  bg(color: string, text: string): string;
 }
 
 /** Shape of the UI context required by the progress overlay. */
@@ -35,6 +36,22 @@ export interface OverlayContext {
     ) => Promise<T>;
     notify: (message: string, type: string) => void;
   };
+}
+
+// ── Role Colors ───────────────────────────────────────────────────
+
+const ROLE_BG_COLORS: Record<string, number> = {
+  scout: 17,
+  worker: 22,
+  reviewer: 53,
+  guardian: 23,
+  maester: 58,
+};
+const DEFAULT_BG_COLOR = 236;
+
+function roleBgFn(agent: string): (s: string) => string {
+  const color = ROLE_BG_COLORS[agent] ?? DEFAULT_BG_COLOR;
+  return (s: string) => `\x1b[48;5;${color}m${s}\x1b[49m`;
 }
 
 // ── View Builders ─────────────────────────────────────────────────
@@ -51,7 +68,7 @@ function buildMetadataLine(progress: SubagentState, theme: Theme): string {
   if (progress.tokens > 0) parts.push(`${formatTokens(progress.tokens)} tok`);
   if (progress.model) parts.push(progress.model);
   if (progress.durationMs > 0) parts.push(formatDuration(progress.durationMs));
-  return parts.filter(Boolean).map((p) => theme.fg("dim", p)).join(` ${theme.fg("dim", "·")} `);
+  return parts.filter(Boolean).map((p) => theme.fg("text", p)).join(` ${theme.fg("text", "·")} `);
 }
 
 function buildRunningView(vm: AgentViewModel, theme: Theme, width: number): Container {
@@ -66,10 +83,10 @@ function buildRunningView(vm: AgentViewModel, theme: Theme, width: number): Cont
   container.addChild(new Spacer(1));
 
   if (vm.progress.recentTools.length > 0) {
-    container.addChild(new Text(theme.fg("muted", "Recent tools:"), 0, 0));
+    container.addChild(new Text(theme.fg("text", "Recent tools:"), 0, 0));
     for (const tool of vm.progress.recentTools) {
       container.addChild(new Text(
-        truncateToWidth(theme.fg("muted", `  • ${tool.tool}`), innerWidth, "..."),
+        truncateToWidth(theme.fg("text", `  • ${tool.tool}`), innerWidth, "..."),
         0, 0,
       ));
     }
@@ -77,10 +94,10 @@ function buildRunningView(vm: AgentViewModel, theme: Theme, width: number): Cont
 
   if (vm.progress.recentOutput.length > 0) {
     container.addChild(new Spacer(1));
-    container.addChild(new Text(theme.fg("muted", "Output:"), 0, 0));
+    container.addChild(new Text(theme.fg("text", "Output:"), 0, 0));
     for (const line of vm.progress.recentOutput) {
       container.addChild(new Text(
-        truncateToWidth(theme.fg("muted", `  ${line}`), innerWidth, "..."),
+        truncateToWidth(theme.fg("text", `  ${line}`), innerWidth, "..."),
         0, 0,
       ));
     }
@@ -105,7 +122,7 @@ function buildDoneView(vm: AgentViewModel, theme: Theme, width: number): Contain
   const lines = output.split("\n");
   for (const line of lines) {
     container.addChild(new Text(
-      truncateToWidth(theme.fg("muted", line), innerWidth, "..."),
+      truncateToWidth(theme.fg("text", line), innerWidth, "..."),
       0, 0,
     ));
   }
@@ -182,10 +199,12 @@ class DetailOverlay {
       return [];
     }
 
-    const allLines = content.render(width);
-    allLines.push("");
-    allLines.push(this.theme.fg("dim", "esc close"));
-    return allLines;
+    const bgFn = roleBgFn(vm.progress.agent);
+    const box = new Box(1, 1, bgFn);
+    box.addChild(content);
+    box.addChild(new Spacer(1));
+    box.addChild(new Text(this.theme.fg("text", "esc close"), 0, 0));
+    return box.render(width);
   }
 
   invalidate(): void {
@@ -221,10 +240,10 @@ class PickerOverlay {
 
   render(width: number): string[] {
     const innerWidth = Math.max(width - 4, 40);
-    const lines: string[] = [];
+    const box = new Box(1, 1, (s: string) => this.theme.bg("customMessageBg", s));
 
-    lines.push(this.theme.bold("Select Agent"));
-    lines.push("");
+    box.addChild(new Text(this.theme.bold("Select Agent"), 0, 0));
+    box.addChild(new Spacer(1));
 
     for (let i = 0; i < this.details.progress.length; i++) {
       const progress = this.details.progress[i]!;
@@ -238,17 +257,20 @@ class PickerOverlay {
       ].filter(Boolean).join(` ${this.theme.fg("dim", "·")} `);
 
       const line = `${prefix}${metadata}`;
-      lines.push(truncateToWidth(
-        isSelected ? this.theme.fg("accent", line) : line,
-        innerWidth,
-        "...",
+      box.addChild(new Text(
+        truncateToWidth(
+          isSelected ? this.theme.fg("accent", line) : line,
+          innerWidth,
+          "...",
+        ),
+        0, 0,
       ));
     }
 
-    lines.push("");
-    lines.push(this.theme.fg("dim", "↑↓ navigate • enter select • esc close"));
+    box.addChild(new Spacer(1));
+    box.addChild(new Text(this.theme.fg("dim", "↑↓ navigate • enter select • esc close"), 0, 0));
 
-    return lines;
+    return box.render(width);
   }
 
   invalidate(): void {
