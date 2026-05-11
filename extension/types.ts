@@ -72,3 +72,17 @@ export function formatTokens(tokens: number): string {
   if (tokens < 1000) return String(tokens);
   return `${(tokens / 1000).toFixed(1)}k`;
 }
+
+/** Details payload pushed via onUpdate for live progress. */
+export interface DispatchDetails {
+  mode: "parallel";
+  results: DispatchResult[];
+  progress: SubagentState[];
+}
+
+/** Result returned from a completed subagent dispatch. */
+export interface DispatchResult {
+  agent: string;
+  task: string;
+  output: string;
+}
