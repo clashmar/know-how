@@ -5,7 +5,7 @@
  * Index-based agent resolution ensures repeated agent types map correctly.
  */
 
-import { Box, Container, Text, Spacer, truncateToWidth, matchesKey, Key, type Component, type TUI, type KeybindingsManager } from "@earendil-works/pi-tui";
+import { Box, Container, Text, Spacer, truncateToWidth, wrapTextWithAnsi, visibleWidth, matchesKey, Key, type Component, type TUI, type KeybindingsManager } from "@earendil-works/pi-tui";
 import type { ExtensionCommandContext, Theme } from "@mariozechner/pi-coding-agent";
 import type { DispatchDetails, SubagentState } from "./types";
 import { formatDuration, formatTokens } from "./types";
@@ -80,10 +80,9 @@ function buildRunningView(vm: AgentViewModel, theme: Theme, width: number): Cont
     container.addChild(new Spacer(1));
     container.addChild(new Text(theme.fg("text", "Output:"), 0, 0));
     for (const line of vm.progress.recentOutput) {
-      container.addChild(new Text(
-        truncateToWidth(theme.fg("text", `  ${line}`), innerWidth, "..."),
-        0, 0,
-      ));
+      for (const wrapped of wrapTextWithAnsi(theme.fg("text", `  ${line}`), innerWidth)) {
+        container.addChild(new Text(wrapped, 0, 0));
+      }
     }
   }
 
@@ -105,10 +104,9 @@ function buildDoneView(vm: AgentViewModel, theme: Theme, width: number): Contain
   const output = vm.result?.output?.trim() || "No final report text returned.";
   const lines = output.split("\n");
   for (const line of lines) {
-    container.addChild(new Text(
-      truncateToWidth(theme.fg("text", line), innerWidth, "..."),
-      0, 0,
-    ));
+    for (const wrapped of wrapTextWithAnsi(theme.fg("text", line), innerWidth)) {
+      container.addChild(new Text(wrapped, 0, 0));
+    }
   }
 
   return container;
@@ -241,14 +239,19 @@ class PickerOverlay {
       ].filter(Boolean).join(` ${this.theme.fg("dim", "·")} `);
 
       const line = `${prefix}${metadata}`;
-      box.addChild(new Text(
-        truncateToWidth(
-          isSelected ? this.theme.fg("accent", line) : line,
-          innerWidth,
-          "...",
-        ),
-        0, 0,
-      ));
+      const styled = isSelected ? this.theme.fg("accent", line) : line;
+      const textVW = visibleWidth(styled);
+      let rowLine: string;
+      if (textVW > innerWidth) {
+        const cut = truncateToWidth(styled, innerWidth - 1, "");
+        // Re-apply bg before … so the marker and right padding have background
+        rowLine = `${cut}\x1b[48;5;${PICKER_BG_COLOR}m\u2026`;
+      } else {
+        // Pad to full innerWidth so Box right-padding spaces have background
+        const spaces = " ".repeat(innerWidth - textVW);
+        rowLine = `${styled}\x1b[48;5;${PICKER_BG_COLOR}m${spaces}`;
+      }
+      box.addChild(new Text(rowLine, 0, 0));
     }
 
     box.addChild(new Spacer(1));
