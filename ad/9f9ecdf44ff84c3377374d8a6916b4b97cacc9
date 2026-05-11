@@ -1,0 +1,19 @@
+extension/render.ts
+  s_a6e04d00abea6d::t_96eb0a9774f08d 173,234,242,254
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "ad9f9ecdf44ff84c3377374d8a6916b4b97cacc9",
+  "prompts": {},
+  "sessions": {
+    "s_a6e04d00abea6d": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e1700-454e-72c1-8c01-820e41f09432",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
