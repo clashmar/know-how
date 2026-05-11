@@ -30,20 +30,21 @@ the appropriate section below based on what you're doing.
 
 Run `/reflect` or ask the user if they want you to reflect when:
 
-1. **After completing a feature or milestone** — significant work that future
-   sessions will build on
+1. **After any session where files were modified** — code, config, skills, or
+   documentation. File modification is the primary indicator of meaningful work.
+   Don't wait for "feature or milestone" scale to reflect.
 2. **After any user correction or steering** — the user redirected you, told you
    to do something differently, or caught a mistake. This feedback MUST be
-   captured.
+   captured, even in otherwise read-only sessions.
 3. **When you notice a pattern repeating** — you made the same kind of mistake
    again, or the user corrected the same kind of thing twice
-4. **Before ending a session with meaningful work** — if the session had ≥5
-   user messages and non-trivial work happened
-5. **When closing-out-work tells you to** — the close-out skill now includes a
+4. **After completing a significant feature or milestone** — even if trigger #1
+   already applies, a milestone warrants a more thorough reflection
+5. **When closing-out-work tells you to** — the close-out skill includes a
    mandatory reflection step
 
-Do NOT reflect for trivial sessions (1-4 quick messages, no decisions made, no
-corrections).
+Do NOT reflect for trivial sessions: no file changes, no decisions made, no
+corrections received (e.g., a quick Q&A or read-only exploration).
 
 ## How to Reflect
 
