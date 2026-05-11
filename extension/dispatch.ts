@@ -13,6 +13,7 @@ import {
 } from "./types";
 import { isInReadMode } from "./read-mode";
 import { renderResultView } from "./render";
+import { readSettings, type Settings } from "./settings";
 
 /** Module-level state shared between execute and renderCall for live updates. */
 let liveStates: SubagentState[] = [];
@@ -32,20 +33,7 @@ const SubagentParams = Type.Object({
   concurrency: Type.Optional(Type.Integer({ minimum: 1, default: 4 })),
 });
 
-interface AgentOverride {
-  model?: string;
-  fallbackModels?: string[];
-  inheritProjectContext?: boolean;
-  thinking?: string;
-}
 
-interface SubagentSettings {
-  defaultProvider?: string;
-  defaultModel?: string;
-  subagents?: {
-    agentOverrides?: Record<string, AgentOverride>;
-  };
-}
 
 // ── Constants ────────────────────────────────────────────────────
 
@@ -56,35 +44,16 @@ const KNOW_HOW_AGENTS_DIR = path.resolve(__dirname, "agents");
 interface AgentModelConfig {
   model?: string;
   fallbackModels?: string[];
-  inheritProjectContext?: boolean;
   thinkingLevel?: string;
 }
 
-function resolveAgentConfig(agentName: string, raw: SubagentSettings): AgentModelConfig {
-  const override = raw.subagents?.agentOverrides?.[agentName];
-  if (override) {
-    return {
-      model: override.model?.toString(),
-      fallbackModels: Array.isArray(override.fallbackModels)
-        ? override.fallbackModels.map(String)
-        : undefined,
-      inheritProjectContext: override.inheritProjectContext !== undefined
-        ? override.inheritProjectContext === true
-        : undefined,
-      thinkingLevel: override.thinking?.toString(),
-    };
-  }
-  return {};
-}
-
-function readSettings(): SubagentSettings {
-  const settingsPath = path.join(os.homedir(), ".pi", "agent", "settings.json");
-  try {
-    const raw: unknown = JSON.parse(fs.readFileSync(settingsPath, "utf-8"));
-    return raw as SubagentSettings;
-  } catch {
-    return {};
-  }
+function resolveAgentConfig(agentName: string, settings: Settings): AgentModelConfig {
+  const config = settings.knowHow?.subagents?.[agentName];
+  return {
+    model: config?.model,
+    fallbackModels: config?.fallbackModels,
+    thinkingLevel: config?.thinkingLevel ?? settings.defaultThinkingLevel,
+  };
 }
 
 function resolveAgentPath(agentName: string): string {
@@ -239,17 +208,18 @@ function extractResponse(stdout: string): string {
   return parts.join("\n").trim();
 }
 
-function buildModelList(settings: SubagentSettings, agentName?: string): string[] {
-  const defaultModelId = settings?.defaultProvider && settings?.defaultModel
+function buildModelList(settings: Settings, agentName?: string): string[] {
+  const defaultModelId = settings.defaultProvider && settings.defaultModel
     ? `${settings.defaultProvider}/${settings.defaultModel}`
     : undefined;
 
   if (agentName) {
     const config = resolveAgentConfig(agentName, settings);
+    const primaryModel = config.model ?? defaultModelId;
     return [
-      ...(config.model
-        ? [config.thinkingLevel ? `${config.model}:${config.thinkingLevel}` : config.model]
-        : defaultModelId ? [defaultModelId] : []
+      ...(primaryModel
+        ? [config.thinkingLevel ? `${primaryModel}:${config.thinkingLevel}` : primaryModel]
+        : []
       ),
       ...(config.fallbackModels || []),
     ];
@@ -265,10 +235,10 @@ async function dispatchAgent(
   cwd: string,
   signal?: AbortSignal,
   onData?: (chunk: string) => void,
+  onModelChange?: (info: { failedModel: string; error: string; nextModel?: string }) => void,
 ): Promise<string> {
   const settings = readSettings();
   const agentFile = resolveAgentPath(agentName);
-  const config = resolveAgentConfig(agentName, settings);
   const agentPrompt = readAgentPrompt(agentFile);
 
   const models = buildModelList(settings, agentName);
@@ -276,13 +246,18 @@ async function dispatchAgent(
 
   let lastError: Error | undefined;
 
-  for (const model of candidates) {
+  for (let i = 0; i < candidates.length; i++) {
+    const model = candidates[i];
     try {
       const { args, tempDir } = buildPiArgs({
         agentName, agentPrompt, task, reads, model,
       });
       try {
-        return await spawnPi(agentName, args, cwd, signal, onData);
+        const response = await spawnPi(agentName, args, cwd, signal, onData);
+        if (!response) {
+          throw new Error(`Empty response from model ${model ?? "default"}`);
+        }
+        return response;
       } finally {
         if (tempDir) {
           try { fs.rmSync(tempDir, { recursive: true, force: true }); } catch {}
@@ -290,6 +265,14 @@ async function dispatchAgent(
       }
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
+      const nextModel = candidates[i + 1];
+      if (onModelChange) {
+        onModelChange({
+          failedModel: model ?? "default",
+          error: lastError.message,
+          nextModel,
+        });
+      }
     }
   }
 
@@ -313,13 +296,31 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
       const concurrency = params.concurrency ?? 4;
       const results: string[] = [];
 
-      const firstModel = buildModelList(readSettings())[0] ?? "unknown";
-      const states: SubagentState[] = tasks.map(t =>
-        createInitialState(t.agent, firstModel)
-      );
+      const settings = readSettings();
+      const states: SubagentState[] = tasks.map(t => {
+        const models = buildModelList(settings, t.agent);
+        return createInitialState(t.agent, models[0] ?? "unknown");
+      });
       liveStates = states;
 
       const workDir = params.cwd ?? ctx.cwd;
+
+      // Throttled onUpdate: push partial results to trigger renderResult re-renders
+      let lastUpdate = 0;
+      const UPDATE_THROTTLE_MS = 100;
+      function pushUpdate() {
+        const now = Date.now();
+        if (now - lastUpdate < UPDATE_THROTTLE_MS) return;
+        lastUpdate = now;
+        _onUpdate?.({
+          content: [{ type: "text" as const, text: `${states.filter(s => s.status !== "pending").length}/${states.length} agents started` }],
+          details: {
+            mode: "parallel" as const,
+            results: states.map(s => ({ agent: s.agent, task: "", output: "" })),
+            progress: states.map(s => ({ ...s })),
+          },
+        });
+      }
 
       async function runTask(index: number): Promise<void> {
         const task = tasks[index]!;
@@ -398,6 +399,21 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
 
               state.lastActivityAt = Date.now();
             },
+            (info) => {
+              state.error = `${info.failedModel}: ${info.error}`;
+              lastUpdate = 0;
+              pushUpdate();
+              if (info.nextModel) {
+                const nextModel = info.nextModel;
+                setTimeout(() => {
+                  state.model = nextModel;
+                  state.attemptedModels.push(nextModel);
+                  state.error = undefined;
+                  lastUpdate = 0;
+                  pushUpdate();
+                }, 500);
+              }
+            },
           );
           state.status = "done";
           state.durationMs = Date.now() - startedAt;
@@ -408,23 +424,6 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
           state.error = err instanceof Error ? err.message : String(err);
           results[index] = `Error: ${state.error}`;
         }
-      }
-
-      // Throttled onUpdate: push partial results to trigger renderResult re-renders
-      let lastUpdate = 0;
-      const UPDATE_THROTTLE_MS = 100;
-      function pushUpdate() {
-        const now = Date.now();
-        if (now - lastUpdate < UPDATE_THROTTLE_MS) return;
-        lastUpdate = now;
-        _onUpdate?.({
-          content: [{ type: "text" as const, text: `${states.filter(s => s.status !== "pending").length}/${states.length} agents started` }],
-          details: {
-            mode: "parallel" as const,
-            results: states.map(s => ({ agent: s.agent, task: "", output: "" })),
-            progress: states.map(s => ({ ...s })),
-          },
-        });
       }
 
       let nextIndex = 0;

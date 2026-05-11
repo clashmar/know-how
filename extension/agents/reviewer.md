@@ -3,7 +3,6 @@ name: reviewer
 description: Reviews code for spec compliance or code quality — reports findings as text
 tools: read, grep, find, ls, bash
 systemPromptMode: replace
-inheritProjectContext: false
 inheritSkills: false
 ---
 
