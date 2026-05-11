@@ -1,0 +1,24 @@
+extension/progress-overlay.ts
+  s_a6e04d00abea6d::t_7d49e77360248f 41-56
+  s_a6e04d00abea6d::t_7cc6ff0d2497a4 71,86,89,97,100,125,206
+  s_a6e04d00abea6d::t_b3b5ba00c314e1 202-203
+  s_a6e04d00abea6d::t_49f292093d5e8f 204-205,207
+  s_a6e04d00abea6d::t_9fd8a0c8721417 243,245-246,260-266,270-271,273
+  s_a6e04d00abea6d::t_3bd7ff53d0ccd3 8,27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "e38afb25bfa5cb0967e0f6ca1f466e4ca132fab3",
+  "prompts": {},
+  "sessions": {
+    "s_a6e04d00abea6d": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e1700-454e-72c1-8c01-820e41f09432",
+        "model": "claude-opus-4.6"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
