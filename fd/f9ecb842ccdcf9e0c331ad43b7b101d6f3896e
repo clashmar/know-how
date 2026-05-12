@@ -1,0 +1,21 @@
+extension/types.ts
+  s_1a1768b0a4cc45::t_96fd37f9f2145a 15,47
+extension/dispatch.ts
+  s_1a1768b0a4cc45::t_eaacc428368da3 102,391,397
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "fdf9ecb842ccdcf9e0c331ad43b7b101d6f3896e",
+  "prompts": {},
+  "sessions": {
+    "s_1a1768b0a4cc45": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e1b95-9ae0-774c-8fe8-86237604b940",
+        "model": "claude-sonnet-4.6"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
