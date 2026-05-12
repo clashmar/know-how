@@ -28,3 +28,52 @@ The install script manages only this runtime layout:
 ```
 
 It does not modify unrelated files already present in `~/.pi/agent`.
+
+## Example settings
+
+```json
+{
+  "knowHow": {
+    "subagents": {
+      "scout": {
+        "model": "demo-model-scout",
+        "fallbackModels": [
+          "demo-model-fallback"
+        ],
+        "thinkingLevel": "low"
+      },
+      "worker": {
+        "model": "demo-model-worker",
+        "fallbackModels": [
+          "demo-model-fallback"
+        ],
+        "thinkingLevel": "high"
+      },
+      "reviewer": {
+        "model": "demo-model-reviewer",
+        "fallbackModels": [
+          "demo-model-fallback"
+        ],
+        "thinkingLevel": "high"
+      },
+      "guardian": {
+        "model": "demo-model-guardian",
+        "fallbackModels": [
+          "demo-model-fallback"
+        ],
+        "thinkingLevel": "medium"
+      },
+      "maester": {
+        "model": "demo-model-maester",
+        "fallbackModels": [
+          "demo-model-fallback"
+        ],
+        "thinkingLevel": "high"
+      }
+    }
+  }
+}
+```
+
+If any settings aren't set for a specifc agent, the seeings will fall
+back to the sessions settings.

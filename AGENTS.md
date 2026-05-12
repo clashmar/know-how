@@ -64,6 +64,13 @@ system loads them from. That is fine. But **writes always go to the source path*
 If you have just read a file from `~/.pi/agent/extensions/know-how/`, translate the
 path before calling edit or write.
 
+### Keep docs in sync for config and agent changes
+
+If any configuration or agent-related code was changed (for example: agent prompts or definitions
+under `extension/agents/`, dispatch logic such as `extension/dispatch.ts`, scripts that affect
+installation, or settings that affect runtime behaviour), repository documentation must be updated
+to reflect those changes (AGENTS.md, README.md, and any affected `SKILL.md` files).
+
 ### Code style: No `any` types
 
 Do not use `any` in TypeScript code — no `any` type annotations. The project
