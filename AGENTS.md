@@ -68,7 +68,7 @@ path before calling edit or write.
 
 Do not use `any` in TypeScript code — no `any` type annotations. The project
 uses `strict: true` which already implies `noImplicitAny`. Prefer `unknown` with
-explicit narrowing, or a well-typed union. **`as` type assertions are acceptable narrowing** 
+explicit narrowing, or a well-typed union. **`as` type assertions are acceptable narrowing**
 when the right-hand side is a specific type (not `any`).
 
 ## One Source of Truth
