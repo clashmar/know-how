@@ -68,19 +68,8 @@ path before calling edit or write.
 
 Do not use `any` in TypeScript code — no `any` type annotations. The project
 uses `strict: true` which already implies `noImplicitAny`. Prefer `unknown` with
-explicit narrowing, or a well-typed union. **`as` type assertions are acceptable narrowing** when the right-hand side is a specific type (not `any`).
-
-## Red Flags
-
-- **Historical baggage in changes.** Don't reference how things used to work.
-  "This skill does NOT load from `old-path`" is noise nobody asked for.
-  What matters is what it does now.
-
-- **System process rules in repo AGENTS.md.** Global workflow conventions
-  (parallel exploration, git write rules, etc.) belong in
-  `~/.pi/agent/AGENTS.md`. The repo's AGENTS.md is for repo-level conventions.
-
-- **Editing installed copies instead of source.**
+explicit narrowing, or a well-typed union. **`as` type assertions are acceptable narrowing** 
+when the right-hand side is a specific type (not `any`).
 
 ## One Source of Truth
 
@@ -149,6 +138,14 @@ console.assert(
 );
 ```
 
-Don't leave historical baggage from old implementations/iterations that make any kind of reference to how things used to work:
-"This function does NOT load from 'old-path'" or "Added a new case to handle the new XYZ value" is noise nobody asked for.
-What matters is what it does now; git history is there if we want to know how it got that way.
+## Red Flags
+
+- **Historical baggage in changes.** Don't reference how things used to work.
+  "This skill does NOT load from `old-path`" is noise nobody asked for.
+  What matters is what it does now.
+
+- **System process rules in repo AGENTS.md.** Global workflow conventions
+  (parallel exploration, git write rules, etc.) belong in
+  `~/.pi/agent/AGENTS.md`. The repo's AGENTS.md is for repo-level conventions.
+
+- **Editing installed copies instead of source.**
