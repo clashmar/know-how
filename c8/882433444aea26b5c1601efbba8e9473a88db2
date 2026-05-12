@@ -1,0 +1,20 @@
+AGENTS.md
+  s_2347f314df6ae4::t_2bd1923aac8597 69-71
+  s_2347f314df6ae4::t_071849bef76e1b 67-68,73
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "c8882433444aea26b5c1601efbba8e9473a88db2",
+  "prompts": {},
+  "sessions": {
+    "s_2347f314df6ae4": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e1dbb-8f3f-72de-94ca-3f02963e7d8e",
+        "model": "gpt-5-mini"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
