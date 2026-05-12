@@ -12,6 +12,7 @@ export interface SubagentState {
   
   // Stats (updated during execution)
   toolCount: number;
+  turnCount: number; // LLM requests made by this subagent
   tokens: number; // 0 if unavailable
   durationMs: number; // 0 while running, filled on completion
   
@@ -43,6 +44,7 @@ export function createInitialState(agent: string, model: string): SubagentState 
     model,
     attemptedModels: [model],
     toolCount: 0,
+    turnCount: 0,
     tokens: 0,
     durationMs: 0,
     recentOutput: [],

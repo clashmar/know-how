@@ -99,7 +99,7 @@ function buildPiArgs(params: {
   // Task text: prepend reads if provided
   let taskText = params.task;
   if (params.reads?.length) {
-    taskText = `[Read from: ${params.reads.join(", ")}]\n\n${taskText}`;
+    taskText = `[Read from: ${params.reads.join(", ")}]\n\n${params.task}`;
   }
 
   args.push("--mode", "json");
@@ -388,12 +388,13 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
                   continue;
                 }
 
-                // message_end - accumulate tokens and extract output lines
+                // message_end - accumulate tokens, count LLM turn, extract output lines
                 if (evt.type === "message_end" && evt.message) {
                   const usage = evt.message.usage;
                   if (usage) {
                     state.tokens += (usage.input || 0) + (usage.output || 0);
                   }
+                  state.turnCount++;
                   // Extract text content for recent output
                   const content = (evt.message as { content?: Array<{ type?: string; text?: string }> }).content;
                   if (Array.isArray(content)) {
