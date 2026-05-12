@@ -27,7 +27,7 @@ Create a task for each of these items and complete them in order:
 7. **Self-review the spec** — remove ambiguity, placeholders, and contradictions
 8. **Ask the user to review the spec** — wait for approval before moving on
 9. **Transition to implementation planning** — invoke `know-how:writing-plans`
-   <IMPORTANT>
+<IMPORTANT>
 
 ## Process Flow
 

@@ -128,6 +128,13 @@ BAD:
 
 Before adding a new type, interface, or subsystem, search for an existing equivalent and reuse it where possible; repeated behavior is a signal to extract a shared abstraction. Before marking a feature complete, review whether any logic introduced during implementation is already handled elsewhere or could be shared with an existing subsystem.
 
+## Testing
+
+- If TDD is being used; ALWAYS write failing tests first.
+- Use the unitOfWorkConditionExpectedOutcome convention for naming tests.
+- If a test references a value or type in the main repo, ALWAYS derive it from the source.
+- No magic strings or numbers if they appear in more than one place.
+
 ## Comments
 
 Always write `/** ... */` JSDoc comments for public APIs but do not explain implementation details: doc comments say WHAT not HOW:
