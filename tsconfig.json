@@ -16,7 +16,7 @@
       "@earendil-works/pi-tui": ["./node_modules/@earendil-works/pi-tui/src/index.ts"]
     }
   },
-  "include": ["extension/**/*.ts"],
+  "include": ["extension/**/*.ts", "tests/**/*.ts"],
   "exclude": [
     "extension/skills/systematic-debugging/condition-based-waiting-example.ts"
   ]

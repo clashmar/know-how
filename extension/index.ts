@@ -145,10 +145,9 @@ function buildCatchUpBlock(projectName: string): CatchUpResult | null {
 			store = new piMemory.MemoryStore(dbPath);
 			const results = store.searchSemantic(projectName, 20);
 			// Filter to only entries whose key has a segment matching the project name.
-			const filtered = results.filter(r => {
-				const segments = r.key.split(".");
-				return segments.includes(projectName);
-			});
+			const filtered = results.filter(r =>
+				r.key.startsWith(projectName + ".")
+			);
 			piFacts = filtered.slice(0, 10).map((r: SemanticEntry) => `${r.key}: ${r.value}`);
 		} catch {
 			// pi-memory query failed — continue without it

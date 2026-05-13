@@ -134,27 +134,27 @@ When reflecting, you MUST check for and remove stale pi-memory facts:
 
 Push only entries future sessions genuinely need. Don't spam.
 
-| When                              | Key                              | Type                                       |
-| --------------------------------- | -------------------------------- | ------------------------------------------ |
-| Architecture/design decision made | `decision.<project>.<topic>`     | fact                                       |
-| Project convention established    | `project.<project>.<convention>` | fact                                       |
-| User correction that should stick | `lesson`                         | lesson (use memory_remember type="lesson") |
+| When                              | Key                                  | Type                                       |
+| --------------------------------- | ------------------------------------ | ------------------------------------------ |
+| Architecture/design decision made | `<project>.decision.<topic>`         | fact                                       |
+| Project convention established    | `<project>.project.<convention>`     | fact                                       |
+| User correction that should stick | `<project>.lesson.<correction-name>` | lesson (use memory_remember type="lesson") |
 
 ### Pi-Memory Naming Convention
 
 All pi-memory facts MUST use the following key format:
 
 ```
-{domain}.{canonical-project-name}.{fact-name}
+{project}.{domain}.{fact}
 ```
 
 **Domains:**
 
-| Domain       | Purpose                                                                 | Example                              |
-|--------------|-------------------------------------------------------------------------|--------------------------------------|
-| `project.`   | Conventions, structure, APIs, and project-level facts                   | `project.bishop.commit-format`       |
-| `decision.`  | Settled architectural choices with reasoning                            | `decision.bishop.room_grid_api`      |
-| `lesson.`    | Learned corrections (use `type: "lesson"`)                              | Lesson with category                 |
+| Domain       | Purpose                                            | Example                              |
+|--------------|----------------------------------------------------|--------------------------------------|
+| `project`    | Conventions, structure, APIs, and project-level facts | `bishop.project.commit-format`    |
+| `decision`    | Settled architectural choices with reasoning       | `bishop.decision.room-grid-api`     |
+| `lesson`     | Learned corrections (use `type: "lesson"`)          | `know-how.lesson.ad-hoc-memory-keys`|
 
 **Canonical project name:**
 
@@ -168,7 +168,9 @@ Examples:
 - Worktree `~/Personal/bishop-feature-x` → canonical project is `bishop`
 - Direct checkout `~/Personal/bishop` → canonical project is `bishop`
 
-**Enforcement:** The guardian checks memory keys during per-task review. The maester audits for key-pattern violations during close-out stale-memory sweeps. If a fact uses an unexpected namespace, flag it as a naming violation.
+**Global / cross-project decisions:** Decisions that apply to all projects (e.g., "no `any` types in TypeScript") live under the `know-how` project — since know-how is the process layer that governs all projects.
+
+**Enforcement:** The guardian checks memory keys during per-task review. The maester audits for key-pattern violations during close-out stale-memory sweeps. If a fact uses an unexpected namespace or format, flag it as a naming violation.
 
 ## How to Catch Up
 
