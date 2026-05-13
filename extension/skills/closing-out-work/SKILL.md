@@ -142,6 +142,7 @@ Once the user approves the work, you MUST execute steps 6 and 7 in parallel...
    - Cross-session auto-surfaces (gaps flagged 3+ times across sessions)
 3. Present the synthesis to the human as actionable decision points.
 4. For each maester suggestion, call `present_choice` with title matching the suggestion summary and options: Apply / Edit / Skip.
+   `present_choice` auto-adds `Something else...`; do not add a duplicate. `otherLabel` renames it, so keep it short.
 5. For approved suggestions:
    - Apply the doc/memory/skill changes
    - Run `/reflect` to capture them as a session reflection
@@ -178,6 +179,7 @@ Remove any stale facts via `memory_forget`.
 ### Step 8: Present Final Options After User Confirmation
 
 ONLY AFTER maester suggestions have been surfaced and the reflection is written, present the user with final integration options using the `present_choice` tool.
+`present_choice` auto-adds `Something else...`; do not add a duplicate. `otherLabel` renames it, so keep it short.
 
 **If the plan declared `Worktree Strategy: Worktree`** (detected in Step 2), call `present_choice` with:
 

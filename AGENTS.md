@@ -133,8 +133,10 @@ Before adding a new type, interface, or subsystem, search for an existing equiva
 
 When the agent presents the user with options to choose from (execution style,
 integration action, design approval, etc.), always route through `present_choice`
-or `present_decisions`. Never ask the user to type their selection. This applies
-to new skills and any legacy choice points discovered during refactoring.
+or `present_decisions`. Never ask the user to type their selection. These tools
+auto-add a `Something else...` option; do not include a duplicate. `otherLabel`
+renames that option, so keep it short. This applies to new skills and any
+legacy choice points discovered during refactoring.
 
 The `guardian` subagent enforces this convention during reviews. Any skill or
 agent instruction that asks the user to type a response to pick from options
@@ -163,6 +165,11 @@ console.assert(
   `replaceComponent bypasses lifecycle hooks for ${typeName}. Use insertComponent or removeComponent instead.`
 );
 ```
+
+## Markdown
+
+- Follow correct md formatting
+- Ensure table columns are aligned and not just technically correct
 
 ## Red Flags
 

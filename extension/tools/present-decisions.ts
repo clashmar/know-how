@@ -25,6 +25,9 @@ export function registerPresentDecisions(pi: ExtensionAPI): void {
     label: "Present Decisions",
     description:
       "Shows a tabbed multi-decision form (Tab to switch, Enter to submit all). " +
+      "Each decision automaticallyappends an 'other' option at the end for free-text input. " +
+      "Default other label is 'Something else...'; otherLabel overrides it. " +
+      "Do not add your own other option in decision options, and keep otherLabel short. " +
       "Use this when the user needs to make multiple related choices at once " +
       "(e.g. execution style + worktree strategy + autonomy level). " +
       "Do NOT ask the user to type their choices — call this tool instead.",

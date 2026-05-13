@@ -72,6 +72,7 @@ The terminal state is invoking `know-how:writing-plans`.
 - If the request covers multiple independent subsystems, decompose it before refining details
 - Ask one question at a time
 - Use the `present_choice` tool for all questions and approval gates — never ask the user to type a response
+- `present_choice` auto-adds `Something else...`; do not add a duplicate. `otherLabel` renames it, so keep it short
 - Focus on purpose, constraints, and success criteria
 
 **Exploring approaches:**

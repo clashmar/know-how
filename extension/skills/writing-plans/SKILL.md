@@ -181,6 +181,8 @@ Call `present_decisions` with title "Plan Configuration" and three decisions:
 2. **Worktree Strategy** — options: Worktree (isolated worktree), Direct (current branch)
 3. **Autonomy** — options: Fully autonomous (continuous task-to-task), Checkpointed (pause after each task)
 
+`present_decisions` auto-adds `Something else...` for each decision; do not add duplicates. `otherLabel` renames it, so keep it short.
+
 Read the returned map and record the `Execution Autonomy:` and `Worktree Strategy:` fields in the plan header.
 
 ## Plan Document Header
@@ -361,6 +363,8 @@ Fix minor consistency and placeholder issues inline. If you change scope or task
 ## Execution Handoff
 
 After saving the plan, present the execution style choice using the `present_choice` tool:
+
+`present_choice` auto-adds `Something else...`; do not add a duplicate. `otherLabel` renames it, so keep it short.
 
 - **title:** "How should I execute this plan?"
 - **options:**

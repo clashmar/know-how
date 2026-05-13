@@ -23,9 +23,10 @@ export function registerPresentChoice(pi: ExtensionAPI): void {
     name: "present_choice",
     label: "Present Choice",
     description:
-      "Shows a picker overlay (arrow-key navigable) for the user to select from a list of options. " +
-      "Always includes a 'Something else...' option for free-text input. " +
-      "Use this whenever the user needs to pick one of several options. " +
+      "Shows a picker overlay (arrow-key navigable) for selecting one option. " +
+      "Automatically appends an 'other' option at the end for free-text input. " +
+      "Default other label is 'Something else...'; otherLabel overrides it. " +
+      "Do not add your own other option in options, and keep otherLabel short. " +
       "Do NOT ask the user to type their choice — call this tool instead.",
     parameters: PresentChoiceParams,
 
