@@ -30,13 +30,20 @@ export class PickerList {
     this.maxLines = maxLines;
   }
 
+  private moveSelection(delta: number): void {
+    if (this.items.length === 0) {
+      return;
+    }
+
+    this.selectedIndex = (this.selectedIndex + delta + this.items.length) % this.items.length;
+    this.invalidate();
+  }
+
   handleInput(data: string): void {
-    if (matchesKey(data, Key.up) && this.selectedIndex > 0) {
-      this.selectedIndex--;
-      this.invalidate();
-    } else if (matchesKey(data, Key.down) && this.selectedIndex < this.items.length - 1) {
-      this.selectedIndex++;
-      this.invalidate();
+    if (matchesKey(data, Key.up)) {
+      this.moveSelection(-1);
+    } else if (matchesKey(data, Key.down)) {
+      this.moveSelection(1);
     } else if (matchesKey(data, Key.enter)) {
       this.onSelect?.(this.items[this.selectedIndex]!);
     } else if (matchesKey(data, Key.escape)) {

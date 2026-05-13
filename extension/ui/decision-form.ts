@@ -97,7 +97,7 @@ export class DecisionForm {
     const isLast = this.activeIndex === this.decisions.length - 1;
     const helpText = isLast
       ? "↑↓ navigate • enter submit all • tab ⭾ prev • esc cancel"
-      : "↑↓ navigate • enter next tab • tab ⭾ switch • esc cancel";
+      : "↑↓ navigate • enter select • tab ⭾ switch • esc cancel";
     this.contentArea.addChild(new Text(this.theme.fg("dim", helpText), 1, 0));
   }
 
@@ -305,8 +305,8 @@ export class DecisionForm {
     lines.push("");
     const isLast = this.activeIndex === this.decisions.length - 1;
     lines.push(this.theme.fg("dim", isLast
-      ? " ↑↓ navigate • enter submit all • tab ⭾ prev • esc cancel"
-      : " ↑↓ navigate • enter next tab • tab ⭾ switch • esc cancel"));
+      ? " ↑↓ navigate • enter submit all • tab next • esc cancel"
+      : " ↑↓ navigate • enter select • tab next • esc cancel"));
 
     // Wrap with thick border lines
     const borderLine = this.colorFn(BORDER_CHAR.repeat(width));
