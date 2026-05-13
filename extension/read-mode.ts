@@ -141,6 +141,7 @@ const READ_MODE_TOOLS = [
   "memory_search",
   "set_context", "monitor_pipeline", "stop_monitor",
   "subagent",
+  "present_choice", "present_decisions",
   "jira_ticket", "jira_create_subtask",
   "todo", "set_session_goal",
 ];

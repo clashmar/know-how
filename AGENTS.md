@@ -129,6 +129,17 @@ BAD:
 
 Before adding a new type, interface, or subsystem, search for an existing equivalent and reuse it where possible; repeated behavior is a signal to extract a shared abstraction. Before marking a feature complete, review whether any logic introduced during implementation is already handled elsewhere or could be shared with an existing subsystem.
 
+## Decision Gates
+
+When the agent presents the user with options to choose from (execution style,
+integration action, design approval, etc.), always route through `present_choice`
+or `present_decisions`. Never ask the user to type their selection. This applies
+to new skills and any legacy choice points discovered during refactoring.
+
+The `guardian` subagent enforces this convention during reviews. Any skill or
+agent instruction that asks the user to type a response to pick from options
+is a compliance violation.
+
 ## Testing
 
 - If TDD is being used; ALWAYS write failing tests first.

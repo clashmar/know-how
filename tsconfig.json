@@ -13,7 +13,8 @@
     "paths": {
       "@samfp/pi-memory": ["./node_modules/@samfp/pi-memory/src/index.ts"],
       "@samfp/pi-memory/store": ["./node_modules/@samfp/pi-memory/src/store.ts"],
-      "@earendil-works/pi-tui": ["./node_modules/@earendil-works/pi-tui/src/index.ts"]
+      "@earendil-works/pi-tui": ["./node_modules/@earendil-works/pi-tui/src/index.ts"],
+      "@earendil-works/pi-coding-agent": ["./node_modules/@mariozechner/pi-coding-agent/dist/index.d.ts"]
     }
   },
   "include": ["extension/**/*.ts"],

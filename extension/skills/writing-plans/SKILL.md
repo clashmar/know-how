@@ -173,19 +173,15 @@ The worktree directory is named the same as the branch for simplicity (e.g. `<pr
 
 ## Execution Autonomy
 
-As the final part of the planning process, let the user choose both the `Execution Autonomy` and `Worktree Strategy`. Stop and present a picker with arrow-key navigation and `Enter` to confirm before finalizing the plan. Do not infer either choice from context.
+As the final part of the planning process, let the user choose the `Execution Autonomy`, `Worktree Strategy`, and `Execution Style` using the `present_decisions` tool:
 
-**Execution Autonomy:**
+Call `present_decisions` with title "Plan Configuration" and three decisions:
 
-- `Fully autonomous` means execution continues task-to-task unless the execution skill hits a mandatory stop condition such as a blocker, missing context, repeated verification failure, a critical plan gap, or user interruption.
-- `Checkpointed` means execution pauses after every completed task and waits for user approval or feedback.
+1. **Execution Style** — options: Subagent-Driven (fresh subagent per task), Inline Execution (executing-plans)
+2. **Worktree Strategy** — options: Worktree (isolated worktree), Direct (current branch)
+3. **Autonomy** — options: Fully autonomous (continuous task-to-task), Checkpointed (pause after each task)
 
-In either mode, a task is not complete until the execution style's required verification and review work has succeeded.
-
-**Worktree Strategy:**
-
-- `Worktree` means create a git worktree from the current branch and work there. Edits and tests happen in the worktree. The original checkout stays untouched. Commits and other git write operations happen later via closing-out-work.
-- `Direct` means work directly on the current branch without creating a worktree.
+Read the returned map and record the `Execution Autonomy:` and `Worktree Strategy:` fields in the plan header.
 
 ## Plan Document Header
 
@@ -364,30 +360,21 @@ Fix minor consistency and placeholder issues inline. If you change scope or task
 
 ## Execution Handoff
 
-After saving the plan, offer execution style choice for implementing the plan while preserving the declared autonomy contract and worktree strategy:
+After saving the plan, present the execution style choice using the `present_choice` tool:
 
-**"Plan complete and saved to `<path>`.**
-This plan declares `Execution Autonomy: <mode>` and `Worktree Strategy: <strategy>`.
-
-**Two execution styles:**
-
-**1. Subagent-Driven** - I dispatch a fresh subagent per task, with dedicated spec and code-quality review.
-
-**2. Inline Execution** - I execute the plan directly using executing-plans, while still performing required spec-compliance and code-quality review before a task is complete.
+- **title:** "How should I execute this plan?"
+- **options:**
+  - Subagent-Driven — "Dispatch a fresh subagent per task, with dedicated spec and code-quality review"
+  - Inline Execution — "Execute the plan directly using executing-plans, with review before each task is complete"
 
 Both styles must follow the declared autonomy mode and worktree strategy exactly.
 
-**Which execution style do you want?** Present this as a 1-3 option picker with arrow-key navigation and `Enter` to confirm; do not require typed input for small choice sets.
-
 **If Subagent-Driven chosen:**
-
 - **REQUIRED SUB-SKILL:** Use know-how:subagent-driven-development
 - Fresh subagent per task + dedicated spec, code-quality, and guardian review + close-out task handles integration
-- Follow the plan's declared autonomy mode and worktree strategy
 
 **If Inline Execution chosen:**
-
 - **REQUIRED SUB-SKILL:** Use know-how:executing-plans
-- Execute the plan inline while performing required spec-compliance, code-quality, and guardian review before a task is complete
+- Execute inline while performing required spec-compliance, code-quality, and guardian review before each task is complete
 - Close-out task handles review, optimization synthesis, and integration
 ```
