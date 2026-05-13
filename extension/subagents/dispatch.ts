@@ -42,6 +42,78 @@ const SubagentParams = Type.Object({
 // ── Constants ────────────────────────────────────────────────────
 
 const KNOW_HOW_AGENTS_DIR = path.resolve(__dirname, "..", "agents");
+const TOOL_PREVIEW_LIMIT = 240;
+
+function asRecord(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return {};
+  }
+  return value as Record<string, unknown>;
+}
+
+function getStringArg(args: Record<string, unknown>, ...keys: string[]): string | undefined {
+  for (const key of keys) {
+    const value = args[key];
+    if (typeof value === "string" && value.length > 0) {
+      return value;
+    }
+  }
+  return undefined;
+}
+
+function getNumberArg(args: Record<string, unknown>, key: string): number | undefined {
+  const value = args[key];
+  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function shortenPath(inputPath: string): string {
+  const home = os.homedir();
+  return inputPath.startsWith(home) ? `~${inputPath.slice(home.length)}` : inputPath;
+}
+
+function previewText(text: string, limit: number = TOOL_PREVIEW_LIMIT): string {
+  return text.length <= limit ? text : `${text.slice(0, limit - 1)}…`;
+}
+
+function formatToolCommand(toolName: string, args: Record<string, unknown>): string {
+  switch (toolName) {
+    case "bash": {
+      const command = getStringArg(args, "command") ?? "...";
+      return `$ ${previewText(command)}`;
+    }
+    case "read": {
+      const filePath = shortenPath(getStringArg(args, "file_path", "path") ?? "...");
+      const offset = getNumberArg(args, "offset");
+      const limit = getNumberArg(args, "limit");
+      if (offset !== undefined || limit !== undefined) {
+        const startLine = offset ?? 1;
+        const endLine = limit !== undefined ? startLine + limit - 1 : undefined;
+        return `read ${filePath}:${startLine}${endLine !== undefined ? `-${endLine}` : ""}`;
+      }
+      return `read ${filePath}`;
+    }
+    case "write":
+      return `write ${shortenPath(getStringArg(args, "file_path", "path") ?? "...")}`;
+    case "edit":
+      return `edit ${shortenPath(getStringArg(args, "file_path", "path") ?? "...")}`;
+    case "ls":
+      return `ls ${shortenPath(getStringArg(args, "path") ?? ".")}`;
+    case "find": {
+      const pattern = getStringArg(args, "pattern") ?? "*";
+      const filePath = shortenPath(getStringArg(args, "path") ?? ".");
+      return `find ${pattern} in ${filePath}`;
+    }
+    case "grep": {
+      const pattern = getStringArg(args, "pattern") ?? "";
+      const filePath = shortenPath(getStringArg(args, "path") ?? ".");
+      return `grep /${pattern}/ in ${filePath}`;
+    }
+    default: {
+      const argsPreview = previewText(JSON.stringify(args) ?? "{}");
+      return argsPreview ? `${toolName} ${argsPreview}` : toolName;
+    }
+  }
+}
 
 // ── Agent Resolution ─────────────────────────────────────────────
 
@@ -451,7 +523,15 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
               for (const rawLine of rawLines) {
                 if (!rawLine.trim()) continue;
 
-                let evt: { type?: string; message?: { usage?: { input?: number; output?: number } }; toolName?: string };
+                let evt: {
+                  type?: string;
+                  message?: {
+                    usage?: { input?: number; output?: number };
+                    content?: Array<{ type?: string; text?: string }>;
+                  };
+                  toolName?: string;
+                  args?: unknown;
+                };
                 try {
                   evt = JSON.parse(rawLine.trim()) as typeof evt;
                 } catch {
@@ -460,13 +540,14 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
 
                 // tool_execution_start
                 if (evt.type === "tool_execution_start" && evt.toolName) {
+                  const commandText = formatToolCommand(evt.toolName, asRecord(evt.args));
                   state.toolCount++;
                   state.currentTool = evt.toolName;
-                  state.currentToolArgs = undefined;
+                  state.currentToolArgs = commandText;
                   state.currentToolStartedAt = Date.now();
                   state.recentTools.push({
                     tool: evt.toolName,
-                    args: ""
+                    args: commandText,
                   });
                   if (state.recentTools.length > 5) state.recentTools.shift();
                   continue;
@@ -488,7 +569,7 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
                   }
                   state.turnCount++;
                   // Extract text content for recent output
-                  const content = (evt.message as { content?: Array<{ type?: string; text?: string }> }).content;
+                  const content = evt.message.content;
                   if (Array.isArray(content)) {
                     for (const part of content) {
                       if (part.type === "text" && part.text) {

@@ -1,4 +1,4 @@
-// extension/render.ts
+// extension/subagents/render.ts
 
 import { Container, Text, Spacer, truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
 import type { Component } from "@earendil-works/pi-tui";
@@ -184,16 +184,38 @@ function statusGlyph(state: SubagentState, theme: Theme): string {
   return error(theme, "✗");
 }
 
-function currentToolLine(state: SubagentState, width: number): string | undefined {
-  if (!state.currentTool) return undefined;
-  const maxArgs = Math.max(50, width - 20);
-  const args = state.currentToolArgs
-    ? (state.currentToolArgs.length <= maxArgs ? state.currentToolArgs : `${state.currentToolArgs.slice(0, maxArgs)}...`)
-    : "";
-  const duration = state.currentToolStartedAt !== undefined
-    ? ` | ${formatDuration(Math.max(0, Date.now() - state.currentToolStartedAt))}`
-    : "";
-  return args ? `${state.currentTool}: ${args}${duration}` : `${state.currentTool}${duration}`;
+function renderWrappedText(
+  container: Container,
+  formatLine: (value: string) => string,
+  firstPrefix: string,
+  continuationPrefix: string,
+  text: string,
+  maxWidth: number,
+): void {
+  const sourceLines = text.split(/\r?\n/g);
+  let isFirstLine = true;
+
+  for (const sourceLine of sourceLines) {
+    const prefix = isFirstLine ? firstPrefix : continuationPrefix;
+    const availableWidth = Math.max(1, maxWidth - visibleWidth(prefix));
+    const wrappedLines = wrapPlainText(sourceLine, availableWidth);
+
+    for (const wrappedLine of wrappedLines) {
+      const currentPrefix = isFirstLine ? firstPrefix : continuationPrefix;
+      container.addChild(new Text(formatLine(`${currentPrefix}${wrappedLine}`), 0, 0));
+      isFirstLine = false;
+    }
+  }
+}
+
+function currentToolText(state: SubagentState): string | undefined {
+  if (state.currentToolArgs && state.currentToolArgs.trim().length > 0) {
+    return state.currentToolArgs;
+  }
+  if (state.currentTool) {
+    return state.currentTool;
+  }
+  return undefined;
 }
 
 function renderCompactSingle(state: SubagentState, theme: Theme, width: number): Container {
@@ -202,9 +224,12 @@ function renderCompactSingle(state: SubagentState, theme: Theme, width: number):
   renderStateHeader(container, state, theme, statusGlyph(state, theme), innerWidth);
 
   if (state.status === "running") {
-    const toolLine = currentToolLine(state, innerWidth);
-    const activity = toolLine ?? "thinking…";
-    container.addChild(new Text(truncateToWidth(dim(theme, `  ⎿  ${activity}`), innerWidth, "..."), 0, 0));
+    const activity = currentToolText(state);
+    if (activity) {
+      renderWrappedText(container, (value) => dim(theme, value), "  ⎿  ", "     ", activity, innerWidth);
+    } else {
+      container.addChild(new Text(dim(theme, "  ⎿  thinking…"), 0, 0));
+    }
   } else if (state.status === "failed") {
     renderWrappedError(container, theme, "  ⎿  ", "     ", state.error ?? "failed", innerWidth);
   } else if (state.status === "done") {
@@ -228,9 +253,9 @@ function renderExpandedSingle(state: SubagentState, theme: Theme, width: number)
   container.addChild(new Spacer(1));
 
   if (state.status === "running") {
-    const toolLine = currentToolLine(state, innerWidth);
-    if (toolLine) {
-      container.addChild(new Text(truncateToWidth(warning(theme, `> ${toolLine}`), innerWidth, "..."), 0, 0));
+    const toolText = currentToolText(state);
+    if (toolText) {
+      renderWrappedText(container, (value) => warning(theme, value), "> ", "  ", toolText, innerWidth);
     }
   }
 
@@ -296,9 +321,11 @@ function renderMultiAgent(states: SubagentState[], theme: Theme, width: number, 
     container.addChild(new Text(buildStateHeaderLine(prefix, state, theme, innerWidth), 0, 0));
 
     if (state.status === "running") {
-      const toolLine = currentToolLine(state, innerWidth);
-      if (toolLine) {
-        container.addChild(new Text(truncateToWidth(dim(theme, `${cont} ⎿  ${toolLine}`), innerWidth, "..."), 0, 0));
+      const toolText = currentToolText(state);
+      if (toolText) {
+        const firstPrefix = `${cont} ⎿  `;
+        const continuationPrefix = " ".repeat(visibleWidth(firstPrefix));
+        renderWrappedText(container, (value) => dim(theme, value), firstPrefix, continuationPrefix, toolText, innerWidth);
       }
     } else if (state.status === "failed" && state.error) {
       const firstPrefix = `${cont} ⎿  `;

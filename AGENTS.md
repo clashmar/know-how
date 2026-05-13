@@ -19,7 +19,7 @@ The know-how extension bundles six agents in `extension/agents/`:
 
 The install script (`scripts/install`) copies these agent definitions from
 `extension/agents/` to `~/.pi/agent/agents/`. The dispatch extension
-(`extension/dispatch.ts`) resolves agent prompts by looking in the bundled
+(`extension/subagents/dispatch.ts`) resolves agent prompts by looking in the bundled
 directory first, then falling back to `~/.pi/agent/agents/`.
 
 ## Commit Messages
@@ -78,6 +78,13 @@ Do not use `any` in TypeScript code — no `any` type annotations. The project
 uses `strict: true` which already implies `noImplicitAny`. Prefer `unknown` with
 explicit narrowing, or a well-typed union. **`as` type assertions are acceptable narrowing**
 when the right-hand side is a specific type (not `any`).
+
+### TUI rendering width safety
+
+Never render a TUI line wider than the current window width. Width overflow can
+cause fatal runtime errors. Fit or wrap plain text before applying ANSI styling,
+and prefer manual width-safe wrapping/truncation over APIs that can break
+background color fill.
 
 ## One Source of Truth
 
