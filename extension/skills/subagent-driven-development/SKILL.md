@@ -43,24 +43,13 @@ Execute plan by dispatching a fresh worker subagent per task. After the task's v
 
 **This skill REQUIRES subagent dispatch. Do not implement tasks inline. Do not fall back to executing-plans.**
 
-## Agent Mapping
+## Pacing
 
-Every subagent dispatch point in this skill maps to a specific pi agent:
-
-| Role                                          | pi Agent   |
-| --------------------------------------------- | ---------- |
-| Worker per task                               | `worker`   |
-| Spec compliance review                        | `reviewer` |
-| Code quality review                           | `reviewer` |
-| Standards enforcement (per-task)              | `guardian` |
-| Process optimization & memory (close-out)     | `maester`  |
-| Final whole-implementation review             | `reviewer` |
-
-The `worker` agent handles implementation with fresh context. Workers, reviewers, and scouts all use `context: "fresh"` — the controller provides exactly what's needed in the task description rather than inheriting session history. The `guardian` uses `context: "fresh"` — it reads all sources from disk on every dispatch. The `reviewer` agent handles reviews with spec compliance or code quality prompt templates. The `guardian` agent enforces documented project conventions using its dedicated system prompt (see `~/.pi/agent/agents/guardian.md`). The `maester` agent handles process optimization and memory stewardship at close-out (see `~/.pi/agent/agents/maester.md`).
-
-<IMPORTANT>
-Keep things moving while maintaining quality gates. Instill urgency in reviewers to review quickly and workers to fix quickly. You are responsible for keeping things flowing, they are responsible for doing their part well and quickly. Call out delays and blockers, and keep the momentum going.
-<IMPORTANT>
+Keep things moving while maintaining quality gates. Instill urgency in
+reviewers to review quickly and workers to fix quickly. You are
+responsible for keeping things flowing, they are responsible for doing
+their part well and quickly. Call out delays and blockers, and keep the
+momentum going.
 
 ## When to Use
 
@@ -173,52 +162,10 @@ digraph process {
 }
 ````
 
-## Set Up Work Environment
+## Work Environment
 
-Read the plan's declared `Worktree Strategy` and follow it exactly.
-
-### If `Worktree Strategy: Worktree`
-
-Before dispatching any subagents, create a git worktree **from the current branch**. The controller orchestrates from the original session but subagents work in the isolated checkout:
-
-```bash
-# 1. Note where you are
-CURRENT_BRANCH=$(git branch --show-current)
-REPO_ROOT=$(git rev-parse --show-toplevel)
-
-# 2. Check the working tree is clean
-git status --porcelain
-# If dirty: "Working tree has uncommitted changes. Commit them first (outside this workflow) or abort?"
-
-# 3. Derive the project name from the git root directory name
-#    e.g. /Users/lash/Personal/bishop → "bishop"
-#    Sanitize: lowercase, hyphens for non-alphanumeric runs
-PROJECT_NAME=$(basename "$REPO_ROOT" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g; s/^-//; s/-$//')
-
-# 4. Derive a branch name from the plan
-#    e.g. plan title "Add Auth Refactor" → branch: "feature-auth-refactor"
-#    Prepend the project name so worktrees identify their repo at a glance
-#    Full result: "bishop-feature-auth-refactor"
-
-# 5. Create the worktree from the current branch
-git worktree add ../${PROJECT_NAME}-<branch-name> -b ${PROJECT_NAME}-<branch-name> $CURRENT_BRANCH
-```
-
-When dispatching subagents, set `cwd: /path/to/worktree` on the subagent tool call so all subagents start in the worktree directory. This ensures relative `reads` paths resolve against the worktree rather than the source repo.
-File edits and tests happen in the worktree. The original checkout stays untouched.
-**Git write operations (commit, push, merge) are not performed by subagents during
-task execution.** All git integration is gated behind user review — at checkpoints
-(if `Execution Autonomy: Checkpointed`) and at close-out via closing-out-work.
-
-**If a worktree for this branch already exists**, reuse it.
-
-### If `Worktree Strategy: Direct`
-
-Work directly on the current branch. No worktree setup needed. Subagents work in the current checkout.
-
-### If the repo can't support worktrees (bare repo, submodule)
-
-Fall back to working on the current branch regardless of the plan's Worktree Strategy.
+See `know-how:worktree-setup` for worktree creation, reuse, fallback,
+and `cwd:` configuration.
 
 ## Execution Autonomy and Worktree Strategy
 
@@ -274,31 +221,8 @@ Worker subagents report one of four statuses. Handle each appropriately:
 
 ## Per-Task Review Flow
 
-1. Run the task's verification steps from the plan.
-2. Dispatch three subagents in parallel — reviewers with `context: "fresh"`, guardian with `context: "fresh"`:
-   - `reviewer` for spec compliance
-   - `reviewer` for code quality
-   - `guardian` for project-standards enforcement
-
-   **If a worktree is being used**, set `cwd: /path/to/worktree` on the subagent tool call so all subagents (reviewers and guardian) start in the worktree directory. This ensures the guardian resolves the correct project name via git root.
-3. Watch the spec reviewer first.
-4. If the spec reviewer reports any issue:
-   - stop waiting for code-quality and guardian feedback
-   - cancel the code-quality and guardian reviews if they are still running
-   - discard their results if already returned
-   - send the spec issues to the worker
-   - re-run the task's verification steps after the fix
-   - dispatch all three reviewers again on the new code state
-5. If the spec reviewer approves:
-   - use the code-quality and guardian results if they already returned for the same code state
-   - otherwise wait for the remaining results
-6. If the code-quality reviewer reports an issue after spec approval:
-   - send the issue to the worker
-   - re-review code quality
-   - the guardian is also re-dispatched with the updated code state
-7. Mark the task complete only when all three reviewers approve the same code
-   state. Optimization suggestions are handled by the maester at close-out — they
-   do not block task completion.
+See `know-how:parallel-review` for the full parallel dispatch pattern
+(spec-first precedence, cancel/discard, loop-until-all-approve).
 
 ## Example Workflow
 
@@ -481,9 +405,11 @@ Done!
 **Required workflow skills:**
 
 - **know-how:writing-plans** - Creates the plan this skill executes
-- **know-how:requesting-code-review** - Code review template for reviewer subagents
-- **know-how:closing-out-work** - Close out work after all tasks, get user review, optimize and reflect, then choose integration
+- **know-how:worktree-setup** - Worktree creation and configuration
+- **know-how:parallel-review** - Spec-first parallel review pattern
+- **know-how:requesting-code-review** - Single-reviewer dispatch primitive
+- **know-how:closing-out-work** - Close out after all tasks, get user review, optimize and reflect, then choose integration
 
 **Subagents should use:**
 
-- **know-how:test-driven-development** - Use when the plan's `Testing Approach` says `TDD Decision: Required`
+- **know-how:test-driven-development** - When the plan's `Testing Approach` says `TDD Decision: Required`
