@@ -45,6 +45,75 @@ function muted(theme: Theme, text: string): string {
   return theme.fg("muted", text);
 }
 
+function normalizeErrorLines(errorText: string): string[] {
+  const lines = errorText
+    .split(/\r?\n/g)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+  return lines.length > 0 ? lines : [""];
+}
+
+function wrapPlainText(text: string, maxWidth: number): string[] {
+  if (maxWidth <= 0) return [""];
+  if (text.length === 0) return [""];
+
+  const wrapped: string[] = [];
+  let remaining = text;
+
+  while (remaining.length > 0) {
+    if (visibleWidth(remaining) <= maxWidth) {
+      wrapped.push(remaining);
+      break;
+    }
+
+    let cut = remaining.length;
+    while (cut > 0 && visibleWidth(remaining.slice(0, cut)) > maxWidth) {
+      cut -= 1;
+    }
+
+    if (cut <= 0) {
+      wrapped.push(remaining);
+      break;
+    }
+
+    let breakAt = remaining.lastIndexOf(" ", cut);
+    if (breakAt <= 0) {
+      breakAt = cut;
+    }
+
+    const line = remaining.slice(0, breakAt).trimEnd();
+    if (line.length > 0) {
+      wrapped.push(line);
+    }
+    remaining = remaining.slice(breakAt).trimStart();
+  }
+
+  return wrapped.length > 0 ? wrapped : [""];
+}
+
+function renderWrappedError(
+  container: Container,
+  theme: Theme,
+  firstPrefix: string,
+  continuationPrefix: string,
+  errorText: string,
+  maxWidth: number,
+): void {
+  let isFirstLine = true;
+
+  for (const sourceLine of normalizeErrorLines(errorText)) {
+    const prefix = isFirstLine ? firstPrefix : continuationPrefix;
+    const availableWidth = Math.max(1, maxWidth - visibleWidth(prefix));
+    const wrappedLines = wrapPlainText(sourceLine, availableWidth);
+
+    for (const wrappedLine of wrappedLines) {
+      const currentPrefix = isFirstLine ? firstPrefix : continuationPrefix;
+      container.addChild(new Text(error(theme, `${currentPrefix}${wrappedLine}`), 0, 0));
+      isFirstLine = false;
+    }
+  }
+}
+
 function statJoin(theme: Theme, parts: string[]): string {
   return parts.filter(Boolean).map((p) => dim(theme, p)).join(` ${dim(theme, "·")} `);
 }
@@ -102,7 +171,7 @@ function renderCompactSingle(state: SubagentState, theme: Theme, width: number):
     const activity = toolLine ?? "thinking…";
     container.addChild(new Text(truncateToWidth(dim(theme, `  ⎿  ${activity}`), innerWidth, "..."), 0, 0));
   } else if (state.status === "failed") {
-    container.addChild(new Text(truncateToWidth(error(theme, `  ⎿  ${state.error ?? "failed"}`), innerWidth, "..."), 0, 0));
+    renderWrappedError(container, theme, "  ⎿  ", "     ", state.error ?? "failed", innerWidth);
   } else if (state.status === "done") {
     container.addChild(new Text(truncateToWidth(dim(theme, `  ⎿  done, ${formatDuration(state.durationMs)}`), innerWidth, "..."), 0, 0));
   }
@@ -152,7 +221,7 @@ function renderExpandedSingle(state: SubagentState, theme: Theme, width: number)
   }
 
   if (state.status === "failed") {
-    container.addChild(new Text(truncateToWidth(error(theme, `Error: ${state.error ?? "unknown"}`), innerWidth, "..."), 0, 0));
+    renderWrappedError(container, theme, "Error: ", "       ", state.error ?? "unknown", innerWidth);
   } else if (state.status === "done") {
     container.addChild(new Text(truncateToWidth(success(theme, `Done, ${formatDuration(state.durationMs)}`), innerWidth, "..."), 0, 0));
   }
@@ -205,7 +274,9 @@ function renderMultiAgent(states: SubagentState[], theme: Theme, width: number, 
         container.addChild(new Text(truncateToWidth(dim(theme, `${cont} ⎿  ${toolLine}`), innerWidth, "..."), 0, 0));
       }
     } else if (state.status === "failed" && state.error) {
-      container.addChild(new Text(truncateToWidth(error(theme, `${cont} ⎿  ${state.error.slice(0, 60)}`), innerWidth, "..."), 0, 0));
+      const firstPrefix = `${cont} ⎿  `;
+      const continuationPrefix = " ".repeat(visibleWidth(firstPrefix));
+      renderWrappedError(container, theme, firstPrefix, continuationPrefix, state.error, innerWidth);
     }
   });
 

@@ -162,8 +162,13 @@ function spawnPi(
     child.stdin?.end();
 
     child.on("close", (code) => {
+      const extracted = extractResponse(stdout);
       if (code === 0) {
-        resolve(extractResponse(stdout));
+        if (extracted.error && !extracted.text) {
+          reject(new Error(extracted.error));
+          return;
+        }
+        resolve(extracted.text);
       } else if (code === null) {
         reject(
           new Error(
@@ -171,9 +176,14 @@ function spawnPi(
           )
         );
       } else {
+        const details = [
+          extracted.error,
+          stderr.trim() || undefined,
+          !stderr.trim() ? stdout.trim() || undefined : undefined,
+        ].filter((value): value is string => Boolean(value));
         reject(
           new Error(
-            `Subagent "${agentName}" exited with code ${code}\nStderr: ${stderr.slice(-1000)}`
+            `Subagent "${agentName}" exited with code ${code}${details.length > 0 ? `\n${details.join("\n")}` : ""}`
           )
         );
       }
@@ -190,26 +200,82 @@ function spawnPi(
   });
 }
 
-function extractResponse(stdout: string): string {
-  // With --mode json, stdout is JSONL. Extract assistant message text.
+interface ExtractedResponse {
+  text: string;
+  error?: string;
+}
+
+function extractErrorText(error: unknown): string | undefined {
+  if (typeof error === "string") {
+    return error;
+  }
+  if (!error || typeof error !== "object") {
+    return undefined;
+  }
+
+  const candidate = error as { errorMessage?: unknown; message?: unknown; error?: unknown };
+  if (typeof candidate.errorMessage === "string") {
+    return candidate.errorMessage;
+  }
+  if (typeof candidate.message === "string") {
+    return candidate.message;
+  }
+  return extractErrorText(candidate.error);
+}
+
+function extractResponse(stdout: string): ExtractedResponse {
+  // With --mode json, stdout is JSONL. Extract assistant message text and surfaced errors.
   const parts: string[] = [];
+  let surfacedError: string | undefined;
+
   for (const line of stdout.split("\n")) {
-    if (!line.trim()) continue;
-    let evt: { type?: string; message?: { role?: string; content?: Array<{ type?: string; text?: string }> } };
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    let evt: {
+      type?: string;
+      error?: unknown;
+      message?: {
+        role?: string;
+        content?: Array<{ type?: string; text?: string }>;
+        stopReason?: string;
+        errorMessage?: string;
+      };
+    };
     try {
-      evt = JSON.parse(line.trim()) as typeof evt;
+      evt = JSON.parse(trimmed) as typeof evt;
     } catch {
+      if (!surfacedError && trimmed.startsWith("Error:")) {
+        surfacedError = trimmed;
+      }
       continue;
     }
-    if (evt.type === "message_end" && evt.message?.role === "assistant" && evt.message.content) {
-      for (const part of evt.message.content) {
-        if (part.type === "text" && part.text) {
-          parts.push(part.text);
+
+    if (evt.type === "error") {
+      surfacedError = extractErrorText(evt.error) ?? surfacedError;
+      continue;
+    }
+
+    if (evt.type === "message_end" && evt.message?.role === "assistant") {
+      if (evt.message.stopReason === "error" || evt.message.stopReason === "aborted") {
+        surfacedError = evt.message.errorMessage
+          ?? surfacedError
+          ?? `Assistant stopped with reason: ${evt.message.stopReason}`;
+      }
+      if (evt.message.content) {
+        for (const part of evt.message.content) {
+          if (part.type === "text" && part.text) {
+            parts.push(part.text);
+          }
         }
       }
     }
   }
-  return parts.join("\n").trim();
+
+  return {
+    text: parts.join("\n").trim(),
+    error: surfacedError,
+  };
 }
 
 function buildModelList(settings: Settings, agentName?: string): string[] {
@@ -232,6 +298,29 @@ function buildModelList(settings: Settings, agentName?: string): string[] {
   return defaultModelId ? [defaultModelId] : [];
 }
 
+interface ModelAttemptFailure {
+  model: string;
+  error: string;
+}
+
+function shouldRetryWithFallback(error: Error): boolean {
+  return !error.message.startsWith("Empty response from model ");
+}
+
+function formatAttemptFailures(agentName: string, failures: ModelAttemptFailure[]): Error {
+  if (failures.length === 0) {
+    return new Error(`All models failed for agent "${agentName}"`);
+  }
+
+  const summary = failures
+    .map(({ model, error }) => `- ${model}: ${error}`)
+    .join("\n");
+
+  return new Error(
+    `All models failed for agent "${agentName}"\nAttempted models:\n${summary}`
+  );
+}
+
 async function dispatchAgent(
   agentName: string,
   task: string,
@@ -247,19 +336,18 @@ async function dispatchAgent(
 
   const models = buildModelList(settings, agentName);
   const candidates = models.length > 0 ? models : [undefined];
-
-  let lastError: Error | undefined;
+  const failures: ModelAttemptFailure[] = [];
 
   for (let i = 0; i < candidates.length; i++) {
-    const model = candidates[i];
+    const model = candidates[i] ?? "default";
     try {
       const { args, tempDir } = buildPiArgs({
-        agentName, agentPrompt, task, reads, model,
+        agentName, agentPrompt, task, reads, model: candidates[i],
       });
       try {
         const response = await spawnPi(agentName, args, cwd, signal, onData);
         if (!response) {
-          throw new Error(`Empty response from model ${model ?? "default"}`);
+          throw new Error(`Empty response from model ${model}`);
         }
         return response;
       } finally {
@@ -268,19 +356,23 @@ async function dispatchAgent(
         }
       }
     } catch (error) {
-      lastError = error instanceof Error ? error : new Error(String(error));
-      const nextModel = candidates[i + 1];
+      const attemptError = error instanceof Error ? error : new Error(String(error));
+      failures.push({ model, error: attemptError.message });
+      const nextModel = shouldRetryWithFallback(attemptError) ? candidates[i + 1] : undefined;
       if (onModelChange) {
         onModelChange({
-          failedModel: model ?? "default",
-          error: lastError.message,
+          failedModel: model,
+          error: attemptError.message,
           nextModel,
         });
+      }
+      if (!nextModel) {
+        break;
       }
     }
   }
 
-  throw lastError || new Error(`All models failed for agent "${agentName}"`);
+  throw formatAttemptFailures(agentName, failures);
 }
 
 // ── Extension ────────────────────────────────────────────────────
@@ -413,6 +505,17 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
               }
 
               state.lastActivityAt = Date.now();
+              pushUpdate();
+            },
+            (info) => {
+              state.error = `${info.failedModel}: ${info.error}`;
+              state.lastActivityAt = Date.now();
+              if (info.nextModel) {
+                state.model = info.nextModel;
+                if (!state.attemptedModels.includes(info.nextModel)) {
+                  state.attemptedModels.push(info.nextModel);
+                }
+              }
               pushUpdate();
             },
           );
