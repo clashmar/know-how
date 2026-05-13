@@ -8,6 +8,7 @@
  */
 
 import { CustomEditor } from "@mariozechner/pi-coding-agent";
+import { borderColor, BORDER_CHAR } from "./ui/border-style";
 
 const ANSI_RE = /\x1b\[\d+(;\d+)*m/g;
 
@@ -22,11 +23,7 @@ export class ModeAwareEditor extends CustomEditor {
   }
 
   render(width: number): string[] {
-    // Foreground-only color — no background, no white-on-color, just a colored line
-    this.borderColor =
-      this.editorMode === "write"
-        ? (s: string) => `\x1b[32m${s}\x1b[0m` // green fg
-        : (s: string) => `\x1b[34m${s}\x1b[0m`; // blue fg
+    this.borderColor = borderColor(this.editorMode !== "write");
 
     this.setPaddingX(1);
 
@@ -53,7 +50,7 @@ export class ModeAwareEditor extends CustomEditor {
     const labelLen = modeLabelText.length;
     const leftLen = 2;
     const rightLen = Math.max(0, width - leftLen - labelLen);
-    result.push(color("━".repeat(leftLen)) + color(modeLabelText) + color("━".repeat(rightLen)));
+    result.push(color(BORDER_CHAR.repeat(leftLen)) + color(modeLabelText) + color(BORDER_CHAR.repeat(rightLen)));
 
     // Content lines (between top and bottom borders)
     for (let i = 1; i < bottomBorderIdx; i++) {
@@ -61,7 +58,7 @@ export class ModeAwareEditor extends CustomEditor {
     }
 
     // Bottom border — thick line
-    result.push(color("━").repeat(width));
+    result.push(color(BORDER_CHAR).repeat(width));
 
     // Autocomplete lines (after bottom border, if any)
     for (let i = bottomBorderIdx + 1; i < lines.length; i++) {

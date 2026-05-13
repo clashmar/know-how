@@ -1,35 +1,22 @@
 import { matchesKey, Key, Text, Input, Container, Spacer, truncateToWidth } from "@earendil-works/pi-tui";
-import { DynamicBorder } from "@mariozechner/pi-coding-agent";
 import type { Theme } from "@mariozechner/pi-coding-agent";
+import { isInReadMode } from "../read-mode";
+import { borderColor, BORDER_CHAR } from "./border-style";
 import { PickerList } from "./picker-list";
 import type { PickerItem } from "./picker-list";
 
-/**
- * An option in the choice picker.
- */
+/** An option in the choice picker. */
 export interface ChoiceOption {
   label: string;
   description?: string;
   value?: string;
 }
 
-/** Mode constants for ChoicePicker. */
-export const Mode = {
-  List: "list" as const,
-  Input: "input" as const,
-};
+export const Mode = { List: "list" as const, Input: "input" as const };
 type ModeType = (typeof Mode)[keyof typeof Mode];
 
-/** Sentinel value for the "other" option. */
 export const OTHER_VALUE = "__other__";
 
-/** Flexoki bg (#1C1B1A) — warm dark surface for overlay backgrounds. */
-const FLEXOKI_BG = "\x1b[48;2;28;27;26m";
-const RESET = "\x1b[0m";
-
-/**
- * A UI component for selecting from a list of options with optional text input.
- */
 export class ChoicePicker {
   private container: Container;
   private pickerList: PickerList;
@@ -40,7 +27,7 @@ export class ChoicePicker {
   private cachedLines?: string[];
   private theme: Theme;
   private title: Text;
-  private bottomBorder: DynamicBorder;
+  private colorFn: (s: string) => string;
 
   public onSelect?: (value: string) => void;
   public onCancel?: () => void;
@@ -49,21 +36,17 @@ export class ChoicePicker {
   constructor(title: string, options: ChoiceOption[], theme: Theme, otherLabel?: string | null) {
     this.theme = theme;
     this.otherLabel = otherLabel || "Something else...";
+    this.colorFn = borderColor(isInReadMode());
 
     this.container = new Container();
-    this.bottomBorder = new DynamicBorder((s: string) => theme.fg("accent", s));
     this.title = new Text(theme.fg("accent", theme.bold(title)), 1, 0);
-
     this.container.addChild(this.title);
-    this.container.addChild(this.bottomBorder);
     this.container.addChild(new Spacer(1));
 
     this.pickerList = this.buildPickerList(options);
-    // PickerList is NOT added to container — it renders independently
 
     this.container.addChild(new Spacer(1));
     this.container.addChild(new Text(theme.fg("dim", "↑↓ navigate • enter select • esc cancel"), 1, 0));
-    this.container.addChild(this.bottomBorder);
   }
 
   private buildPickerList(options: ChoiceOption[]): PickerList {
@@ -72,21 +55,14 @@ export class ChoicePicker {
       label: o.label,
       description: o.description,
     }));
-
     items.push({ value: OTHER_VALUE, label: this.otherLabel });
 
     const list = new PickerList(items, this.theme);
-
     list.onSelect = (item) => {
-      if (item.value === OTHER_VALUE) {
-        this.switchToInput();
-      } else {
-        this.onSelect?.(item.value);
-      }
+      if (item.value === OTHER_VALUE) this.switchToInput();
+      else this.onSelect?.(item.value);
     };
-
     list.onCancel = () => this.onCancel?.();
-
     return list;
   }
 
@@ -101,11 +77,10 @@ export class ChoicePicker {
   private rebuildContainer(): void {
     this.container.clear();
     this.container.addChild(this.title);
-    this.container.addChild(this.bottomBorder);
     this.container.addChild(new Spacer(1));
 
     if (this.mode === Mode.List) {
-      this.container.addChild(new Text("", 0, 0)); // placeholder, PickerList renders separately
+      this.container.addChild(new Text("", 0, 0));
     } else {
       this.container.addChild(this.inputField!);
     }
@@ -115,21 +90,16 @@ export class ChoicePicker {
       ? new Text(this.theme.fg("dim", "↑↓ navigate • enter select • esc cancel"), 1, 0)
       : new Text(this.theme.fg("dim", "enter confirm • esc back to list"), 1, 0);
     this.container.addChild(help);
-    this.container.addChild(this.bottomBorder);
   }
 
   handleInput(data: string): void {
     if (this.mode === Mode.List) {
-      if (matchesKey(data, Key.escape)) {
-        this.onCancel?.();
-        return;
-      }
+      if (matchesKey(data, Key.escape)) { this.onCancel?.(); return; }
       this.pickerList.handleInput(data);
       this.invalidate();
       this.onRequestRender?.();
       return;
     }
-
     if (matchesKey(data, Key.escape)) {
       this.mode = Mode.List;
       this.inputField = undefined;
@@ -138,40 +108,34 @@ export class ChoicePicker {
       this.onRequestRender?.();
       return;
     }
-
     if (matchesKey(data, Key.enter)) {
-      const text = this.inputField!.getValue();
-      this.onSelect?.(text);
+      this.onSelect?.(this.inputField!.getValue());
       return;
     }
-
     this.inputField!.handleInput(data);
     this.invalidate();
     this.onRequestRender?.();
   }
 
   render(width: number): string[] {
-    if (this.cachedLines && this.cachedWidth === width) {
-      return this.cachedLines;
-    }
+    if (this.cachedLines && this.cachedWidth === width) return this.cachedLines;
+
+    const borderLine = this.colorFn(BORDER_CHAR.repeat(width));
 
     if (this.mode === Mode.List) {
-      // Render list items with background
       const listLines = this.pickerList.render(width);
       const containerLines = this.container.render(width);
-
-      // Splice list lines in place of the placeholder
-      // Find placeholder index (after title + border + spacer)
-      const insertAt = 3;
+      const insertAt = 2;
       const before = containerLines.slice(0, insertAt);
       const after = containerLines.slice(insertAt);
-      this.cachedLines = [...before, ...listLines, ...after].map((l) => FLEXOKI_BG + truncateToWidth(l, width) + RESET);
+      this.cachedLines = [borderLine, ...before, ...listLines, ...after, borderLine];
     } else {
-      this.cachedLines = this.container.render(width).map((l) => FLEXOKI_BG + truncateToWidth(l, width) + RESET);
+      const inner = this.container.render(width);
+      this.cachedLines = [borderLine, ...inner, borderLine];
     }
 
     this.cachedWidth = width;
-    return this.cachedLines;
+    return this.cachedLines.map(l => truncateToWidth(l, width));
   }
 
   invalidate(): void {

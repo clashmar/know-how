@@ -1,13 +1,10 @@
 import { matchesKey, Key, Text, Input, Container, Spacer, truncateToWidth } from "@earendil-works/pi-tui";
-import { DynamicBorder } from "@mariozechner/pi-coding-agent";
 import type { Theme } from "@mariozechner/pi-coding-agent";
 import { PickerList } from "./picker-list";
 import type { PickerItem } from "./picker-list";
 import { OTHER_VALUE } from "./choice-picker";
-
-/** Flexoki bg (#1C1B1A) — warm dark surface for overlay backgrounds. */
-const FLEXOKI_BG = "\x1b[48;2;28;27;26m";
-const RESET = "\x1b[0m";
+import { isInReadMode } from "../read-mode";
+import { borderColor, BORDER_CHAR } from "./border-style";
 
 /**
  * An option in a decision form.
@@ -49,8 +46,8 @@ export class DecisionForm {
   private theme: Theme;
   private cachedWidth?: number;
   private cachedLines?: string[];
-  private bottomBorder: DynamicBorder;
   private title: Text;
+  private colorFn: (s: string) => string;
 
   // Cached PickerList and Input instances per decision
   private pickerLists: (PickerList | undefined)[] = [];
@@ -78,7 +75,7 @@ export class DecisionForm {
     this.activeIndex = 0;
 
     this.container = new Container();
-    this.bottomBorder = new DynamicBorder((s: string) => theme.fg("accent", s));
+    this.colorFn = borderColor(isInReadMode());
     this.title = new Text(theme.fg("accent", theme.bold(title)), 1, 0);
 
     this.container.addChild(this.title);
@@ -87,8 +84,6 @@ export class DecisionForm {
 
     this.contentArea = new Container();
     this.container.addChild(this.contentArea);
-
-    this.container.addChild(this.bottomBorder);
 
     this.rebuildTabRow();
     this.rebuildContentOnly();
@@ -111,12 +106,7 @@ export class DecisionForm {
     const parts: string[] = [];
     this.decisions.forEach((decision, index) => {
       const isActive = index === this.activeIndex;
-      let tabText = decision.label;
-
-      const state = this.states[index];
-      if (state.otherText.length > 0) {
-        tabText += ` (${state.otherText})`;
-      }
+      const tabText = decision.label;
 
       parts.push(isActive
         ? this.theme.fg("accent", `■ ${tabText} ■`)
@@ -317,9 +307,10 @@ export class DecisionForm {
     lines.push(this.theme.fg("dim", isLast
       ? " ↑↓ navigate • enter submit all • tab ⭾ prev • esc cancel"
       : " ↑↓ navigate • enter next tab • tab ⭾ switch • esc cancel"));
-    lines.push(this.bottomBorder.render(width)[0]!);
 
-    this.cachedLines = lines.map((l) => FLEXOKI_BG + truncateToWidth(l, width) + RESET);
+    // Wrap with thick border lines
+    const borderLine = this.colorFn(BORDER_CHAR.repeat(width));
+    this.cachedLines = [borderLine, ...lines.map((l) => truncateToWidth(l, width)), borderLine];
     this.cachedWidth = width;
     return this.cachedLines;
   }
