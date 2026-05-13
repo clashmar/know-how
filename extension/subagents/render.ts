@@ -118,23 +118,63 @@ function statJoin(theme: Theme, parts: string[]): string {
   return parts.filter(Boolean).map((p) => dim(theme, p)).join(` ${dim(theme, "·")} `);
 }
 
+function joinPlainStats(parts: string[]): string {
+  return parts.join(" · ");
+}
+
+// Never truncate the styled header line; fit raw text first or the ellipsis can lose background fill.
+function fitPlainText(text: string, maxWidth: number): string {
+  if (maxWidth <= 0) return "";
+  if (visibleWidth(text) <= maxWidth) return text;
+  if (maxWidth === 1) return "…";
+
+  let truncated = text;
+  while (truncated.length > 0 && visibleWidth(`${truncated}…`) > maxWidth) {
+    truncated = truncated.slice(0, -1);
+  }
+  return truncated.length > 0 ? `${truncated}…` : "…";
+}
+
 function stateStats(state: SubagentState, theme: Theme, maxStatsWidth?: number): string {
   const parts: string[] = [];
   if (state.toolCount > 0) parts.push(`${state.toolCount} tool${state.toolCount === 1 ? "" : "s"}`);
   if (state.tokens > 0) parts.push(`${formatTokens(state.tokens)} tok`);
   if (state.model) {
-    let model = state.model;
-    if (maxStatsWidth !== undefined) {
-      const sepLen = 3;
-      const usedByParts = parts.reduce((sum, p) => sum + p.length + sepLen, 0);
-      const available = maxStatsWidth - usedByParts;
-      if (available > 3 && model.length > available) {
-        model = model.slice(0, available - 1) + "…";
+    if (maxStatsWidth === undefined) {
+      parts.push(state.model);
+    } else {
+      const usedWidth = visibleWidth(joinPlainStats(parts));
+      const separatorWidth = parts.length > 0 ? 3 : 0;
+      const availableWidth = maxStatsWidth - usedWidth - separatorWidth;
+      const model = fitPlainText(state.model, availableWidth);
+      if (model) {
+        parts.push(model);
       }
     }
-    parts.push(model);
   }
   return statJoin(theme, parts);
+}
+
+function buildStateHeaderLine(
+  prefix: string,
+  state: SubagentState,
+  theme: Theme,
+  maxWidth: number,
+): string {
+  const statsMaxWidth = Math.max(0, maxWidth - visibleWidth(prefix) - 3);
+  const stats = stateStats(state, theme, statsMaxWidth);
+  return stats ? `${prefix} ${dim(theme, "·")} ${stats}` : prefix;
+}
+
+function renderStateHeader(
+  container: Container,
+  state: SubagentState,
+  theme: Theme,
+  glyph: string,
+  maxWidth: number,
+): void {
+  const prefix = `${glyph} ${bold(theme, state.agent)}`;
+  container.addChild(new Text(buildStateHeaderLine(prefix, state, theme, maxWidth), 0, 0));
 }
 
 function statusGlyph(state: SubagentState, theme: Theme): string {
@@ -159,12 +199,7 @@ function currentToolLine(state: SubagentState, width: number): string | undefine
 function renderCompactSingle(state: SubagentState, theme: Theme, width: number): Container {
   const container = new Container();
   const innerWidth = width - 4;
-  const stats = stateStats(state, theme);
-
-  container.addChild(new Text(
-    truncateToWidth(`${statusGlyph(state, theme)} ${bold(theme, state.agent)}${stats ? ` ${dim(theme, "·")} ${stats}` : ""}`, innerWidth, "..."),
-    0, 0,
-  ));
+  renderStateHeader(container, state, theme, statusGlyph(state, theme), innerWidth);
 
   if (state.status === "running") {
     const toolLine = currentToolLine(state, innerWidth);
@@ -184,15 +219,11 @@ function renderExpandedSingle(state: SubagentState, theme: Theme, width: number)
   const container = new Container();
   const innerWidth = width - 4;
 
-  const stats = stateStats(state, theme);
   const glyph = state.status === "running" ? accent(theme, "running") :
     state.status === "done" ? success(theme, "ok") :
     state.status === "pending" ? muted(theme, "pending") :
     error(theme, "failed");
-  container.addChild(new Text(
-    truncateToWidth(`${glyph} ${bold(theme, state.agent)}${stats ? ` ${dim(theme, "·")} ${stats}` : ""}`, innerWidth, "..."),
-    0, 0,
-  ));
+  renderStateHeader(container, state, theme, glyph, innerWidth);
 
   container.addChild(new Spacer(1));
 
@@ -261,12 +292,8 @@ function renderMultiAgent(states: SubagentState[], theme: Theme, width: number, 
     const branch = isLast ? "└─" : "├─";
     const cont = isLast ? "   " : "│  ";
 
-    // Measure the prefix to compute how much space remains for stats
-    const prefixLen = branch.length + 1 + 1 + 1 + state.agent.length; // "├─ ⠋ scout"
-    const statsMaxWidth = innerWidth - prefixLen - 3; // " · " separator
-    const stats = stateStats(state, theme, statsMaxWidth);
-    const agentLine = `${dim(theme, branch)} ${statusGlyph(state, theme)} ${bold(theme, state.agent)}${stats ? ` ${dim(theme, "·")} ${stats}` : ""}`;
-    container.addChild(new Text(agentLine, 0, 0));
+    const prefix = `${dim(theme, branch)} ${statusGlyph(state, theme)} ${bold(theme, state.agent)}`;
+    container.addChild(new Text(buildStateHeaderLine(prefix, state, theme, innerWidth), 0, 0));
 
     if (state.status === "running") {
       const toolLine = currentToolLine(state, innerWidth);

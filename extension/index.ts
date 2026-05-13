@@ -11,7 +11,7 @@ import type { MemoryStore, SemanticEntry } from "@samfp/pi-memory/store";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import dispatchExtension from "./dispatch";
+import dispatchExtension from "./subagents/dispatch";
 import {
 	extractAndStripFrontmatter,
 	findProjectSkill,

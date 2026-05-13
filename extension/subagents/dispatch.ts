@@ -11,10 +11,10 @@ import {
   createInitialState,
   type DispatchDetails,
 } from "./types";
-import { isInReadMode } from "./read-mode";
+import { isInReadMode } from "../read-mode";
 import { renderResultView } from "./render";
 import { openProgressOverlay } from "./progress-overlay";
-import { readSettings, type Settings } from "./settings";
+import { readSettings, type Settings } from "../settings";
 
 /** Module-level state shared between execute and renderCall for live updates. */
 let liveStates: SubagentState[] = [];
@@ -41,7 +41,7 @@ const SubagentParams = Type.Object({
 
 // ── Constants ────────────────────────────────────────────────────
 
-const KNOW_HOW_AGENTS_DIR = path.resolve(__dirname, "agents");
+const KNOW_HOW_AGENTS_DIR = path.resolve(__dirname, "..", "agents");
 
 // ── Agent Resolution ─────────────────────────────────────────────
 
@@ -573,7 +573,7 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
       };
     },
     renderCall(_args, theme, _context) {
-      if (liveStates.length === 0) return new Text("initialising…");
+      if (liveStates.length === 0) return new Text("dispatching…");
       const agentList = liveStates.map(s => s.agent).join(", ");
       return new Text(
         `${theme.fg("toolTitle", theme.bold("subagent"))} dispatch (${liveStates.length}): ${theme.fg("accent", agentList)}`,
