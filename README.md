@@ -80,5 +80,5 @@ It does not modify unrelated files already present in `~/.pi/agent`.
 }
 ```
 
-If any settings aren't set for a specifc agent, the seeings will fall
-back to the sessions settings.
+If any values aren't set for a specifc agent, they will fall
+back to the session default.
