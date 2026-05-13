@@ -93,7 +93,7 @@ Fix: smallest safe change
 - OBSERVATION: standard exists but code isn't strictly violating — flag for human judgment
 
 Additionally, during pi-memory review, check for memory key naming violations.
-If an entry key does not match the `{domain}.{canonical-project-name}.{fact-name}`
+If an entry key does not match the `{project}.{domain}.{fact}`
 pattern defined in session-reflection's Pi-Memory Naming Convention, flag it as
 SHOULD_FIX.
 

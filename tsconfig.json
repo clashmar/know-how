@@ -17,7 +17,7 @@
       "@earendil-works/pi-coding-agent": ["./node_modules/@mariozechner/pi-coding-agent/dist/index.d.ts"]
     }
   },
-  "include": ["extension/**/*.ts"],
+  "include": ["extension/**/*.ts", "tests/**/*.ts"],
   "exclude": [
     "extension/skills/systematic-debugging/condition-based-waiting-example.ts"
   ]
