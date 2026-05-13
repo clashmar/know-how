@@ -1,5 +1,6 @@
 import { matchesKey, Key } from "@earendil-works/pi-tui";
-import type { Theme } from "@mariozechner/pi-coding-agent";
+import type { Theme } from "@mariozechner/pi-coding-agent"; 
+// @mariozechner/pi-coding-agent is deprecated upstream; will migrate when @samfp/pi-memory updates
 import { wrapTextWithAnsi, truncateToWidth } from "@earendil-works/pi-tui";
 
 /** An item in the picker list. */

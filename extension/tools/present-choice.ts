@@ -1,7 +1,8 @@
 import { Type } from "@sinclair/typebox";
 import { ChoicePicker } from "../ui/choice-picker";
 import type { ChoiceOption } from "../ui/choice-picker";
-import type { ExtensionAPI, AgentToolResult } from "@mariozechner/pi-coding-agent";
+// @mariozechner/pi-coding-agent is deprecated upstream; will migrate when @samfp/pi-memory updates
+import type { ExtensionAPI, AgentToolResult } from "@mariozechner/pi-coding-agent"; 
 
 /** Sentinel value indicating the user cancelled the choice. */
 export const CANCELLED_SENTINEL = "(cancelled)";

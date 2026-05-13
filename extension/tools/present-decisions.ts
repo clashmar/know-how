@@ -1,7 +1,8 @@
 import { Type } from "@sinclair/typebox";
 import { DecisionForm } from "../ui/decision-form";
 import type { Decision, DecisionOption } from "../ui/decision-form";
-import type { ExtensionAPI, AgentToolResult } from "@mariozechner/pi-coding-agent";
+// @mariozechner/pi-coding-agent is deprecated upstream; will migrate when @samfp/pi-memory updates
+import type { ExtensionAPI, AgentToolResult } from "@mariozechner/pi-coding-agent"; 
 
 /** Parameters for the present_decisions tool — presents a tabbed multi-decision form overlay. */
 export const PresentDecisionsParams = Type.Object({

@@ -22,6 +22,34 @@ The install script (`scripts/install`) copies these agent definitions from
 (`extension/subagents/dispatch.ts`) resolves agent prompts by looking in the bundled
 directory first, then falling back to `~/.pi/agent/agents/`.
 
+## Skills
+
+When creating a new skill or editing an existing one, use the
+`writing-skills` skill. It enforces TDD for process documentation:
+no SKILL.md without a failing baseline test first.
+
+## pi / pi-tui APIs
+
+**Never redefine types or interfaces from these packages.** If a type exists
+in `@mariozechner/pi-coding-agent` or `@earendil-works/pi-tui`, import it —
+don't write a local copy. Before writing any `interface` or `type` in extension
+code, check `node_modules/@mariozechner/pi-coding-agent/` and
+`node_modules/@earendil-works/pi-tui/` first.
+
+Redefining library types is a correctness bug. If the upstream API changes,
+the local copy silently drifts. Importing directly means:
+
+- Workers see real field names — no hallucinated fields
+- API changes break at compile time, not runtime
+- New fields become visible immediately
+
+## pi-coding-agent Package Status
+
+`@mariozechner/pi-coding-agent` provides our extension types and API.
+This package is deprecated upstream but remains our import source until
+`@samfp/pi-memory` updates its extension API. When pi-memory migrates,
+we will update all imports to the new package.
+
 ## Commit Messages
 
 Use the conventional commit format:
@@ -68,7 +96,7 @@ path before calling edit or write.
 ### Keep docs in sync for config and agent changes
 
 If any configuration or agent-related code was changed (for example: agent prompts or definitions
-under `extension/agents/`, dispatch logic such as `extension/dispatch.ts`, scripts that affect
+under `extension/agents/`, dispatch logic such as `extension/subagents/dispatch.ts`, scripts that affect
 installation, or settings that affect runtime behaviour), repository documentation must be updated
 to reflect those changes (AGENTS.md, README.md, and any affected `SKILL.md` files).
 

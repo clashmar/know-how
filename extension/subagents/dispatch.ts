@@ -2,7 +2,8 @@ import { spawn } from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI } from "@mariozechner/pi-coding-agent"; 
+// @mariozechner/pi-coding-agent is deprecated upstream; will migrate when @samfp/pi-memory updates
 import { Text } from "@earendil-works/pi-tui";
 import { Type } from "@sinclair/typebox";
 import {

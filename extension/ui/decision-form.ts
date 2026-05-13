@@ -1,5 +1,6 @@
 import { matchesKey, Key, Text, Input, Container, Spacer, truncateToWidth } from "@earendil-works/pi-tui";
-import type { Theme } from "@mariozechner/pi-coding-agent";
+import type { Theme } from "@mariozechner/pi-coding-agent"; 
+// @mariozechner/pi-coding-agent is deprecated upstream; will migrate when @samfp/pi-memory updates
 import { PickerList } from "./picker-list";
 import type { PickerItem } from "./picker-list";
 import { OTHER_VALUE } from "./choice-picker";

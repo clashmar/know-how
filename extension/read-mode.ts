@@ -7,7 +7,8 @@
  * Main (human) sessions default to read mode with toggle.
  */
 
-import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-agent"; 
+// @mariozechner/pi-coding-agent is deprecated upstream; will migrate when @samfp/pi-memory updates
 import { ModeAwareEditor } from "./mode-editor";
 
 // ── Bash allowlist ──────────────────────────────────────────────────

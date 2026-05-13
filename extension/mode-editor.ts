@@ -7,7 +7,8 @@
  * - No side borders, no background fills, no extra padding
  */
 
-import { CustomEditor } from "@mariozechner/pi-coding-agent";
+import { CustomEditor } from "@mariozechner/pi-coding-agent"; 
+// @mariozechner/pi-coding-agent is deprecated upstream; will migrate when @samfp/pi-memory updates
 import { borderColor, BORDER_CHAR } from "./ui/border-style";
 
 const ANSI_RE = /\x1b\[\d+(;\d+)*m/g;

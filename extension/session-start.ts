@@ -5,7 +5,8 @@
  * MAX 3 subagents) into every pi session on start.
  */
 
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI } from "@mariozechner/pi-coding-agent"; 
+// @mariozechner/pi-coding-agent is deprecated upstream; will migrate when @samfp/pi-memory updates
 
 const SESSION_START_CONTENT = `<WORKFLOW_CONVENTIONS>
 ## Parallel Exploration (MANDATORY — never explore sequentially)

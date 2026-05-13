@@ -6,7 +6,8 @@
  */
 
 import { Box, Container, Text, Spacer, truncateToWidth, wrapTextWithAnsi, visibleWidth, matchesKey, Key, type Component, type TUI, type KeybindingsManager } from "@earendil-works/pi-tui";
-import type { ExtensionCommandContext, Theme } from "@mariozechner/pi-coding-agent";
+import type { ExtensionCommandContext, Theme } from "@mariozechner/pi-coding-agent"; 
+// @mariozechner/pi-coding-agent is deprecated upstream; will migrate when @samfp/pi-memory updates
 import type { DispatchDetails, SubagentState } from "./types";
 import { formatDuration, formatTokens } from "./types";
 

@@ -2,6 +2,8 @@
 
 import { Container, Text, Spacer, truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
 import type { Component } from "@earendil-works/pi-tui";
+import type { Theme } from "@mariozechner/pi-coding-agent";
+// @mariozechner/pi-coding-agent is deprecated upstream; will migrate when @samfp/pi-memory updates
 import {
   type SubagentState,
   type DispatchDetails,
@@ -10,12 +12,6 @@ import {
   formatTokens,
   ANIMATION_INTERVAL_MS,
 } from "./types";
-
-interface Theme {
-  bold(text: string): string;
-  fg(color: string, text: string): string;
-  bg(color: string, text: string): string;
-}
 
 function bold(theme: Theme, text: string): string {
   return theme.bold(text);
