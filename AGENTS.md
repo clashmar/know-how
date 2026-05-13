@@ -8,13 +8,14 @@ process improves over time.
 
 ## Agents
 
-The know-how extension bundles five agents in `extension/agents/`:
+The know-how extension bundles six agents in `extension/agents/`:
 
 - **scout** — Codebase reconnaissance. Reads files, answers bounded questions, returns text report. Read-only.
 - **worker** — Task implementation. Writes code, runs tests, self-reviews. No git writes.
 - **reviewer** — Code review. Checks spec compliance and code quality. Read-only.
 - **guardian** — Convention enforcement. Checks documented project rules at per-task review. Read-only.
 - **maester** — Process optimization. Synthesizes improvements, audits memory, detects patterns at close-out.
+- **deckbuilder** — Renders structured JSON payloads into HTML/CSS dashboards.
 
 The install script (`scripts/install`) copies these agent definitions from
 `extension/agents/` to `~/.pi/agent/agents/`. The dispatch extension
