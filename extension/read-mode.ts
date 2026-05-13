@@ -148,7 +148,7 @@ const READ_MODE_TOOLS = [
 // ── Role sets ───────────────────────────────────────────────────────
 // Read-only roles permanently locked to read mode. Write-capable start in write.
 const READ_ONLY_ROLES = new Set(["scout", "reviewer", "guardian"]);
-const WRITE_CAPABLE_ROLES = new Set(["worker", "maester"]);
+const WRITE_CAPABLE_ROLES = new Set(["worker", "maester", "deckbuilder"]);
 
 // ── Module-level state (exported for dispatch.ts) ─────────────────
 let readModeEnabled = true;

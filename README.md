@@ -69,6 +69,11 @@ It does not modify unrelated files already present in `~/.pi/agent`.
           "demo-model-fallback"
         ],
         "thinkingLevel": "high"
+      },
+      "deckbuilder": {
+        "model": "demo-model-deckbuilder",
+        "fallbackModels": ["demo-model-fallback"],
+        "thinkingLevel": "low"
       }
     }
   }
