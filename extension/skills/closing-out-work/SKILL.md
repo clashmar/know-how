@@ -141,7 +141,7 @@ Once the user approves the work, you MUST execute steps 6 and 7 in parallel...
    - Stale-memory audit (contradictions, duplicates, superseded facts)
    - Cross-session auto-surfaces (gaps flagged 3+ times across sessions)
 3. Present the synthesis to the human as actionable decision points.
-4. For each suggestion: human approves, edits, or skips.
+4. For each maester suggestion, call `present_choice` with title matching the suggestion summary and options: Apply / Edit / Skip.
 5. For approved suggestions:
    - Apply the doc/memory/skill changes
    - Run `/reflect` to capture them as a session reflection
@@ -177,26 +177,26 @@ Remove any stale facts via `memory_forget`.
 
 ### Step 8: Present Final Options After User Confirmation
 
-ONLY AFTER maester suggestions have been surfaced and the reflection is written, present the user with final integration options based on the branch and worktree context determined in Step 2:
+ONLY AFTER maester suggestions have been surfaced and the reflection is written, present the user with final integration options using the `present_choice` tool.
 
-**If the plan declared `Worktree Strategy: Worktree`** (detected in Step 2), present both the merge-back and the integration options together — the user chooses whether to proceed:
+**If the plan declared `Worktree Strategy: Worktree`** (detected in Step 2), call `present_choice` with:
 
-1. Merge worktree, then Commit with message: \<commit-message\>
-2. Merge worktree, then Commit, Push and create a Pull Request
-3. Merge worktree, then Keep the branch as-is (I'll handle it later)
-4. Keep everything as-is, no merge or integration yet
+- **title:** "Final integration"
+- **options:**
+  - Merge + Commit — value: "merge-commit"
+  - Merge, Commit, Push + PR — value: "merge-pr"
+  - Merge, keep branch as-is — value: "merge-keep"
+  - Skip — value: "skip"
 
-**If the plan declared `Worktree Strategy: Direct`** (or worktree merge is already done), present these options directly:
+**If the plan declared `Worktree Strategy: Direct`** (or worktree merge is already done), call `present_choice` with:
 
-1. Commit changes with message: \<commit-message\>
-2. Commit, Push and create a Pull Request
-3. Keep the branch as-is (I'll handle it later)
+- **title:** "Final integration"
+- **options:**
+  - Commit changes — value: "commit"
+  - Commit, Push + PR — value: "pr"
+  - Keep branch as-is — value: "keep"
 
-Keep the options concise. Git is the final integration stage here, not the purpose of the skill.
-
-**Do not execute any git write operations until the user chooses an option.** The merge,
-worktree remove, branch deletion, and commit are all git write operations that require
-explicit user approval. Presenting options is not permission to execute them.
+**Do not execute any git write operations until the user selects an option.**
 
 ### Step 9: Execute The Chosen Option
 

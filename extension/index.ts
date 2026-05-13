@@ -21,6 +21,8 @@ import {
 } from "./skill-discovery";
 import { registerReadMode } from "./read-mode";
 import { beforeAgentStart } from "./session-start";
+import { registerPresentChoice } from "./tools/present-choice";
+import { registerPresentDecisions } from "./tools/present-decisions";
 
 // ---------------------------------------------------------------------------
 // Path resolution
@@ -318,6 +320,8 @@ export default function (pi: ExtensionAPI) {
 	dispatchExtension(pi);
 	registerReadMode(pi);
 	beforeAgentStart(pi);
+	registerPresentChoice(pi);
+	registerPresentDecisions(pi);
 
 	// Expose skills and project skills directories for pi auto-discovery
 	pi.on("resources_discover", async (_event, _ctx) => {
