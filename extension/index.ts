@@ -31,6 +31,7 @@ import { registerReadMode } from "./read-mode";
 import { beforeAgentStart } from "./startup/session-start";
 import { registerPresentChoice } from "./tools/present-choice";
 import { registerPresentDecisions } from "./tools/present-decisions";
+import { MEMORY_NAMESPACES } from "./memory-convention";
 
 // ---------------------------------------------------------------------------
 // Path resolution
@@ -154,9 +155,9 @@ function buildCatchUpBlock(projectName: string): CatchUpResult | null {
 			const dbPath = piMemory.resolveDbPath(process.cwd());
 			store = new piMemory.MemoryStore(dbPath);
 			const results = store.searchSemantic(projectName, 20);
-			// Filter to only entries whose key has a segment matching the project name.
-			const filtered = results.filter(r =>
-				r.key.startsWith(projectName + ".")
+			const namespacePrefix = `${MEMORY_NAMESPACES[0]}.${projectName}.`;
+			const filtered = results.filter((r) =>
+				r.key.startsWith(namespacePrefix) || r.key.startsWith(`${projectName}.`),
 			);
 			piFacts = filtered.slice(0, 10).map((r: SemanticEntry) => `${r.key}: ${r.value}`);
 		} catch {

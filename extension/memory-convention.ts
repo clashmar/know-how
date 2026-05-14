@@ -1,9 +1,9 @@
-/** Canonical pi-memory key domains. */
-export const MEMORY_DOMAINS = ["project", "decision", "lesson"] as const;
-export type MemoryDomain = (typeof MEMORY_DOMAINS)[number];
+/** Canonical pi-memory semantic namespace for project facts. */
+export const MEMORY_NAMESPACES = ["project"] as const;
+export type MemoryNamespace = (typeof MEMORY_NAMESPACES)[number];
 
-/** Canonical key format: {project}.{domain}.{fact} */
-export const KEY_FORMAT = "{project}.{domain}.{fact}" as const;
+/** Canonical key format: project.{project}.{fact} */
+export const KEY_FORMAT = "project.{project}.{fact}" as const;
 
 /**
  * Validates a pi-memory key against the canonical convention.
@@ -16,10 +16,10 @@ export function validateMemoryKey(key: string, projectName: string): string | nu
     return `Expected exactly 3 dot-separated segments, got ${segments.length}`;
   }
 
-  const [project, domain, fact] = segments as [string, string, string];
+  const [namespace, project, fact] = segments as [string, string, string];
 
-  if (!MEMORY_DOMAINS.includes(domain as MemoryDomain)) {
-    return `Unknown domain "${domain}". Allowed: ${MEMORY_DOMAINS.join(", ")}`;
+  if (!MEMORY_NAMESPACES.includes(namespace as MemoryNamespace)) {
+    return `Unknown namespace "${namespace}". Allowed: ${MEMORY_NAMESPACES.join(", ")}`;
   }
 
   if (project !== projectName) {

@@ -139,27 +139,25 @@ When reflecting, you MUST check for and remove stale pi-memory facts:
 
 Push only entries future sessions genuinely need. Don't spam.
 
-| When                              | Key                                  | Type                                       |
-| --------------------------------- | ------------------------------------ | ------------------------------------------ |
-| Architecture/design decision made | `<project>.decision.<topic>`         | fact                                       |
-| Project convention established    | `<project>.project.<convention>`     | fact                                       |
-| User correction that should stick | `<project>.lesson.<correction-name>` | lesson (use memory_remember type="lesson") |
+| When                              | Key / Scope                      | Type | 
+| --------------------------------- | -------------------------------- | -----|
+| Architecture/design decision made | `project.{project}.{fact}`       | fact | 
+| Project convention established    | `project.{project}.{fact}`       | fact |  
+| User correction that should stick | `project.{project}.{correction}` | fact | 
 
 ### Pi-Memory Naming Convention
 
-All pi-memory facts MUST use the following key format:
+All project-scoped pi-memory facts MUST use the following key format:
 
 ```
-{project}.{domain}.{fact}
+project.{project}.{fact}
 ```
 
-**Domains:**
+**Namespace:**
 
-| Domain       | Purpose                                            | Example                              |
-|--------------|----------------------------------------------------|--------------------------------------|
-| `project`    | Conventions, structure, APIs, and project-level facts | `bishop.project.commit-format`    |
-| `decision`    | Settled architectural choices with reasoning       | `bishop.decision.room-grid-api`     |
-| `lesson`     | Learned corrections (use `type: "lesson"`)          | `know-how.lesson.ad-hoc-memory-keys`|
+| Namespace | Purpose                              | Example                             |
+| --------- | ------------------------------------ | ----------------------------------- |
+| `project` | Project-scoped facts and decisions   | `project.bishop.room-grid-api`      |
 
 **Canonical project name:**
 
