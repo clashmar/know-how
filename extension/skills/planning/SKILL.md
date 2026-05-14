@@ -5,13 +5,14 @@ description: Always use this before creative work, feature design, or behavior c
 
 # Planning Ideas Into Designs
 
-Help turn rough ideas into an approved design and a written spec before implementation.
+Help turn ideas into an approved design and a written spec before implementation.
 
-<GATE>
+
+- 
+
 Do not invoke implementation skills, write code, scaffold projects, or make behavior changes until you have presented a design and the user has approved it.
-<GATE>
 
-⚠️ HARD GATE: MAX 3 concurrent subagents ⚠️ 
+
 
 ## Checklist
 
@@ -66,6 +67,12 @@ The terminal state is invoking `know-how:writing-plans`.
 
 ## The Process
 
+**If the user has not specified what they want to plan yet** 
+- Just ask them "What would you like to plan?" and wait for their response. 
+- Don't make any tool calls
+- Don't make a todo list yet
+- Just ask and wait for their answer. Then follow the process flow from there.
+
 **Understanding the idea:**
 
 - **Explore the current project state first using parallel `scout` agents.** Identify independent read domains (e.g., "the editor module," "the render pipeline," "test coverage") and dispatch one `scout` per domain. Each scout task MUST include: exact files to read, 2-4 specific questions to answer, a stop boundary ("stop after reading listed files"), and a conciseness directive ("bullet list under 500 words"). Use the `subagent` PARALLEL mode with `tasks` array and `concurrency`. See `./dispatching-parallel-agents/scout-prompt.md` for the full template. Never dispatch a scout without these four elements — unbounded scouts burn tokens without producing useful results. Gather all results before drawing conclusions or asking questions
@@ -73,6 +80,8 @@ The terminal state is invoking `know-how:writing-plans`.
 - Ask one question at a time
 - Use the `present_choice` tool for all questions and approval gates — never ask the user to type a response `present_choice` auto-adds `Something else...`; do not add a duplicate. `otherLabel` renames it, so keep it short
 - Focus on purpose, constraints, and success criteria
+
+⚠️ HARD GATE: MAX 3 concurrent subagents ⚠️
 
 **Exploring approaches:**
 

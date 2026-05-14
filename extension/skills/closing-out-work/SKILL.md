@@ -127,7 +127,7 @@ Do not skip back directly to next options after making changes.
 
 Once the user approves the work, you MUST execute steps 6 and 7 in parallel...
 
-### Step 8: Maester Optimization Synthesis
+### Step 8: Maester Optimization
 
 1. Dispatch EXACTLY ONE `maester` agent to perform process optimization and memory
    stewardship at close-out.
@@ -135,12 +135,12 @@ Once the user approves the work, you MUST execute steps 6 and 7 in parallel...
    Fill in all `<…>` placeholders from this session's context, then dispatch
    (see `./maester-prompt.md`).
 
-2. The maester produces a synthesized report:
+2. The maester produces a process optimization report:
    - De-duplicated optimization suggestions (same gap flagged in multiple
      tasks → one recommendation)
    - Stale-memory audit (contradictions, duplicates, superseded facts)
    - Cross-session auto-surfaces (gaps flagged 3+ times across sessions)
-3. Present the synthesis to the human as actionable decision points.
+3. Present the report to the human as actionable decision points.
 4. For each maester suggestion, call `present_choice` with title matching the suggestion summary and options: Apply / Edit / Skip.
    `present_choice` auto-adds `Something else...`; do not add a duplicate. `otherLabel` renames it, so keep it short.
 5. For approved suggestions:
@@ -284,7 +284,7 @@ Always:
 
 ## Prompt Templates
 
-- `./maester-prompt.md` — Dispatch maester for close-out optimisation synthesis
+- `./maester-prompt.md` — Dispatch maester for close-out optimization report
 
 ## Integration
 

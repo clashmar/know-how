@@ -376,5 +376,5 @@ Both execution styles must follow the declared autonomy mode and worktree strate
 **If Inline Execution chosen:**
 - **REQUIRED SUB-SKILL:** Use know-how:executing-plans
 - Execute inline while performing required spec-compliance, code-quality, and guardian review before each task is complete
-- Close-out task handles review, optimization synthesis, and integration
+- Close-out task handles review, optimization report, and integration
 ```
