@@ -17,7 +17,7 @@ When dispatching, the `task` text must contain exactly two things:
 1. **`OUTPUT PATH:`** followed by the target file path
 2. **A JSON payload** — between the first `{` and last `}`
 
-‼️ Don't read the full agent description, it contains a lot of specifics that will clutter your contex ‼️
+‼️ Don't read the full agent description, it contains a lot of specifics that will clutter your context ‼️
 
 ## Output Path Convention
 
@@ -36,31 +36,31 @@ override the default path — use the user's specified location if provided.
 The JSON payload has a `title` (string, used for `<title>`) and a `sections`
 array. Each entry in `sections` must have a `type` field from this catalog:
 
-| Type              | Purpose                                                   |
-| :---              | :---                                                      |
-| `hero`            | Title header with optional subtitle, timestamp, badges    |
-| `summary`         | Block of free-form markdown text                          |
-| `priority-table`  | Tiered table with row coloring by priority column         |
-| `findings-list`   | List of items with severity icons (critical/warning/info) |
-| `code-block`      | Syntax-highlighted code snippet                           |
-| `callout`         | Highlighted aside with colored left border                |
-| `two-column`      | Two side-by-side panels, each containing a nested section |
-| `metrics`         | Dashboard of key-value metric cards with trend arrows     |
+| Type                | Purpose                                                     |
+| :---                | :---                                                        |
+| `title`             | Document header with text, optional subtitle and date       |
+| `prose`             | Markdown content block — the workhorse                      |
+| `code-block`        | Syntax-highlighted code via highlight.js, optional caption  |
+| `callout`           | Colored left-border aside (info / warning / critical)       |
+| `decision-log`      | Table: Decision \| Rationale \| Alternatives considered     |
+| `comparison-table`  | Clean table with optional column highlighting               |
+| `diagram`           | Mermaid diagram (flowchart, sequence, class, state)         |
+| `testing-strategy`  | Approach badge + critical behaviors + manual checks         |
 
 ## Example payload
 
 ```json
 {
-  "title": "Feature Design — Example",
+  "title": "Example Spec — Deckbuilder v2",
   "sections": [
-    {"type": "hero", "title": "Feature Design", "subtitle": "Example Feature", "timestamp": "2026-05-13", "badges": ["v1", "draft"]},
-    {"type": "summary", "content": "Brief overview of what this feature builds and why."},
-    {"type": "priority-table", "headers": ["Tier", "Task", "Owner"], "rows": [["1", "Core API", "alice"], ["2", "UI polish", "bob"], ["3", "Docs update", "carol"]], "tierColumn": 0},
-    {"type": "findings-list", "items": [{"text": "**Critical:** auth token expires prematurely", "severity": "critical"}, {"text": "Button color inconsistent on *dark mode*", "severity": "warning"}, {"text": "Typo in onboarding copy", "severity": "info"}]},
-    {"type": "code-block", "language": "typescript", "content": "interface Config {\n  endpoint: string;\n  retries: number;\n}"},
-    {"type": "callout", "level": "warning", "content": "This feature requires the **v2 auth service** to be deployed first."},
-    {"type": "two-column", "left": {"type": "summary", "content": "**Current:** manual process takes 20 minutes per deploy."}, "right": {"type": "summary", "content": "**Proposed:** automated pipeline, under 2 minutes."}},
-    {"type": "metrics", "metrics": [{"label": "Tasks", "value": "8"}, {"label": "Est. days", "value": "5", "trend": "up"}, {"label": "Risk level", "value": "Medium"}, {"label": "Reviewers", "value": "2", "trend": "stable"}]}
+    {"type": "title", "text": "Example Feature Design", "subtitle": "A demonstration of all v2 components", "date": "2026-05-14"},
+    {"type": "prose", "content": "This spec demonstrates every component type available in deckbuilder v2. Use this as a reference when building your own spec payloads."},
+    {"type": "callout", "level": "info", "content": "Deckbuilder v2 uses **faithful Flexoki colors** and loads highlight.js for real syntax highlighting."},
+    {"type": "code-block", "language": "typescript", "content": "interface Config {\n  endpoint: string;\n  retries: number;\n}", "caption": "Core configuration interface"},
+    {"type": "decision-log", "decisions": [{"decision": "Use Flexoki CSS variables", "rationale": "Consistent color system, no hardcoded hex values in templates", "alternatives": "Tailwind tokens (heavier), raw hex everywhere (brittle)"}]},
+    {"type": "comparison-table", "headers": ["Approach", "Pros", "Cons"], "rows": [["Typography-first", "Clean, content breathes", "Depends on writer quality"], ["Component kit", "Guides good writing", "More to maintain"]]},
+    {"type": "diagram", "content": "graph TD\n  A[Controller] -->|JSON payload| B[Deckbuilder]\n  B -->|HTML file| C[Browser]\n  C -->|Review| D[User]", "caption": "Deckbuilder rendering pipeline"},
+    {"type": "testing-strategy", "approach": "manual", "critical_behaviors": ["All 8 components render correctly", "Flexoki colors match canonical palette"], "manual_checks": ["Open HTML in browser", "Verify syntax highlighting", "Check no fluff in page source"], "do_not_test": ["Exact pixel values", "Cross-browser rendering"]}
   ]
 }
 ```

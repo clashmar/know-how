@@ -45,32 +45,41 @@ body {
   color: var(--text);
   line-height: 1.6;
   padding: 2rem;
-  max-width: 960px;
+  max-width: 780px;
   margin: 0 auto;
 }
 
 :root {
   --bg: #100F0F;
-  --bg-card: #1C1B1A;
+  --bg-soft: #1C1B1A;
   --bg-elevated: #282726;
   --border: #403E3C;
   --border-muted: #343331;
   --text: #CECDC3;
   --text-muted: #878580;
   --text-dim: #575653;
-  --error: #D14D41;
-  --warning: #DA702C;
-  --heading: #D0A215;
-  --success: #879A39;
-  --accent: #3AA99F;
-  --info: #4385BE;
-  --highlight: #8B7EC8;
-  --emphasis: #CE5D97;
-  --callout-bg: #26261A;
+  --heading: #E6E4D9;
+  /* Semantic colors — dark and light variants */
+  --red: #AF3029;
+  --red-light: #D14D41;
+  --orange: #BC5215;
+  --orange-light: #DA702C;
+  --yellow: #AD8301;
+  --yellow-light: #D0A215;
+  --green: #66800B;
+  --green-light: #879A39;
+  --cyan: #24837B;
+  --cyan-light: #3AA99F;
+  --blue: #205EA6;
+  --blue-light: #4385BE;
+  --purple: #5E409D;
+  --purple-light: #8B7EC8;
+  --magenta: #A02F6F;
+  --magenta-light: #CE5D97;
 }
 
-a { color: var(--accent); }
-a:visited { color: var(--highlight); }
+a { color: var(--cyan-light); }
+a:visited { color: var(--purple-light); }
 
 h1, h2, h3, h4 { color: var(--heading); margin-bottom: 0.5rem; }
 h1 { font-size: 2rem; }
@@ -86,7 +95,7 @@ code {
   padding: 0.15em 0.4em;
   border-radius: 4px;
   font-size: 0.9em;
-  color: var(--accent);
+  color: var(--cyan-light);
 }
 
 pre {
@@ -97,10 +106,40 @@ pre {
   overflow-x: auto;
   margin-bottom: 1.5rem;
 }
-pre code {
+pre > code, pre code.hljs {
   background: none;
   padding: 0;
   color: var(--text);
+}
+
+.code-block-header {
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  padding: 0.4rem 1rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.code-lang {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.code-caption {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+  font-style: italic;
+}
+.code-block pre {
+  margin-top: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
 
 table {
@@ -118,18 +157,6 @@ th {
   font-weight: 600;
   border-bottom: 2px solid var(--border);
 }
-tr.tier-error td:first-child {
-  color: var(--error);
-  font-weight: 700;
-}
-tr.tier-warning td:first-child {
-  color: var(--warning);
-  font-weight: 700;
-}
-tr.tier-success td:first-child {
-  color: var(--success);
-  font-weight: 700;
-}
 
 ul { margin-bottom: 1rem; padding-left: 1.5rem; }
 li { margin-bottom: 0.3rem; }
@@ -143,19 +170,10 @@ li { margin-bottom: 0.3rem; }
 .hero h1 { border-bottom: none; margin-bottom: 0.25rem; }
 .hero .subtitle { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 0.5rem; }
 .hero time { color: var(--text-dim); font-size: 0.85rem; display: block; margin-bottom: 0.75rem; }
-.hero .badges { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-.hero .badge {
-  background: var(--highlight);
-  color: var(--bg);
-  padding: 0.15em 0.6em;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  font-weight: 600;
-}
 
-/* summary */
-.summary {
-  background: var(--bg-card);
+/* prose */
+.prose {
+  background: var(--bg-soft);
   border: 1px solid var(--border-muted);
   border-radius: 6px;
   padding: 1.25rem;
@@ -165,71 +183,57 @@ li { margin-bottom: 0.3rem; }
 /* callout */
 .callout {
   border-left: 4px solid var(--border);
-  background: var(--callout-bg);
+  background: var(--bg-elevated);
   border-radius: 0 6px 6px 0;
   padding: 1rem 1.25rem;
   margin-bottom: 1.5rem;
 }
 .callout strong { margin-right: 0.5rem; }
-.callout-critical { border-left-color: var(--error); }
-.callout-warning  { border-left-color: var(--warning); }
-.callout-info     { border-left-color: var(--info); }
+.callout-critical { border-left-color: var(--red-light); }
+.callout-warning  { border-left-color: var(--orange-light); }
+.callout-info     { border-left-color: var(--blue-light); }
 
-/* findings-list */
-.findings-list li { list-style: none; margin-bottom: 0.5rem; }
-.findings-list .icon { margin-right: 0.5rem; }
-.severity-critical .icon { color: var(--error); }
-.severity-warning .icon { color: var(--warning); }
-.severity-info .icon { color: var(--info); }
+/* decision-log */
+.decision-log { margin-bottom: 1.5rem; }
+.decision-log th { color: var(--heading); }
+.decision-log td:first-child { font-weight: 600; color: var(--cyan-light); }
 
-/* two-column */
-.two-column {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-.two-column .col {
-  background: var(--bg-card);
+/* comparison-table */
+.comparison-table { margin-bottom: 1.5rem; }
+.comparison-table th:first-child { color: var(--heading); font-weight: 600; }
+.comparison-table .highlight-col { background: var(--bg-soft); }
+
+/* diagram */
+.diagram { margin-bottom: 1.5rem; }
+.diagram .mermaid {
+  background: var(--bg-soft);
   border: 1px solid var(--border-muted);
   border-radius: 6px;
-  padding: 1rem;
-}
-
-/* metrics */
-.metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-.metric {
-  background: var(--bg-card);
-  border: 1px solid var(--border-muted);
-  border-radius: 6px;
-  padding: 1rem;
+  padding: 1.5rem;
   text-align: center;
 }
-.metric-value {
-  display: block;
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--emphasis);
-  line-height: 1.2;
-}
-.metric-label {
-  display: block;
-  font-size: 0.8rem;
+.diagram-caption {
   color: var(--text-muted);
-  margin-top: 0.25rem;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  font-style: italic;
 }
-.trend { font-size: 0.85rem; margin-left: 0.25rem; }
-.trend-up   { color: var(--success); }
-.trend-down { color: var(--error); }
-.trend-stable { color: var(--text-muted); }
+/* testing-strategy */
+.testing-strategy { margin-bottom: 1.5rem; }
+.testing-strategy .strategy-badge {
+  display: inline-block;
+  padding: 0.2em 0.8em;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+.strategy-badge.tdd { background: var(--green); color: var(--bg); }
+.strategy-badge.manual { background: var(--blue); color: var(--bg); }
+.strategy-list { margin-bottom: 0.5rem; }
+.strategy-list li { margin-bottom: 0.3rem; }
+.strategy-list .empty { color: var(--text-muted); font-style: italic; }
 
-/* priority-table section */
-.priority-table { margin-bottom: 1.5rem; }
 ```
 
 ## HTML Shell
@@ -247,6 +251,11 @@ Every file starts with this shell. Replace `{{TITLE}}`, `{{CSS}}`, and
 <style>
 {{CSS}}
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" crossorigin="anonymous"></script>
+<script>document.addEventListener('DOMContentLoaded', () => { document.querySelectorAll('pre code').forEach(block => hljs.highlightElement(block)); });</script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js" crossorigin="anonymous"></script>
+<script>mermaid.initialize({ startOnLoad: true, theme: 'dark', themeVariables: { darkMode: true, background: '#1C1B1A', primaryColor: '#3AA99F', primaryTextColor: '#CECDC3', lineColor: '#403E3C' } });</script>
 </head>
 <body>
 {{BODY}}
@@ -257,91 +266,58 @@ Every file starts with this shell. Replace `{{TITLE}}`, `{{CSS}}`, and
 ## Section Type Catalog
 
 Parse `sections` from the JSON payload. For each entry, use the template
-for its `type`. If a type is unknown, render an error card:
+for its `type`. If a type is unknown, render an error callout.
 
-```html
-<div class="callout callout-critical">
-  <strong>⚠</strong> Unknown section type: <code>{type}</code>
-</div>
-```
+| Type | Purpose |
+|------|---------|
+| `title` | Document header with text, optional subtitle and date |
+| `prose` | Markdown content block — the workhorse |
+| `code-block` | Syntax-highlighted code via highlight.js |
+| `callout` | Colored left-border aside (info / warning / critical) |
+| `decision-log` | Architectural decisions table (decision / rationale / alternatives) |
+| `comparison-table` | Trade-off or before/after table with optional column highlight |
+| `diagram` | Mermaid diagram (flowchart, sequence, class, state) |
+| `testing-strategy` | Testing approach badge + critical behaviors + manual checks + exclusions |
 
-### Section type: `hero`
+There are 8 section types. Render each with its template below.
 
-**Fields:** `title` (required), `subtitle` (optional), `timestamp` (optional),
-`badges` (optional array of strings)
+### Section type: `title`
+
+**Fields:** `text` (required, string), `subtitle` (optional, string),
+`date` (optional, ISO date string)
 
 ```html
 <header class="hero">
-  <h1>{title}</h1>
-  {subtitle && `<p class="subtitle">${subtitle}</p>`}
-  {timestamp && `<time>${timestamp}</time>`}
-  {badges && badges.length > 0 && `
-    <div class="badges">
-      ${badges.map(b => `<span class="badge">${escapeHtml(b)}</span>`).join('')}
-    </div>
-  `}
+  <h1>{escapeHtml(text)}</h1>
+  {subtitle && `<p class="subtitle">${escapeHtml(subtitle)}</p>`}
+  {date && `<time>${escapeHtml(date)}</time>`}
 </header>
 ```
 
-### Section type: `summary`
+### Section type: `prose`
 
 **Fields:** `content` (required, markdown string)
 
+The workhorse component. Renders markdown with full Flexoki typography.
+
 ```html
-<section class="summary">
+<section class="prose">
   ${renderMarkdown(content)}
-</section>
-```
-
-### Section type: `priority-table`
-
-**Fields:** `headers` (required, array of strings), `rows` (required, array of
-string arrays)
-
-The priority table always styles column 0 (the first column) with tier classes.
-
-```html
-<section class="priority-table">
-  <table>
-    <thead>
-      <tr>${headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr>
-    </thead>
-    <tbody>
-      ${rows.map(row => {
-        const tier = row[0] || '3';
-        const cls = tier === '1' ? 'tier-error' : tier === '2' ? 'tier-warning' : 'tier-success';
-        return `<tr class="${cls}">${row.map(cell => `<td>${renderInlineMarkdown(String(cell))}</td>`).join('')}</tr>`;
-      }).join('')}
-    </tbody>
-  </table>
-</section>
-```
-
-### Section type: `findings-list`
-
-**Fields:** `items` (required, array of `{text: string, severity: string}`)
-`severity` must be one of: `info`, `warning`, `critical`
-
-```html
-<section class="findings-list">
-  <ul>
-    ${items.map(item => {
-      const icon = item.severity === 'critical' ? '✕' : item.severity === 'warning' ? '▲' : 'ℹ';
-      return `<li class="severity-${item.severity}">
-        <span class="icon">${icon}</span>${renderInlineMarkdown(item.text)}
-      </li>`;
-    }).join('')}
-  </ul>
 </section>
 ```
 
 ### Section type: `code-block`
 
-**Fields:** `language` (required, string), `content` (required, string)
+**Fields:** `language` (required, string), `content` (required, string),
+`caption` (optional, string)
 
 ```html
 <section class="code-block">
+  <div class="code-block-header">
+    <span class="code-lang">${escapeHtml(language)}</span>
+  </div>
   <pre><code class="language-${language}">${escapeHtml(content)}</code></pre>
+  {caption && `<p class="code-caption">${escapeHtml(caption)}</p>`}
 </section>
 ```
 
@@ -357,34 +333,112 @@ The priority table always styles column 0 (the first column) with tier classes.
 </aside>
 ```
 
-### Section type: `two-column`
+### Section type: `decision-log`
 
-**Fields:** `left` (required, section object), `right` (required, section object).
-Each is a nested section with its own `type` and fields.
+**Fields:** `decisions` (required, array of `{decision: string, rationale: string, alternatives: string}`)
+
+Renders architectural decisions with rationale and alternatives considered.
 
 ```html
-<section class="two-column">
-  <div class="col">${renderSection(left)}</div>
-  <div class="col">${renderSection(right)}</div>
+<section class="decision-log">
+  <table>
+    <thead>
+      <tr><th>Decision</th><th>Rationale</th><th>Alternatives considered</th></tr>
+    </thead>
+    <tbody>
+      ${decisions.map(d => `
+        <tr>
+          <td>${renderInlineMarkdown(d.decision)}</td>
+          <td>${renderInlineMarkdown(d.rationale)}</td>
+          <td>${renderInlineMarkdown(d.alternatives)}</td>
+        </tr>
+      `).join('')}
+      ${decisions.length === 0 ? '<tr><td colspan="3" style="color: var(--text-muted); font-style: italic;">No decisions recorded.</td></tr>' : ''}
+    </tbody>
+  </table>
 </section>
 ```
 
-### Section type: `metrics`
+### Section type: `comparison-table`
 
-**Fields:** `metrics` (required, array of `{label: string, value: string,
-trend?: 'up' | 'down' | 'stable'}`)
+**Fields:** `headers` (required, string array), `rows` (required, string[][] array),
+`highlight_column` (optional, 0-based number)
+
+Clean table for trade-offs, before/after, approach comparisons. Optional column
+highlighting via `highlight_column`.
 
 ```html
-<section class="metrics">
-  <div class="metrics-grid">
-    ${metrics.map(m => {
-      const arrow = m.trend === 'up' ? '↑' : m.trend === 'down' ? '↓' : m.trend === 'stable' ? '→' : '';
-      return `<div class="metric">
-        <span class="metric-value">${escapeHtml(m.value)}${arrow ? `<span class="trend trend-${m.trend}">${arrow}</span>` : ''}</span>
-        <span class="metric-label">${escapeHtml(m.label)}</span>
-      </div>`;
-    }).join('')}
+<section class="comparison-table">
+  <table>
+    <thead>
+      <tr>${headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr>
+    </thead>
+    <tbody>
+      ${rows.map(row => `
+        <tr>
+          ${row.map((cell, i) => {
+            const cls = (highlight_column != null && i === highlight_column) ? ' class="highlight-col"' : '';
+            return `<td${cls}>${renderInlineMarkdown(String(cell))}</td>`;
+          }).join('')}
+        </tr>
+      `).join('')}
+      ${rows.length === 0 ? `<tr><td colspan="${headers.length}" style="color: var(--text-muted); font-style: italic;">No data.</td></tr>` : ''}
+    </tbody>
+  </table>
+</section>
+```
+
+### Section type: `diagram`
+
+**Fields:** `content` (required, mermaid syntax string), `caption` (optional, string)
+
+Renders a Mermaid diagram. Mermaid is loaded from CDN.
+
+```html
+<section class="diagram">
+  <div class="mermaid">
+${content}
   </div>
+  {caption && `<p class="diagram-caption">${escapeHtml(caption)}</p>`}
+</section>
+```
+
+### Section type: `testing-strategy`
+
+**Fields:** `approach` (required: `tdd` or `manual`),
+`critical_behaviors` (optional, string array),
+`manual_checks` (optional, string array),
+`do_not_test` (optional, string array)
+
+Captures the testing approach decision from the planning flow step 5.
+The `approach` field drives a colored badge; each list renders with empty-state
+handling.
+
+```html
+<section class="testing-strategy">
+  <h2>Testing Strategy</h2>
+  <span class="strategy-badge ${approach}">${approach === 'tdd' ? 'TDD Required' : 'Manual Only'}</span>
+
+  <h3>Critical behaviors</h3>
+  <ul class="strategy-list">
+    ${critical_behaviors && critical_behaviors.length > 0
+      ? critical_behaviors.map(b => `<li>${escapeHtml(b)}</li>`).join('')
+      : '<li class="empty">None specified.</li>'}
+  </ul>
+
+  <h3>Manual checks</h3>
+  <ul class="strategy-list">
+    ${manual_checks && manual_checks.length > 0
+      ? manual_checks.map(c => `<li>${escapeHtml(c)}</li>`).join('')
+      : '<li class="empty">None specified.</li>'}
+  </ul>
+
+  <h3>Do not test</h3>
+  <ul class="strategy-list">
+    ${do_not_test && do_not_test.length > 0
+      ? do_not_test.map(x => `<li>${escapeHtml(x)}</li>`).join('')
+      : '<li class="empty">Nothing explicitly excluded.</li>'}
+  </ul>
 </section>
 ```
 
@@ -406,7 +460,7 @@ Apply escapeHtml first to the raw string, then apply these transforms.
 Do NOT render block-level markdown like headings or code fences.
 
 **renderMarkdown(str):**
-For block-level content (summary, callout content):
+For block-level content (prose, callout content):
 Apply escapeHtml first to the raw string, then:
 
 - Blank lines split paragraphs → wrap each in `<p>`
@@ -417,9 +471,10 @@ Apply escapeHtml first to the raw string, then:
 - `- item` at line start → `<li>item</li>` (group consecutive into `<ul>`)
 
 **renderSection(section):**
-Switch on `section.type` to pick the template. Apply the template with
-the section's fields. For `two-column`, recursively call `renderSection`
-on `left` and `right`.
+Switch on `section.type` to pick the template from the catalog.
+Apply the template with the section's fields. There are 8 types:
+title, prose, code-block, callout, decision-log, comparison-table,
+diagram, testing-strategy.
 
 ## Output Convention
 
