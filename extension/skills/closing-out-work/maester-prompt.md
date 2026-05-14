@@ -18,9 +18,9 @@ subagent({
 - <task 1 summary>
 - <task 2 summary>
 
-**Per-task review outputs:**
+**Per-task review outputs (or "no per-task reviews — ad-hoc session" if no formal reviewers were dispatched):**
 <paste full output from any reviewer / guardian subagents dispatched during
-this work, or "no per-task reviews conducted">
+this work, or "no per-task reviews — ad-hoc session">
 
 **User corrections and steering received this session:**
 <list each correction or redirect the user gave, or "none">

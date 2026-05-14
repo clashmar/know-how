@@ -31,6 +31,7 @@ The plan MUST explicitly state:
 - whether TDD is required or manual only
 - which behaviors need automated coverage
 - which changes should be verified manually
+- whether execution style is `Subagent-Driven` or `Inline Execution`
 - whether execution is `Fully autonomous` or `Checkpointed`
 - whether to work in a `Worktree` or `Direct` on the current branch
 
@@ -171,9 +172,9 @@ The worktree, when chosen, is always created from the current branch — not fro
 
 The worktree directory is named the same as the branch for simplicity (e.g. `<project-name>-auth-refactor` → worktree at `../<project-name>-auth-refactor`). Prepend the project name (derived from the git root directory name) so worktrees identify their repo at a glance. Only one name to remember.
 
-## Execution Autonomy
+## Execution Options
 
-Every plan MUST declare the execution autonomy and worktree strategy that will be used during implementation. These decisions are made after the plan is written, just before execution handoff.
+Every plan MUST declare the execution style, execution autonomy, and worktree strategy that will be used during implementation. These decisions are made after the plan is written, just before the final plan is saved and handed off for execution.
 
 ## Plan Document Header
 
@@ -189,6 +190,8 @@ Every plan MUST declare the execution autonomy and worktree strategy that will b
 **Architecture:** [2-3 sentences about approach]
 
 **Tech Stack:** [Key technologies/libraries]
+
+**Execution Style:** Subagent-Driven | Inline Execution
 
 **Execution Autonomy:** Fully autonomous | Checkpointed
 
@@ -352,7 +355,7 @@ Fix minor consistency and placeholder issues inline. If you change scope or task
 
 ## Execution Handoff
 
-After saving the plan, present the execution configuration using the `present_decisions` tool:
+After writing the plan and completing self-review, present the execution configuration using the `present_decisions` tool.
 
 Call `present_decisions` with title "Plan Configuration" and three decisions:
 
@@ -362,7 +365,7 @@ Call `present_decisions` with title "Plan Configuration" and three decisions:
 
 `present_decisions` auto-adds `Something else...` for each decision; do not add duplicates. `otherLabel` renames it, so keep it short.
 
-Read the returned map and record the `Execution Autonomy:` and `Worktree Strategy:` fields in the plan header.
+Read the returned map, record the `Execution Style:`, `Execution Autonomy:`, and `Worktree Strategy:` fields in the plan header, then save the final plan.
 
 Both execution styles must follow the declared autonomy mode and worktree strategy exactly.
 

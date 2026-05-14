@@ -43,6 +43,11 @@ Run `/reflect` or ask the user if they want you to reflect when:
 5. **When closing-out-work tells you to** — the close-out skill includes a
    mandatory reflection step
 
+**Reflect if:**
+
+- meaningful project files were created or modified
+- the work leaves a non-obvious decision trail future sessions will need
+
 Do NOT reflect for trivial sessions: no file changes, no decisions made, no
 corrections received (e.g., a quick Q&A or read-only exploration).
 

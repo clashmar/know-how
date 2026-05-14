@@ -68,11 +68,10 @@ The terminal state is invoking `know-how:writing-plans`.
 
 **Understanding the idea:**
 
-- **Explore the current project state first using parallel `scout` agents.** Identify independent read domains (e.g., "the editor module," "the render pipeline," "test coverage") and dispatch one `scout` per domain. Each scout task MUST include: exact files to read, 2-4 specific questions to answer, a stop boundary ("stop after reading listed files"), and a conciseness directive ("bullet list under 500 words"). Use the `subagent` PARALLEL mode with `tasks` array and `concurrency`. See `./dispatching-parallel-agents/scout-prompt.md` for the full template. Never dispatch a scout without these four elements — unbounded scouts burn tokens without producing useful results. Gather all results before drawing conclusions or asking questions.
+- **Explore the current project state first using parallel `scout` agents.** Identify independent read domains (e.g., "the editor module," "the render pipeline," "test coverage") and dispatch one `scout` per domain. Each scout task MUST include: exact files to read, 2-4 specific questions to answer, a stop boundary ("stop after reading listed files"), and a conciseness directive ("bullet list under 500 words"). Use the `subagent` PARALLEL mode with `tasks` array and `concurrency`. See `./dispatching-parallel-agents/scout-prompt.md` for the full template. Never dispatch a scout without these four elements — unbounded scouts burn tokens without producing useful results. Gather all results before drawing conclusions or asking questions
 - If the request covers multiple independent subsystems, decompose it before refining details
 - Ask one question at a time
-- Use the `present_choice` tool for all questions and approval gates — never ask the user to type a response
-- `present_choice` auto-adds `Something else...`; do not add a duplicate. `otherLabel` renames it, so keep it short
+- Use the `present_choice` tool for all questions and approval gates — never ask the user to type a response `present_choice` auto-adds `Something else...`; do not add a duplicate. `otherLabel` renames it, so keep it short
 - Focus on purpose, constraints, and success criteria
 
 **Exploring approaches:**
