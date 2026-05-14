@@ -1,0 +1,31 @@
+extension/skills/using-know-how/SKILL.md
+  s_a9af54134733d0::t_59e3e3f1402c5e 44-45,55,57-59,88
+extension/skills/writing-plans/SKILL.md
+  s_a9af54134733d0::t_092a506d4b5891 114
+extension/skills/subagent-driven-development/SKILL.md
+  s_a9af54134733d0::t_4fa55b38c157bd 62,65,67,69
+extension/session-start.ts
+  s_a9af54134733d0::t_00010b119264ec 43
+extension/index.ts
+  s_a9af54134733d0::t_c522be142a431d 272-274,422,424,539-561
+extension/skills/session-reflection/SKILL.md
+  s_a9af54134733d0::t_5936e182fa3aa9 203,205,207
+extension/skills/executing-plans/SKILL.md
+  ai_agent 25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "e88f86a291584d6a522bf78bcc388f48361a7734",
+  "prompts": {},
+  "sessions": {
+    "s_a9af54134733d0": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e25b8-2aef-777e-a558-d043f48226b8",
+        "model": "gpt-5.3-codex"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
