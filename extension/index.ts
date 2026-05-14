@@ -269,9 +269,9 @@ ${content}
 // ---------------------------------------------------------------------------
 
 const SKILL_ROUTES: Record<string, { label: string; skill: string }> = {
-	brainstorm: {
-		label: "brainstorm — Turn a rough idea into an approved design",
-		skill: "brainstorming",
+	plan: {
+		label: "plan — Turn a rough idea into an approved design",
+		skill: "planning",
 	},
 	"write-plan": {
 		label: "write-plan — Create an implementation plan from a spec",
@@ -419,9 +419,9 @@ export default function (pi: ExtensionAPI) {
 	// Register /know-how command with workflow menu
 	pi.registerCommand("know-how", {
 		description:
-			"Know-how workflow picker — brainstorm, plan, execute, debug, review, close-out",
+			"Know-how workflow picker — plan, write-plan, execute-plan, debug, code-review, close-out",
 		handler: async (args, ctx) => {
-			// Direct routing: /know-how brainstorm
+			// Direct routing: /know-how plan
 			if (args) {
 				const key = args.trim().toLowerCase();
 
@@ -533,6 +533,32 @@ Execute its procedure now.`;
 					break;
 				}
 			}
+		},
+	});
+
+	// Register /plan command
+	pi.registerCommand("plan", {
+		description: "Run the planning workflow skill",
+		handler: async (_args, ctx) => {
+			const route = SKILL_ROUTES["plan"];
+			const skillContent = loadSkillContent(route.skill);
+			if (!skillContent) {
+				ctx.ui.notify("planning skill not found", "error");
+				return;
+			}
+			const bootstrap = getBootstrapContent();
+			const directive = `--- COMMAND: /plan executed ---
+Please follow the ${route.skill} skill below. This is not background context.
+Execute its procedure now.`;
+			pi.sendMessage(
+				{
+					customType: "know-how-skill-load",
+					content: `${bootstrap ?? ""}\n\n${directive}\n\n<LOADED_SKILL name="${route.skill}">\n${skillContent}\n</LOADED_SKILL>`,
+					display: false,
+				},
+				{ deliverAs: "steer", triggerTurn: true },
+			);
+			ctx.ui.notify("Loaded know-how:plan", "info");
 		},
 	});
 

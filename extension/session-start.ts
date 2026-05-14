@@ -40,7 +40,7 @@ applies globally, not per-skill.
 **NEVER** write agent-oriented files into a project repo unless explicitly
 asked. This includes specs, plans, design documents, progress files, context
 files, scratch pads, agentic instructions (AGENTS.md, skills, workflows,
-prompts), brainstorming outputs, review artifacts, and meta-documentation.
+prompts), planning outputs, review artifacts, and meta-documentation.
 
 These are personal workflow artifacts — committing them forces your preferences
 on every contributor and clutters the repo for people with different tools.

@@ -1,9 +1,9 @@
 ---
-name: brainstorming
+name: planning
 description: Always use this before creative work, feature design, or behavior changes to turn rough ideas into an approved design before implementation starts.
 ---
 
-# Brainstorming Ideas Into Designs
+# Planning Ideas Into Designs
 
 Help turn rough ideas into an approved design and a written spec before implementation.
 
@@ -36,7 +36,7 @@ Create a task for each of these items and complete them in order:
 ## Process Flow
 
 ```dot
-digraph brainstorming {
+digraph planning {
     "Explore project context\n(parallel scouts)" [shape=box];
     "Ask clarifying questions" [shape=box];
     "Propose 2-3 approaches" [shape=box];

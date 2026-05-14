@@ -22,7 +22,7 @@ todo rules:
 
 1. Create exactly one todo item per plan task.
 2. Use the exact `Task N: ...` heading text from the plan as the todo content.
-3. Replace any earlier planning or brainstorming checklist items when execution begins.
+3. Replace any earlier planning checklist items when execution begins.
 4. Keep exactly one task `in_progress` at a time.
 5. Do not create extra todo items for verification, review gates, or manual checks.
 6. Keep the current task `in_progress` until implementation, required verification, spec-compliance review, code-quality review, and guardian review all succeed.

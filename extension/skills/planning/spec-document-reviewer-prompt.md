@@ -4,9 +4,9 @@ Use this template when dispatching a spec document reviewer subagent.
 
 **Purpose:** Verify the spec is complete, consistent, and ready for implementation planning.
 
-**Dispatch after:** Spec document is written to the resolved spec path; `~/.know-how/<project-name>/specs/. Create this if it doesn't exist already
+**Dispatch after:** Spec document is written to the resolved spec path; `~/.know-how/`project-name`/specs/. Create this if it doesn't exist already
 
-```
+```md
 Subagent dispatch — spec doc reviewer:
   task: "Review spec document"
   system_prompt: |

@@ -200,11 +200,11 @@ The closing-out-work skill now includes a reflection step (Step 5). When you
 reach that step, produce a reflection covering everything from this work unit:
 decisions made, corrections received, recurring patterns, remaining work.
 
-### brainstorming
+### planning
 
-Decisions made during brainstorming (architecture choices, approved directions)
+Decisions made during planning (architecture choices, approved directions)
 should become reflection entries after the work is implemented — not during
-brainstorming itself.
+planning itself.
 
 ### systematic-debugging
 

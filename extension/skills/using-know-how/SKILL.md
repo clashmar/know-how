@@ -41,8 +41,8 @@ Do not re-read a skill that is already loaded in context.
 digraph skill_flow {
     "User message received" [shape=doublecircle];
     "About to enter planning flow?" [shape=diamond];
-    "Already brainstormed?" [shape=diamond];
-    "Invoke brainstorming skill" [shape=box];
+    "Already planned?" [shape=diamond];
+    "Invoke planning skill" [shape=box];
     "Might any skill apply?" [shape=diamond];
     "Load skill" [shape=box];
     "Announce skill use" [shape=box];
@@ -52,11 +52,11 @@ digraph skill_flow {
     "Respond or act" [shape=doublecircle];
 
     "User message received" -> "About to enter planning flow?";
-    "About to enter planning flow?" -> "Already brainstormed?" [label="yes"];
+    "About to enter planning flow?" -> "Already planned?" [label="yes"];
     "About to enter planning flow?" -> "Might any skill apply?" [label="no"];
-    "Already brainstormed?" -> "Invoke brainstorming skill" [label="no"];
-    "Already brainstormed?" -> "Might any skill apply?" [label="yes"];
-    "Invoke brainstorming skill" -> "Might any skill apply?";
+    "Already planned?" -> "Invoke planning skill" [label="no"];
+    "Already planned?" -> "Might any skill apply?" [label="yes"];
+    "Invoke planning skill" -> "Might any skill apply?";
     "Might any skill apply?" -> "Load skill" [label="yes, even 1%"];
     "Might any skill apply?" -> "Respond or act" [label="definitely not"];
     "Load skill" -> "Announce skill use";
@@ -85,7 +85,7 @@ These thoughts mean stop and check for skills first:
 
 When multiple skills could apply, use this order:
 
-1. **Process skills first**: brainstorming, debugging, planning
+1. **Process skills first**: planning, debugging, writing-plans
 2. **Execution skills second**: implementation or review workflows
 3. **Reference skills last**: supporting techniques and examples
 
