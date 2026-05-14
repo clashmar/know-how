@@ -173,17 +173,7 @@ The worktree directory is named the same as the branch for simplicity (e.g. `<pr
 
 ## Execution Autonomy
 
-As the final part of the planning process, let the user choose the `Execution Autonomy`, `Worktree Strategy`, and `Execution Style` using the `present_decisions` tool:
-
-Call `present_decisions` with title "Plan Configuration" and three decisions:
-
-1. **Execution Style** — options: Subagent-Driven (fresh subagent per task), Inline Execution (executing-plans)
-2. **Worktree Strategy** — options: Worktree (isolated worktree), Direct (current branch)
-3. **Autonomy** — options: Fully autonomous (continuous task-to-task), Checkpointed (pause after each task)
-
-`present_decisions` auto-adds `Something else...` for each decision; do not add duplicates. `otherLabel` renames it, so keep it short.
-
-Read the returned map and record the `Execution Autonomy:` and `Worktree Strategy:` fields in the plan header.
+Every plan MUST declare the execution autonomy and worktree strategy that will be used during implementation. These decisions are made after the plan is written, just before execution handoff.
 
 ## Plan Document Header
 
@@ -362,16 +352,19 @@ Fix minor consistency and placeholder issues inline. If you change scope or task
 
 ## Execution Handoff
 
-After saving the plan, present the execution style choice using the `present_choice` tool:
+After saving the plan, present the execution configuration using the `present_decisions` tool:
 
-`present_choice` auto-adds `Something else...`; do not add a duplicate. `otherLabel` renames it, so keep it short.
+Call `present_decisions` with title "Plan Configuration" and three decisions:
 
-- **title:** "How should I execute this plan?"
-- **options:**
-  - Subagent-Driven — "Dispatch a fresh subagent per task, with dedicated spec and code-quality review"
-  - Inline Execution — "Execute the plan directly using executing-plans, with review before each task is complete"
+1. **Execution Style** — options: Subagent-Driven (fresh subagent per task), Inline Execution (executing-plans)
+2. **Worktree Strategy** — options: Worktree (isolated worktree), Direct (current branch)
+3. **Autonomy** — options: Fully autonomous (continuous task-to-task), Checkpointed (pause after each task)
 
-Both styles must follow the declared autonomy mode and worktree strategy exactly.
+`present_decisions` auto-adds `Something else...` for each decision; do not add duplicates. `otherLabel` renames it, so keep it short.
+
+Read the returned map and record the `Execution Autonomy:` and `Worktree Strategy:` fields in the plan header.
+
+Both execution styles must follow the declared autonomy mode and worktree strategy exactly.
 
 **If Subagent-Driven chosen:**
 - **REQUIRED SUB-SKILL:** Use know-how:subagent-driven-development

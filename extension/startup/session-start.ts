@@ -5,8 +5,12 @@
  * MAX 3 subagents) into every pi session on start.
  */
 
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent"; 
+import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 // @mariozechner/pi-coding-agent is deprecated upstream; will migrate when @samfp/pi-memory updates
+import {
+	CUSTOM_MESSAGE_ENTRY_TYPE,
+	KNOW_HOW_CONVENTIONS_MESSAGE_TYPE,
+} from "./startup-types";
 
 const SESSION_START_CONTENT = `<WORKFLOW_CONVENTIONS>
 ## Parallel Exploration (MANDATORY — never explore sequentially)
@@ -55,8 +59,6 @@ on every contributor and clutters the repo for people with different tools.
   response text, not by writing summary files into the repo.
 </WORKFLOW_CONVENTIONS>`;
 
-const CONTENT_TYPE = "know-how-conventions";
-
 /**
  * Registers a before_agent_start hook that injects workflow rules at the
  * start of every session. Skips subagent sessions (parent already has them)
@@ -70,13 +72,15 @@ export function beforeAgentStart(pi: ExtensionAPI): void {
 
 		const entries = ctx.sessionManager.getEntries();
 		const alreadyInjected = entries.some(
-			(e) => e.type === "custom" && e.customType === CONTENT_TYPE,
+			(e) =>
+				e.type === CUSTOM_MESSAGE_ENTRY_TYPE &&
+				e.customType === KNOW_HOW_CONVENTIONS_MESSAGE_TYPE,
 		);
 		if (alreadyInjected) return;
 
 		return {
 			message: {
-				customType: CONTENT_TYPE,
+				customType: KNOW_HOW_CONVENTIONS_MESSAGE_TYPE,
 				content: SESSION_START_CONTENT,
 				display: false,
 			},

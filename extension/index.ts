@@ -6,12 +6,19 @@
  * skills directory for pi discovery.
  */
 
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent"; 
+import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 // @mariozechner/pi-coding-agent is deprecated upstream; will migrate when @samfp/pi-memory updates
 import type { MemoryStore, SemanticEntry } from "@samfp/pi-memory/store";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import {
+	CUSTOM_MESSAGE_ENTRY_TYPE,
+	getProjectSkillMessageType,
+	KNOW_HOW_BOOTSTRAP_MESSAGE_TYPE,
+	KNOW_HOW_CATCH_UP_MESSAGE_TYPE,
+	KNOW_HOW_SKILL_LOAD_MESSAGE_TYPE,
+} from "./startup/startup-types";
 import dispatchExtension from "./subagents/dispatch";
 import {
 	extractAndStripFrontmatter,
@@ -19,9 +26,9 @@ import {
 	getProjectName,
 	loadProjectSkill,
 	PROJECT_SKILLS_DIR,
-} from "./skill-discovery";
+} from "./startup/skill-discovery";
 import { registerReadMode } from "./read-mode";
-import { beforeAgentStart } from "./session-start";
+import { beforeAgentStart } from "./startup/session-start";
 import { registerPresentChoice } from "./tools/present-choice";
 import { registerPresentDecisions } from "./tools/present-decisions";
 
@@ -339,13 +346,15 @@ export default function (pi: ExtensionAPI) {
 		// Prevent double-injection within the same session
 		const entries = ctx.sessionManager.getEntries();
 		const alreadyInjected = entries.some(
-			(e) => e.type === "custom" && e.customType === "know-how-bootstrap",
+			(e) =>
+				e.type === CUSTOM_MESSAGE_ENTRY_TYPE &&
+				e.customType === KNOW_HOW_BOOTSTRAP_MESSAGE_TYPE,
 		);
 		if (alreadyInjected) return;
 
 		return {
 			message: {
-				customType: "know-how-bootstrap",
+				customType: KNOW_HOW_BOOTSTRAP_MESSAGE_TYPE,
 				content: bootstrap,
 				display: false,
 			},
@@ -366,10 +375,11 @@ export default function (pi: ExtensionAPI) {
 		if (!skill) return; // Skill exists but file is empty — no-op
 
 		// Prevent double-injection within the same session
-		const customType = `project-skill-${skillName}`;
+		const customType = getProjectSkillMessageType(skillName);
 		const entries = ctx.sessionManager.getEntries();
 		const alreadyInjected = entries.some(
-			(e) => e.type === "custom" && e.customType === customType,
+			(e) =>
+				e.type === CUSTOM_MESSAGE_ENTRY_TYPE && e.customType === customType,
 		);
 		if (alreadyInjected) return;
 
@@ -399,7 +409,9 @@ export default function (pi: ExtensionAPI) {
 		// Prevent double-injection within the same session
 		const entries = ctx.sessionManager.getEntries();
 		const alreadyInjected = entries.some(
-			(e) => e.type === "custom" && e.customType === "know-how-catch-up",
+			(e) =>
+				e.type === CUSTOM_MESSAGE_ENTRY_TYPE &&
+				e.customType === KNOW_HOW_CATCH_UP_MESSAGE_TYPE,
 		);
 		if (alreadyInjected) return;
 
@@ -409,7 +421,7 @@ export default function (pi: ExtensionAPI) {
 
 		return {
 			message: {
-				customType: "know-how-catch-up",
+				customType: KNOW_HOW_CATCH_UP_MESSAGE_TYPE,
 				content: result.block,
 				display: false,
 			},
@@ -432,7 +444,7 @@ export default function (pi: ExtensionAPI) {
 					if (result) {
 						pi.sendMessage(
 							{
-								customType: "know-how-catch-up",
+								customType: KNOW_HOW_CATCH_UP_MESSAGE_TYPE,
 								content: result.block,
 								display: false,
 							},
@@ -459,7 +471,7 @@ Please follow the ${route.skill} skill below. This is not background context.
 Execute its procedure now.`;
 						pi.sendMessage(
 							{
-								customType: "know-how-skill-load",
+								customType: KNOW_HOW_SKILL_LOAD_MESSAGE_TYPE,
 								content: `${bootstrap ?? ""}\n\n${directive}\n\n<LOADED_SKILL name="${route.skill}">\n${skillContent}\n</LOADED_SKILL>`,
 								display: false,
 							},
@@ -498,7 +510,7 @@ Execute its procedure now.`;
 				if (result) {
 					pi.sendMessage(
 						{
-							customType: "know-how-catch-up",
+							customType: KNOW_HOW_CATCH_UP_MESSAGE_TYPE,
 							content: result.block,
 							display: false,
 						},
@@ -522,7 +534,7 @@ Execute its procedure now.`;
 						const bootstrap = getBootstrapContent();
 						pi.sendMessage(
 							{
-								customType: "know-how-skill-load",
+								customType: KNOW_HOW_SKILL_LOAD_MESSAGE_TYPE,
 								content: `${bootstrap ?? ""}\n\n<LOADED_SKILL name="${skill}">\n${skillContent}\n</LOADED_SKILL>`,
 								display: false,
 							},
@@ -552,7 +564,7 @@ Please follow the ${route.skill} skill below. This is not background context.
 Execute its procedure now.`;
 			pi.sendMessage(
 				{
-					customType: "know-how-skill-load",
+					customType: KNOW_HOW_SKILL_LOAD_MESSAGE_TYPE,
 					content: `${bootstrap ?? ""}\n\n${directive}\n\n<LOADED_SKILL name="${route.skill}">\n${skillContent}\n</LOADED_SKILL>`,
 					display: false,
 				},
@@ -580,7 +592,7 @@ Execute its procedure now.`;
 			}
 			pi.sendMessage(
 				{
-					customType: "know-how-skill-load",
+					customType: KNOW_HOW_SKILL_LOAD_MESSAGE_TYPE,
 					content,
 					display: false,
 				},
@@ -600,7 +612,7 @@ Execute its procedure now.`;
 			if (result) {
 				pi.sendMessage(
 					{
-						customType: "know-how-catch-up",
+						customType: KNOW_HOW_CATCH_UP_MESSAGE_TYPE,
 						content: result.block,
 						display: false,
 					},
