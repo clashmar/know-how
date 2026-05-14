@@ -1,0 +1,24 @@
+extension/index.ts
+  s_98d107ee22b86e::t_6ade3736504723 9,15-20
+  s_98d107ee22b86e::t_c609e7ef437c5e 447,474,513,537,567,595,615
+  s_98d107ee22b86e::t_ed5c52cbcf801c 21,29,31
+  s_98d107ee22b86e::t_729796bac5e722 349-351,357,378,381-382,412-414,424
+extension/startup/session-start.ts
+  s_98d107ee22b86e::t_00c1906c125655 13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "1048c0835294f899e84accde1d0db64d62167afb",
+  "prompts": {},
+  "sessions": {
+    "s_98d107ee22b86e": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e25bb-251a-72a2-ae01-59944878565e",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
