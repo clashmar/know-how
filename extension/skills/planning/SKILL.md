@@ -7,9 +7,6 @@ description: Always use this before creative work, feature design, or behavior c
 
 Help turn ideas into an approved design and a written spec before implementation.
 
-
-- 
-
 Do not invoke implementation skills, write code, scaffold projects, or make behavior changes until you have presented a design and the user has approved it.
 
 
@@ -24,14 +21,18 @@ Create a task for each of these items and complete them in order:
 3. **Propose 2-3 approaches** — include trade-offs and a recommendation
 4. **Present the design** — scale detail to complexity, get approval section by section
 5. **Decide the testing strategy** — identify critical behaviors, manual checks, and whether the work should use TDD or be manually tested
-6. **Write the design doc** — dispatch the **deckbuilder** agent to render the spec as
-   HTML. First read `./deckbuilder-prompt.md` for the dispatch format and payload
-   structure. Pass the validated spec as a JSON payload with output path
-   `~/.know-how/<project-name>/specs/YYYY-MM-DD-<topic>.html`. The deckbuilder returns
-   a `file://` link — present this link to the user.
+6. **Write the design doc** — read `./deckbuilder-prompt.md` for the dispatch
+   format and payload structure, then dispatch the **deckbuilder** agent with the
+   validated spec as a JSON payload and output path
+   `~/.know-how/<project-name>/specs/YYYY-MM-DD-<topic>.html`. If the controller
+   is still in read mode, the dispatch gate will surface write-mode approval
+   automatically before deckbuilder starts. The deckbuilder returns a `file://`
+   link — present this link to the user.
 7. **Self-review the spec** — remove ambiguity, placeholders, and contradictions
 8. **Ask the user to review the spec** — wait for approval before moving on
-9. **Transition to implementation planning** — invoke `know-how:writing-plans`
+9. **Transition to implementation planning** — if the controller is still in read mode,
+   use the shared write-mode approval prompt before continuing (the plan will be
+   written to disk). Then invoke `know-how:writing-plans`.
 <IMPORTANT>
 
 ## Process Flow
@@ -112,14 +113,18 @@ The terminal state is invoking `know-how:writing-plans`.
 
 **Documentation:**
 
-- Dispatch the `deckbuilder` agent with the validated spec as a JSON payload
+- Dispatch the `deckbuilder` agent with the validated spec as a JSON payload.
+  If the controller is still in read mode, the dispatch gate will surface
+  write-mode approval automatically before deckbuilder starts.
   (see `deckbuilder-prompt.md` for format) and output path
   `~/.know-how/<project-name>/specs/YYYY-MM-DD-<topic>.html`.
   The deckbuilder writes the HTML file and returns a `file://` link.
   Present this link to the user.
 - Derive `<project-name>` from the git repository root (`git rev-parse --show-toplevel`)
   basename, lowercased with non-alphanumeric runs replaced by hyphens.
-- If `~/.know-how/<project-name>/` does not exist, create it.
+- If `~/.know-how/<project-name>/` does not exist, use `present_choice` to
+  offer: create it, use another path, or skip (write the spec inline to the
+  current context).
 - User preferences for spec location override this default.
 - Include a short testing strategy section so planning starts from an explicit
   decision.

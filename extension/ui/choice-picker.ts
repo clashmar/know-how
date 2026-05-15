@@ -1,7 +1,7 @@
 import { matchesKey, Key, Text, Input, Container, Spacer, truncateToWidth } from "@earendil-works/pi-tui";
 import type { Theme } from "@mariozechner/pi-coding-agent"; 
 // @mariozechner/pi-coding-agent is deprecated upstream; will migrate when @samfp/pi-memory updates
-import { isInReadMode } from "../read-mode";
+import { isInReadMode } from "../write-mode/read-mode";
 import { borderColor, BORDER_CHAR } from "./border-style";
 import { PickerList } from "./picker-list";
 import type { PickerItem } from "./picker-list";

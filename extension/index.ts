@@ -27,7 +27,7 @@ import {
 	loadProjectSkill,
 	PROJECT_SKILLS_DIR,
 } from "./startup/skill-discovery";
-import { registerReadMode } from "./read-mode";
+import { registerReadMode } from "./write-mode/read-mode";
 import { beforeAgentStart } from "./startup/session-start";
 import { registerPresentChoice } from "./tools/present-choice";
 import { registerPresentDecisions } from "./tools/present-decisions";

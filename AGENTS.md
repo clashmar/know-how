@@ -177,6 +177,12 @@ The `guardian` subagent enforces this convention during reviews. Any skill or
 agent instruction that asks the user to type a response to pick from options
 is a compliance violation.
 
+### Controller write-mode handoffs
+
+When a controller workflow reaches a write-capable step while in read mode, it
+uses the shared write-mode approval prompt built on `present_choice` — not a
+typed `/write` switch instruction.
+
 ## Testing
 
 - If TDD is being used; ALWAYS write failing tests first.

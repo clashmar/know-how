@@ -2,10 +2,9 @@ import { Type } from "@sinclair/typebox";
 import { ChoicePicker } from "../ui/choice-picker";
 import type { ChoiceOption } from "../ui/choice-picker";
 // @mariozechner/pi-coding-agent is deprecated upstream; will migrate when @samfp/pi-memory updates
-import type { ExtensionAPI, AgentToolResult } from "@mariozechner/pi-coding-agent"; 
-
-/** Sentinel value indicating the user cancelled the choice. */
-export const CANCELLED_SENTINEL = "(cancelled)";
+import type { ExtensionAPI, AgentToolResult, ExtensionUIContext } from "@mariozechner/pi-coding-agent"; 
+import { activateApprovedWriteMode } from "../write-mode/runtime";
+import { CANCELLED_SENTINEL, isWriteModeEnableSelection } from "../write-mode/signals";
 
 /** Parameters for the present_choice tool. */
 export const PresentChoiceParams = Type.Object({
@@ -17,6 +16,32 @@ export const PresentChoiceParams = Type.Object({
   })),
   otherLabel: Type.Optional(Type.String()),
 });
+
+/**
+ * Shared helper to show a choice picker via ctx.ui.custom().
+ * Returns the selected value string, or null if cancelled.
+ */
+export async function showPresentChoice(
+  ui: ExtensionUIContext,
+  params: {
+    title: string;
+    options: ChoiceOption[];
+    otherLabel?: string;
+  },
+): Promise<string | null> {
+  const options: ChoiceOption[] = params.options;
+  const otherLabel = params.otherLabel || "Something else...";
+
+  if (options.length === 0) return null;
+
+  return ui.custom<string | null>((tui, theme, _kb, done) => {
+    const picker = new ChoicePicker(params.title, options, theme, otherLabel);
+    picker.onSelect = (value) => done(value);
+    picker.onCancel = () => done(null);
+    picker.onRequestRender = () => tui.requestRender();
+    return picker;
+  });
+}
 
 /** Registers the present_choice tool with the pi agent. */
 export function registerPresentChoice(pi: ExtensionAPI): void {
@@ -42,19 +67,15 @@ export function registerPresentChoice(pi: ExtensionAPI): void {
         };
       }
 
-      return ctx.ui.custom<string | null>((tui, theme, _kb, done) => {
-        const picker = new ChoicePicker(params.title, options, theme, otherLabel);
-        picker.onSelect = (value) => done(value);
-        picker.onCancel = () => done(null);
-        picker.onRequestRender = () => tui.requestRender();
-        return picker;
-      }).then((result) => {
-        const output = result === null ? CANCELLED_SENTINEL : result;
-        return {
-          content: [{ type: "text", text: output }],
-          details: {},
-        };
-      });
+      const result = await showPresentChoice(ctx.ui, { title: params.title, options, otherLabel });
+      if (result !== null && isWriteModeEnableSelection(result)) {
+        activateApprovedWriteMode(ctx);
+      }
+      const output = result === null ? CANCELLED_SENTINEL : result;
+      return {
+        content: [{ type: "text", text: output }],
+        details: {},
+      };
     },
   });
 }

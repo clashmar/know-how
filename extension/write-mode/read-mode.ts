@@ -11,6 +11,11 @@ import type { ExtensionAPI, ExtensionContext } from "@mariozechner/pi-coding-age
 // @mariozechner/pi-coding-agent is deprecated upstream; will migrate when @samfp/pi-memory updates
 import { ModeAwareEditor } from "./mode-editor";
 
+import type { WriteModeApprovalRequest, WriteModeTransitionResult } from "./approval";
+import { ensureWriteModeForAction } from "./approval";
+import { registerApprovedWriteModeActivator } from "./runtime";
+import { showPresentChoice } from "../tools/present-choice";
+
 // ── Bash allowlist ──────────────────────────────────────────────────
 
 const DESTRUCTIVE_PATTERNS = [
@@ -149,8 +154,15 @@ const READ_MODE_TOOLS = [
 
 // ── Role sets ───────────────────────────────────────────────────────
 // Read-only roles permanently locked to read mode. Write-capable start in write.
-const READ_ONLY_ROLES = new Set(["scout", "reviewer", "guardian"]);
-const WRITE_CAPABLE_ROLES = new Set(["worker", "maester", "deckbuilder"]);
+
+/** Source-of-truth list of read-only role names. */
+export const READ_ONLY_ROLES = ["scout", "reviewer", "guardian"] as const;
+
+/** Source-of-truth list of write-capable role names. */
+export const WRITE_CAPABLE_ROLES = ["worker", "maester", "deckbuilder"] as const;
+
+const READ_ONLY_ROLES_SET = new Set<string>(READ_ONLY_ROLES);
+const WRITE_CAPABLE_ROLES_SET = new Set<string>(WRITE_CAPABLE_ROLES);
 
 // ── Module-level state (exported for dispatch.ts) ─────────────────
 let readModeEnabled = true;
@@ -162,11 +174,50 @@ export function isInReadMode(): boolean {
   return readModeEnabled;
 }
 
+/** Returns true if the current role is permanently read-only. */
+export function isRoleLocked(): boolean {
+  return roleLocked;
+}
+
+/** Returns true if the given role name is write-capable. */
+export function isWriteCapableRole(role: string): boolean {
+  return WRITE_CAPABLE_ROLES_SET.has(role);
+}
+
+/** Forward reference set by registerReadMode. */
+let _requestWriteMode: ((ctx: ExtensionContext, request?: WriteModeApprovalRequest) => Promise<WriteModeTransitionResult>) | undefined;
+
+/**
+ * Prompts the user to switch to write mode if needed.
+ * Returns the transition result.
+ *
+ * @param ctx - The extension context.
+ * @param request - Optional override for the approval prompt title/action/reason.
+ *                  When omitted, defaults to generic "Write mode required" copy.
+ */
+export async function requestWriteMode(ctx: ExtensionContext, request?: WriteModeApprovalRequest): Promise<WriteModeTransitionResult> {
+  if (!_requestWriteMode) return "declined";
+  return _requestWriteMode(ctx, request);
+}
+
 // Editor reference — updated on toggle
 let modeEditor: ModeAwareEditor | undefined;
 
 // ── Extension ───────────────────────────────────────────────────────
 
+/**
+ * Registers the read/write mode extension with the pi API.
+ *
+ * Sets up:
+ * - Role-based start mode (read-only roles locked, write-capable roles start in write)
+ * - `/read` and `/write` commands for manual mode toggling
+ * - `ctrl+/` shortcut to toggle mode
+ * - `before_agent_start` hook that injects read-mode context into system prompts
+ * - `tool_call` hook that blocks destructive bash commands in read mode
+ * - `session_start` hook that configures mode from env vars (PI_SUBAGENT_CHILD, PI_FORCE_READ_MODE)
+ *
+ * @param pi - The extension API instance.
+ */
 export function registerReadMode(pi: ExtensionAPI): void {
 
   function getAllToolNames(): string[] {
@@ -203,6 +254,10 @@ export function registerReadMode(pi: ExtensionAPI): void {
     persistState();
   }
 
+  registerApprovedWriteModeActivator((ctx) => {
+    enterWriteMode(ctx);
+  });
+
   function toggleMode(ctx: ExtensionContext): void {
     if (roleLocked) {
       enterReadMode(ctx);
@@ -223,8 +278,48 @@ export function registerReadMode(pi: ExtensionAPI): void {
 
   pi.registerCommand("write", {
     description: "Enter write mode (full read+write access)",
-    handler: async (_args, ctx) => enterWriteMode(ctx),
+    handler: async (_args, ctx) => {
+      const result = await requestWriteMode(ctx);
+      if (result === "already-write") {
+        ctx.ui.notify("Already in write mode.", "info");
+      } else if (result === "declined" || result === "deferred") {
+        ctx.ui.notify("Write mode activation skipped.", "info");
+      }
+    },
   });
+
+  // Wire the write-mode approval helper for programmatic use
+  _requestWriteMode = async (ctx: ExtensionContext, request?: WriteModeApprovalRequest): Promise<WriteModeTransitionResult> => {
+    if (roleLocked) {
+      ctx.ui.notify("Write mode blocked: this agent role is permanently read-only.", "warning");
+      return "role-locked";
+    }
+    if (!readModeEnabled) return "already-write";
+
+    const req = request ?? {
+      title: "Write mode required",
+      actionLabel: "Switch to write mode",
+      reason: "Write access needed to proceed.",
+    };
+
+    const outcome = await ensureWriteModeForAction(
+      {
+        isReadMode: () => readModeEnabled,
+        isRoleLocked: () => roleLocked,
+        enableWriteMode: () => {
+          enterWriteMode(ctx);
+        },
+        presentChoice: async (pickerParams) =>
+          showPresentChoice(ctx.ui, {
+            title: pickerParams.title,
+            options: pickerParams.options,
+          }),
+      },
+      req,
+    );
+
+    return outcome.result;
+  };
 
   pi.registerShortcut("ctrl+/", {
     description: "Toggle read/write mode",
@@ -248,8 +343,7 @@ export function registerReadMode(pi: ExtensionAPI): void {
         message: { customType: "read-mode-context", content: "[Read mode — write/edit blocked]", display: false },
         systemPrompt:
           event.systemPrompt +
-          "\n\n⚠️ READ MODE ACTIVE. You cannot write files. Do not dispatch workers or maesters — they will also be read-only." +
-          "Scouts and reviewers are fine. Ask the user to switch to write mode (/write) before attempting edits.",
+          "\n\n⚠️ READ MODE ACTIVE. You cannot write files. Write-capable steps and dispatched agents require write-mode approval before continuing. If the approval prompt returns the enable/switch option, write mode is already enabled — continue without asking the user to run /write again. Scouts and reviewers are fine.",
       };
     }
 
@@ -284,11 +378,11 @@ export function registerReadMode(pi: ExtensionAPI): void {
     // Read-mode propagation: if parent forced read mode, lock regardless of role
     const forceReadOnly = process.env.PI_FORCE_READ_MODE === "1";
 
-    if (forceReadOnly || (isSubagent && agentRole && READ_ONLY_ROLES.has(agentRole))) {
+    if (forceReadOnly || (isSubagent && agentRole && READ_ONLY_ROLES_SET.has(agentRole))) {
       roleLocked = true;
       readModeEnabled = true;
       pi.setActiveTools(READ_MODE_TOOLS);
-    } else if (!forceReadOnly && isSubagent && agentRole && WRITE_CAPABLE_ROLES.has(agentRole)) {
+    } else if (!forceReadOnly && isSubagent && agentRole && WRITE_CAPABLE_ROLES_SET.has(agentRole)) {
       roleLocked = false;
       readModeEnabled = false;
       pi.setActiveTools(getAllToolNames());

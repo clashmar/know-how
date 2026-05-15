@@ -17,10 +17,10 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 **Save plans to:** `~/.know-how/<project-name>/plans/YYYY-MM-DD-<feature-name>.md`
 
-- Derive `<project-name>` from the current workspace basename and sanitize it for filesystem safety if creating from scratch
-- If `~/.know-how/<project-name>/` does not exist, ask the user before creating it
-- If the user declines, ask where they want to save the plan and use that path for the rest of the process. If they decline again, write to the current context.
-- User preferences for plan location override this default
+- Derive `<project-name>` from the git repository root (`git rev-parse --show-toplevel`) basename, lowercased with non-alphanumeric runs replaced by hyphens.
+- If `~/.know-how/<project-name>/` does not exist, use `present_choice` to offer: create it, use another path, or skip (write the plan inline to the current context).
+- User preferences for plan location override this default.
+- If the controller is still in read mode, use the shared write-mode approval prompt before saving the plan file (see Execution Handoff section).
 
 ## Core Rule
 
@@ -337,8 +337,6 @@ Expected: `[specific success marker]`
 Expected: no automated tests beyond those explicitly called for by the plan
 ````
 
-```
-
 For `Manual only` tasks, do not add automated tests unless the plan is updated first.
 
 ## Self-Review
@@ -365,7 +363,7 @@ Call `present_decisions` with title "Plan Configuration" and three decisions:
 
 `present_decisions` auto-adds `Something else...` for each decision; do not add duplicates. `otherLabel` renames it, so keep it short.
 
-Read the returned map, record the `Execution Style:`, `Execution Autonomy:`, and `Worktree Strategy:` fields in the plan header, then save the final plan.
+Read the returned map, record the `Execution Style:`, `Execution Autonomy:`, and `Worktree Strategy:` fields in the plan header, then save the final plan. Before saving the file, if the controller is still in read mode, use the shared write-mode approval prompt first.
 
 Both execution styles must follow the declared autonomy mode and worktree strategy exactly.
 
@@ -377,4 +375,3 @@ Both execution styles must follow the declared autonomy mode and worktree strate
 - **REQUIRED SUB-SKILL:** Use know-how:executing-plans
 - Execute inline while performing required spec-compliance, code-quality, and guardian review before each task is complete
 - Close-out task handles review, optimization report, and integration
-```

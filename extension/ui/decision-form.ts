@@ -4,7 +4,7 @@ import type { Theme } from "@mariozechner/pi-coding-agent";
 import { PickerList } from "./picker-list";
 import type { PickerItem } from "./picker-list";
 import { OTHER_VALUE } from "./choice-picker";
-import { isInReadMode } from "../read-mode";
+import { isInReadMode } from "../write-mode/read-mode";
 import { borderColor, BORDER_CHAR } from "./border-style";
 
 /**

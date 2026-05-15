@@ -12,7 +12,8 @@ import {
   createInitialState,
   type DispatchDetails,
 } from "./types";
-import { isInReadMode } from "../read-mode";
+import { isInReadMode, isRoleLocked, isWriteCapableRole, requestWriteMode } from "../write-mode/read-mode";
+import type { WriteModeApprovalRequest } from "../write-mode/approval";
 import { renderResultView } from "./render";
 import { openProgressOverlay } from "./progress-overlay";
 import { readSettings, type Settings } from "../settings";
@@ -476,6 +477,67 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
       const dispatchStartedAt = Date.now();
 
       const workDir = params.cwd ?? ctx.cwd;
+
+      // ── Write-mode gate ────────────────────────────────────────
+      // If in read mode and any task agent is write-capable, prompt before dispatch.
+      if (isInReadMode()) {
+        const hasWriteCapableTask = tasks.some(t => isWriteCapableRole(t.agent));
+        if (hasWriteCapableTask) {
+          if (isRoleLocked()) {
+            const output = tasks
+              .map(t => `## ${t.agent}\nError: Write-capable agent blocked — parent role is locked to read-only.`)
+              .join("\n\n");
+            liveStates = tasks.map((t) => ({
+              ...createInitialState(t.agent, buildModelList(readSettings(), t.agent)[0] ?? "unknown"),
+              status: "failed" as const,
+              error: "Parent role is locked to read-only.",
+            }));
+            return {
+              content: [{ type: "text" as const, text: output }],
+              details: {},
+            };
+          }
+
+          if (!ctx.hasUI) {
+            const output = tasks
+              .map(t => `## ${t.agent}\nPaused: Write-capable agent requires write access, but subagent dispatch has no interactive UI. Please run in an interactive session or switch to write mode first.`)
+              .join("\n\n");
+            return {
+              content: [{ type: "text" as const, text: output }],
+              details: {},
+            };
+          }
+
+          // Use the shared write-mode approval prompt before dispatching
+          const writeCapableAgents = tasks.filter(t => isWriteCapableRole(t.agent));
+          const agentList = writeCapableAgents.map(t => t.agent).join(", ");
+          const result = await requestWriteMode(ctx, {
+            title: "Subagent dispatch needs write access",
+            actionLabel: "Switch to write mode",
+            reason: `Write-capable agent${writeCapableAgents.length > 1 ? "s" : ""}: ${agentList}`,
+          });
+
+          if (result !== "enabled" && result !== "already-write") {
+            const reasonMsg = result === "declined"
+              ? "Write mode declined by user."
+              : result === "deferred"
+                ? "Write mode deferred by user."
+                : "Write mode blocked.";
+            const output = tasks
+              .map(t => `## ${t.agent}\nSkipped: ${reasonMsg}`)
+              .join("\n\n");
+            liveStates = tasks.map((t) => ({
+              ...createInitialState(t.agent, buildModelList(readSettings(), t.agent)[0] ?? "unknown"),
+              status: "failed" as const,
+              error: reasonMsg,
+            }));
+            return {
+              content: [{ type: "text" as const, text: output }],
+              details: {},
+            };
+          }
+        }
+      }
 
       // Throttled onUpdate: push partial results to trigger renderResult re-renders
       let lastUpdate = 0;
