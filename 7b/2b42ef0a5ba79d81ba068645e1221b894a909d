@@ -1,0 +1,11 @@
+extension/skills/planning/SKILL.md
+  ai_agent 24-28,114-119,123-125
+extension/skills/planning/deckbuilder-prompt.md
+  ai_agent 3-5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "7b2b42ef0a5ba79d81ba068645e1221b894a909d",
+  "prompts": {}
+}
