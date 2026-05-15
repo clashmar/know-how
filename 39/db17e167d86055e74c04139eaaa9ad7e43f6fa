@@ -1,0 +1,24 @@
+extension/skills/subagent-driven-development/SKILL.md
+  s_ab60cbd922c2f2::t_c0b2e2cd55c1af 93,140,144-145,221
+extension/skills/subagent-driven-development/guardian-reviewer-prompt.md
+  s_ab60cbd922c2f2::t_6fc8cfa53dbfdb 1-8,12-25
+  s_ab60cbd922c2f2::t_af519d7029285e 9-11
+extension/agents/guardian.md
+  s_ab60cbd922c2f2::t_0597c91d7ea8be 40,42-43,45-47,49-50,54-56,58-62,107
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "39db17e167d86055e74c04139eaaa9ad7e43f6fa",
+  "prompts": {},
+  "sessions": {
+    "s_ab60cbd922c2f2": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e2a91-a52a-70f1-8bd3-03f3ccc0f27e",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
