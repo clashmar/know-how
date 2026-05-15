@@ -90,7 +90,7 @@ digraph process {
         "Wait for remaining reviewer results" [shape=box];
         "reviewer — code quality (./code-quality-reviewer-prompt.md) approves?" [shape=diamond];
         "guardian result ready?" [shape=diamond];
-        "guardian approves?" [shape=diamond];
+        "guardian — convention compliance (./guardian-reviewer-prompt.md) approves?" [shape=diamond];
         "All reviewers approved?" [shape=diamond];
         "Worker subagent fixes remaining issues" [shape=box];
         "Worker subagent fixes spec issues" [shape=box];
@@ -137,12 +137,12 @@ digraph process {
     "Code-quality review result ready?" -> "reviewer — code quality (./code-quality-reviewer-prompt.md) approves?" [label="yes"];
     "guardian result ready?" -> "Wait for remaining reviewer results" [label="no"];
     "Wait for remaining reviewer results" -> "guardian result ready?";
-    "guardian result ready?" -> "guardian approves?" [label="yes"];
+    "guardian result ready?" -> "guardian — convention compliance (./guardian-reviewer-prompt.md) approves?" [label="yes"];
     "reviewer — code quality (./code-quality-reviewer-prompt.md) approves?" -> "All reviewers approved?" [label="yes"];
     "reviewer — code quality (./code-quality-reviewer-prompt.md) approves?" -> "Worker subagent fixes code-quality issues" [label="no"];
 
-    "guardian approves?" -> "All reviewers approved?" [label="yes"];
-    "guardian approves?" -> "Worker subagent fixes compliance issues" [label="no"];
+    "guardian — convention compliance (./guardian-reviewer-prompt.md) approves?" -> "All reviewers approved?" [label="yes"];
+    "guardian — convention compliance (./guardian-reviewer-prompt.md) approves?" -> "Worker subagent fixes compliance issues" [label="no"];
     "Worker subagent fixes code-quality issues" -> "Re-run task verification steps after review fixes";
     "Worker subagent fixes compliance issues" -> "Re-run task verification steps after review fixes";
     "Worker subagent fixes remaining issues" -> "Re-run task verification steps after review fixes";
@@ -218,6 +218,7 @@ Worker subagents report one of four statuses. Handle each appropriately:
 - `./worker-prompt.md` - Dispatch worker subagent
 - `./spec-reviewer-prompt.md` - Dispatch reviewer for spec compliance
 - `./code-quality-reviewer-prompt.md` - Dispatch reviewer for code quality
+- `./guardian-reviewer-prompt.md` - Dispatch guardian for convention compliance
 
 ## Per-Task Review Flow
 
