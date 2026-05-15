@@ -82,3 +82,7 @@ It does not modify unrelated files already present in `~/.pi/agent`.
 
 If any values aren't set for a specifc agent, they will fall
 back to the session default.
+
+The `deckbuilder` agent renders left-aligned four-column HTML dashboards.
+Payloads may use any supported section types; `testing-strategy` is optional
+and is typically used for specs rather than every report.

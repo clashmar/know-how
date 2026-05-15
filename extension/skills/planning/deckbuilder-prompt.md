@@ -47,10 +47,10 @@ array. Each entry in `sections` must have a `type` field from this catalog:
 | `prose`             | Markdown content block — the workhorse                      |
 | `code-block`        | Syntax-highlighted code via highlight.js, optional caption  |
 | `callout`           | Colored left-border aside (info / warning / critical)       |
-| `decision-log`      | Table: Decision \| Rationale \| Alternatives considered     |
-| `comparison-table`  | Clean table with optional column highlighting               |
+| `decision-log`      | Individual decision cards with rationale and alternatives     |
+| `comparison-table`  | Individual comparison row cards with optional field highlighting |
 | `diagram`           | Mermaid diagram (flowchart, sequence, class, state)         |
-| `testing-strategy`  | Approach badge + critical behaviors + manual checks         |
+| `testing-strategy`  | Optional testing approach badge + critical behaviors + manual checks |
 
 ## Example payload
 

@@ -44,9 +44,8 @@ body {
   background: var(--bg);
   color: var(--text);
   line-height: 1.6;
-  padding: 2rem;
-  max-width: 780px;
-  margin: 0 auto;
+  padding: 1.5rem 2rem 2rem;
+  margin: 0;
 }
 
 :root {
@@ -76,6 +75,11 @@ body {
   --purple-light: #8B7EC8;
   --magenta: #A02F6F;
   --magenta-light: #CE5D97;
+  --red-surface: #2A1616;
+  --orange-surface: #2C1F14;
+  --blue-surface: #162436;
+  --purple-surface: #21192F;
+  --cyan-surface: #152B2A;
 }
 
 a { color: var(--cyan-light); }
@@ -83,8 +87,8 @@ a:visited { color: var(--purple-light); }
 
 h1, h2, h3, h4 { color: var(--heading); margin-bottom: 0.5rem; }
 h1 { font-size: 2rem; }
-h2 { font-size: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; margin-top: 2rem; }
-h3 { font-size: 1.2rem; margin-top: 1.5rem; }
+h2 { font-size: 1.35rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem; margin-top: 1.25rem; }
+h3 { font-size: 1.05rem; margin-top: 1rem; }
 
 p { margin-bottom: 1rem; }
 strong { color: var(--text); }
@@ -104,12 +108,43 @@ pre {
   border-radius: 6px;
   padding: 1rem;
   overflow-x: auto;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
+  max-width: 100%;
 }
 pre > code, pre code.hljs {
   background: none;
   padding: 0;
   color: var(--text);
+}
+
+.deck-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.25rem;
+  align-items: start;
+  width: 100%;
+}
+.deck-column {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.deck-column > * {
+  min-width: 0;
+  margin: 0;
+}
+.deck-column:empty {
+  display: none;
+}
+
+@media (max-width: 1200px) {
+  .deck-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 800px) {
+  body { padding: 1rem; }
+  .deck-grid { grid-template-columns: 1fr; }
 }
 
 .code-block-header {
@@ -123,6 +158,8 @@ pre > code, pre code.hljs {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 .code-lang {
   font-weight: 600;
@@ -133,8 +170,11 @@ pre > code, pre code.hljs {
   color: var(--text-muted);
   font-size: 0.85rem;
   margin-top: 0.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
   font-style: italic;
+}
+.code-block {
+  min-width: 0;
 }
 .code-block pre {
   margin-top: 0;
@@ -145,12 +185,16 @@ pre > code, pre code.hljs {
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 1.5rem;
+  table-layout: fixed;
+  margin-bottom: 0;
 }
 th, td {
   text-align: left;
+  vertical-align: top;
   padding: 0.6rem 0.8rem;
   border-bottom: 1px solid var(--border-muted);
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 th {
   color: var(--heading);
@@ -163,8 +207,8 @@ li { margin-bottom: 0.3rem; }
 
 /* hero */
 .hero {
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.25rem;
   border-bottom: 2px solid var(--border);
 }
 .hero h1 { border-bottom: none; margin-bottom: 0.25rem; }
@@ -177,49 +221,116 @@ li { margin-bottom: 0.3rem; }
   border: 1px solid var(--border-muted);
   border-radius: 6px;
   padding: 1.25rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
+}
+.prose h2:first-child,
+.prose h3:first-child {
+  margin-top: 0;
 }
 
 /* callout */
 .callout {
   border-left: 4px solid var(--border);
+  border: 1px solid var(--border);
+  border-left-width: 4px;
   background: var(--bg-elevated);
-  border-radius: 0 6px 6px 0;
+  border-radius: 6px;
   padding: 1rem 1.25rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
-.callout strong { margin-right: 0.5rem; }
-.callout-critical { border-left-color: var(--red-light); }
-.callout-warning  { border-left-color: var(--orange-light); }
-.callout-info     { border-left-color: var(--blue-light); }
+.callout-critical {
+  border-left-color: var(--red-light);
+  background: linear-gradient(180deg, var(--red-surface) 0%, var(--bg-elevated) 100%);
+}
+.callout-warning  {
+  border-left-color: var(--orange-light);
+  background: linear-gradient(180deg, var(--orange-surface) 0%, var(--bg-elevated) 100%);
+}
+.callout-info     {
+  border-left-color: var(--blue-light);
+  background: linear-gradient(180deg, var(--blue-surface) 0%, var(--bg-elevated) 100%);
+}
 
-/* decision-log */
-.decision-log { margin-bottom: 1.5rem; }
-.decision-log th { color: var(--heading); }
-.decision-log td:first-child { font-weight: 600; color: var(--cyan-light); }
-
-/* comparison-table */
-.comparison-table { margin-bottom: 1.5rem; }
-.comparison-table th:first-child { color: var(--heading); font-weight: 600; }
-.comparison-table .highlight-col { background: var(--bg-soft); }
+.record-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.9rem 1rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.record-card.empty {
+  color: var(--text-muted);
+  font-style: italic;
+}
+.decision-log-card {
+  background: linear-gradient(180deg, var(--purple-surface) 0%, var(--bg-elevated) 100%);
+  border-top: 3px solid var(--purple-light);
+}
+.comparison-card {
+  background: linear-gradient(180deg, var(--cyan-surface) 0%, var(--bg-elevated) 100%);
+  border-top: 3px solid var(--cyan-light);
+}
+.record-field + .record-field {
+  margin-top: 0.75rem;
+}
+.record-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--heading);
+  margin-bottom: 0.4rem;
+}
+.record-value {
+  display: block;
+  color: var(--text);
+}
+.record-value .highlight-col {
+  display: block;
+  background: var(--bg-soft);
+  border-left: 3px solid var(--cyan-light);
+  border-radius: 4px;
+  padding: 0.65rem 0.75rem;
+}
 
 /* diagram */
-.diagram { margin-bottom: 1.5rem; }
-.diagram .mermaid {
+.diagram {
   background: var(--bg-soft);
   border: 1px solid var(--border-muted);
   border-radius: 6px;
-  padding: 1.5rem;
+  padding: 1rem;
+  margin-bottom: 0;
+}
+.diagram .mermaid {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-muted);
+  border-radius: 6px;
+  padding: 1rem;
   text-align: center;
+  overflow-x: auto;
 }
 .diagram-caption {
   color: var(--text-muted);
   font-size: 0.85rem;
-  margin-top: 0.5rem;
+  margin-top: 0.75rem;
   font-style: italic;
 }
+
 /* testing-strategy */
-.testing-strategy { margin-bottom: 1.5rem; }
+.testing-strategy {
+  background: var(--bg-soft);
+  border: 1px solid var(--border-muted);
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 0;
+}
+.testing-strategy h2:first-child,
+.testing-strategy h3:first-child {
+  margin-top: 0;
+}
 .testing-strategy .strategy-badge {
   display: inline-block;
   padding: 0.2em 0.8em;
@@ -230,7 +341,8 @@ li { margin-bottom: 0.3rem; }
 }
 .strategy-badge.tdd { background: var(--green); color: var(--bg); }
 .strategy-badge.manual { background: var(--blue); color: var(--bg); }
-.strategy-list { margin-bottom: 0.5rem; }
+.strategy-list { margin-bottom: 0.75rem; }
+.strategy-list:last-child { margin-bottom: 0; }
 .strategy-list li { margin-bottom: 0.3rem; }
 .strategy-list .empty { color: var(--text-muted); font-style: italic; }
 
@@ -238,8 +350,8 @@ li { margin-bottom: 0.3rem; }
 
 ## HTML Shell
 
-Every file starts with this shell. Replace `{{TITLE}}`, `{{CSS}}`, and
-`{{BODY}}`:
+Every file starts with this shell. Replace `{{TITLE}}`, `{{CSS}}`, `{{LEAD}}`,
+`{{COL1}}`, `{{COL2}}`, `{{COL3}}`, and `{{COL4}}`:
 
 ```html
 <!DOCTYPE html>
@@ -258,15 +370,32 @@ Every file starts with this shell. Replace `{{TITLE}}`, `{{CSS}}`, and
 <script>mermaid.initialize({ startOnLoad: true, theme: 'dark', themeVariables: { darkMode: true, background: '#1C1B1A', primaryColor: '#3AA99F', primaryTextColor: '#CECDC3', lineColor: '#403E3C' } });</script>
 </head>
 <body>
-{{BODY}}
+{{LEAD}}
+<main class="deck-grid">
+  <div class="deck-column">{{COL1}}</div>
+  <div class="deck-column">{{COL2}}</div>
+  <div class="deck-column">{{COL3}}</div>
+  <div class="deck-column">{{COL4}}</div>
+</main>
 </body>
 </html>
 ```
+
+If the payload starts with a `title` section, render it into `{{LEAD}}` so the
+hero spans the full page width above the columns. Leave `{{LEAD}}` empty when
+there is no leading `title` section.
+
+Distribute all remaining rendered sections across `{{COL1}}`..`{{COL4}}` in
+source order, top-to-bottom then left-to-right, with column sizes as even as
+possible. Earlier columns get one extra section when the counts do not divide
+evenly.
 
 ## Section Type Catalog
 
 Parse `sections` from the JSON payload. For each entry, use the template
 for its `type`. If a type is unknown, render an error callout.
+
+Payloads may use any subset of these supported section types.
 
 | Type | Purpose |
 |------|---------|
@@ -277,9 +406,9 @@ for its `type`. If a type is unknown, render an error callout.
 | `decision-log` | Architectural decisions table (decision / rationale / alternatives) |
 | `comparison-table` | Trade-off or before/after table with optional column highlight |
 | `diagram` | Mermaid diagram (flowchart, sequence, class, state) |
-| `testing-strategy` | Testing approach badge + critical behaviors + manual checks + exclusions |
+| `testing-strategy` | Optional testing guidance block, typically used in specs |
 
-There are 8 section types. Render each with its template below.
+There are 8 supported section types. Render any that appear in the payload.
 
 ### Section type: `title`
 
@@ -328,7 +457,6 @@ The workhorse component. Renders markdown with full Flexoki typography.
 
 ```html
 <aside class="callout callout-${level}">
-  <strong>${level === 'critical' ? '⚠' : level === 'warning' ? '▲' : 'ℹ'}</strong>
   <div>${renderMarkdown(content)}</div>
 </aside>
 ```
@@ -337,26 +465,27 @@ The workhorse component. Renders markdown with full Flexoki typography.
 
 **Fields:** `decisions` (required, array of `{decision: string, rationale: string, alternatives: string}`)
 
-Renders architectural decisions with rationale and alternatives considered.
+Expands into one record card per decision so those cards can be distributed
+individually across the document columns.
 
 ```html
-<section class="decision-log">
-  <table>
-    <thead>
-      <tr><th>Decision</th><th>Rationale</th><th>Alternatives considered</th></tr>
-    </thead>
-    <tbody>
-      ${decisions.map(d => `
-        <tr>
-          <td>${renderInlineMarkdown(d.decision)}</td>
-          <td>${renderInlineMarkdown(d.rationale)}</td>
-          <td>${renderInlineMarkdown(d.alternatives)}</td>
-        </tr>
-      `).join('')}
-      ${decisions.length === 0 ? '<tr><td colspan="3" style="color: var(--text-muted); font-style: italic;">No decisions recorded.</td></tr>' : ''}
-    </tbody>
-  </table>
-</section>
+${decisions.map(d => `
+  <article class="record-card decision-log-card">
+    <div class="record-field">
+      <span class="record-label">Decision</span>
+      <div class="record-value">${renderInlineMarkdown(d.decision)}</div>
+    </div>
+    <div class="record-field">
+      <span class="record-label">Rationale</span>
+      <div class="record-value">${renderInlineMarkdown(d.rationale)}</div>
+    </div>
+    <div class="record-field">
+      <span class="record-label">Alternatives considered</span>
+      <div class="record-value">${renderInlineMarkdown(d.alternatives)}</div>
+    </div>
+  </article>
+`).join('')}
+${decisions.length === 0 ? '<article class="record-card empty decision-log-card">No decisions recorded.</article>' : ''}
 ```
 
 ### Section type: `comparison-table`
@@ -364,28 +493,28 @@ Renders architectural decisions with rationale and alternatives considered.
 **Fields:** `headers` (required, string array), `rows` (required, string[][] array),
 `highlight_column` (optional, 0-based number)
 
-Clean table for trade-offs, before/after, approach comparisons. Optional column
-highlighting via `highlight_column`.
+Expands into one record card per row so findings can be distributed
+individually across the document columns. Optional emphasis is still available
+via `highlight_column`.
 
 ```html
-<section class="comparison-table">
-  <table>
-    <thead>
-      <tr>${headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr>
-    </thead>
-    <tbody>
-      ${rows.map(row => `
-        <tr>
-          ${row.map((cell, i) => {
-            const cls = (highlight_column != null && i === highlight_column) ? ' class="highlight-col"' : '';
-            return `<td${cls}>${renderInlineMarkdown(String(cell))}</td>`;
-          }).join('')}
-        </tr>
-      `).join('')}
-      ${rows.length === 0 ? `<tr><td colspan="${headers.length}" style="color: var(--text-muted); font-style: italic;">No data.</td></tr>` : ''}
-    </tbody>
-  </table>
-</section>
+${rows.map(row => `
+  <article class="record-card comparison-card">
+    ${headers.map((header, i) => {
+      const content = renderInlineMarkdown(String(row[i] ?? ''));
+      const value = (highlight_column != null && i === highlight_column)
+        ? `<div class="record-value"><div class="highlight-col">${content}</div></div>`
+        : `<div class="record-value">${content}</div>`;
+      return `
+        <div class="record-field">
+          <span class="record-label">${escapeHtml(header)}</span>
+          ${value}
+        </div>
+      `;
+    }).join('')}
+  </article>
+`).join('')}
+${rows.length === 0 ? '<article class="record-card empty comparison-card">No data.</article>' : ''}
 ```
 
 ### Section type: `diagram`
@@ -410,9 +539,10 @@ ${content}
 `manual_checks` (optional, string array),
 `do_not_test` (optional, string array)
 
-Captures the testing approach decision from the planning flow step 5.
-The `approach` field drives a colored badge; each list renders with empty-state
-handling.
+Optional testing guidance. Most useful for specs and other documents that need
+an explicit verification section. If the payload omits this section type,
+render nothing for it. The `approach` field drives a colored badge; each list
+renders with empty-state handling.
 
 ```html
 <section class="testing-strategy">
@@ -463,12 +593,16 @@ Do NOT render block-level markdown like headings or code fences.
 For block-level content (prose, callout content):
 Apply escapeHtml first to the raw string, then:
 
-- Blank lines split paragraphs → wrap each in `<p>`
+- `# heading` at line start → `<h1>heading</h1>`
+- `## heading` at line start → `<h2>heading</h2>`
+- `### heading` at line start → `<h3>heading</h3>`
+- Blank lines split paragraphs → wrap each remaining paragraph block in `<p>`
 - `**bold**` → `<strong>bold</strong>`
 - `*italic*` → `<em>italic</em>`
 - `` `code` `` → `<code>code</code>`
 - `[text](url)` → `<a href="url">text</a>`
 - `- item` at line start → `<li>item</li>` (group consecutive into `<ul>`)
+- Do not wrap generated heading tags or list blocks inside `<p>` tags
 
 **renderSection(section):**
 Switch on `section.type` to pick the template from the catalog.
@@ -483,11 +617,22 @@ diagram, testing-strategy.
    `{` and last `}` that forms valid JSON).
 3. Expand `~` in the output path to the value of `$HOME`.
 4. `mkdir -p` the parent directory of the output path.
-5. Build the HTML: shell (with title from JSON `title` field) + CSS +
-   rendered sections in order.
-6. Write via bash: `cat > <output_path> << 'DECKBUILDER_EOF'` then the HTML,
+5. Build the HTML shell (with title from JSON `title` field) + CSS.
+6. If the first section in `sections` is `title`, render it into `{{LEAD}}`.
+   Remove that section from the remaining section list. If there is no leading
+   `title` section, leave `{{LEAD}}` empty.
+7. Expand the remaining sections into render items before distributing columns:
+   - `decision-log` → one render item per decision card
+   - `comparison-table` → one render item per row card
+   - all other section types → one render item per section
+8. Distribute those render items into four sequential column groups that
+   preserve source order and differ in size by at most one item.
+   Use those groups for `{{COL1}}`, `{{COL2}}`, `{{COL3}}`, and `{{COL4}}`.
+9. The `deck-grid` container uses a left-aligned four-column layout.
+   Items read top-to-bottom within each column, then left-to-right across columns.
+10. Write via bash: `cat > <output_path> << 'DECKBUILDER_EOF'` then the HTML,
    then `DECKBUILDER_EOF`.
-7. Return exactly: `file://<output_path>`
+11. Return exactly: `file://<output_path>`
 
 If anything fails, still return a file:// link to whatever was written,
 or report: `file://<output_path> (render errors — see HTML for details)`.
