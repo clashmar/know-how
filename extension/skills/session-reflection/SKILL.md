@@ -72,8 +72,8 @@ This loads this skill into context. Then:
    already stored.
 
 3. **Write the reflection file** to
-   `~/.know-how/<project-name>/reflections/YYYY-MM-DD-<topic>.md` using the write
-   tool.
+   `~/.know-how/<project-name>/reflections/YYYY-MM-DD-<topic>.html` using the
+   write tool as a self-contained HTML document.
 
 4. **Present the saved reflection to the user** as a short markdown link label,
    not a bare filesystem path, for example `[Open reflection](file://...)`.
@@ -86,45 +86,132 @@ This loads this skill into context. Then:
 
 ### Reflection format
 
-Every reflection MUST include these sections. Fill each one honestly.
+Every reflection MUST be a self-contained HTML document and MUST include these
+sections. Fill each one honestly.
 
-```markdown
-# Reflection: <topic>
+```html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reflection: <topic></title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #fffdf8;
+      --fg: #1f2328;
+      --muted: #57606a;
+      --border: #d0d7de;
+      --panel: #ffffff;
+      --accent: #0969da;
+    }
 
-**Session:** <date or context — e.g., "2026-05-07 afternoon">
-**Scope:** <one sentence describing what this work covered>
+    * { box-sizing: border-box; }
 
-## What was accomplished
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font: 16px/1.6 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
 
-- <concrete achievements, be specific>
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 24px 64px;
+    }
 
-## Decisions made
+    h1, h2 { line-height: 1.2; }
 
-- **<decision>** — <rationale>. <who approved or suggested it>.
+    h1 { margin: 0 0 12px; }
 
-## User corrections & steering
+    .meta {
+      margin: 0 0 32px;
+      color: var(--muted);
+    }
 
-- Originally <what you did>. User redirected: "<what user said>".
-  <what changed as a result>.
+    section {
+      margin-top: 32px;
+      padding: 24px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
 
-## Mistakes & fixes
+    ul {
+      margin: 12px 0 0;
+      padding-left: 20px;
+    }
 
-- <what went wrong>, caught by <user/review/tests>, fixed by <solution>.
+    li + li {
+      margin-top: 8px;
+    }
 
-## Recurring problems to watch
+    code {
+      color: var(--accent);
+      font-family: "SFMono-Regular", ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Reflection: <topic></h1>
+    <p class="meta"><strong>Session:</strong> <date or context — e.g., "2026-05-07 afternoon"> · <strong>Scope:</strong> <one sentence describing what this work covered></p>
 
-- **<Nth time>** <pattern>. Previous: <reference to past reflection or session>.
-  Pattern: <why this keeps happening>.
+    <section>
+      <h2>What was accomplished</h2>
+      <ul>
+        <li><concrete achievements, be specific></li>
+      </ul>
+    </section>
 
-## Remaining work
+    <section>
+      <h2>Decisions made</h2>
+      <ul>
+        <li><strong><decision></strong> — <rationale>. <who approved or suggested it>.</li>
+      </ul>
+    </section>
 
-- <outstanding tasks, known follow-ups, decisions still pending>
+    <section>
+      <h2>User corrections &amp; steering</h2>
+      <ul>
+        <li>Originally <what you did>. User redirected: "<what user said>". <what changed as a result>.</li>
+      </ul>
+    </section>
 
-## pi-memory entries
+    <section>
+      <h2>Mistakes &amp; fixes</h2>
+      <ul>
+        <li><what went wrong>, caught by <user/review/tests>, fixed by <solution>.</li>
+      </ul>
+    </section>
 
-- `<key>` → stored via memory_remember
-- `<lesson>` → stored via memory_remember
-- `<key>` → removed via memory_forget (superseded by new decision)
+    <section>
+      <h2>Recurring problems to watch</h2>
+      <ul>
+        <li><strong><Nth time></strong> <pattern>. Previous: <reference to past reflection or session>. Pattern: <why this keeps happening>.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Remaining work</h2>
+      <ul>
+        <li><outstanding tasks, known follow-ups, decisions still pending></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>pi-memory entries</h2>
+      <ul>
+        <li><code>&lt;key&gt;</code> — stored via memory_remember</li>
+        <li><code>&lt;lesson&gt;</code> — stored via memory_remember</li>
+        <li><code>&lt;key&gt;</code> — removed via memory_forget (superseded by new decision)</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
 ```
 
 ### Staleness cleanup
