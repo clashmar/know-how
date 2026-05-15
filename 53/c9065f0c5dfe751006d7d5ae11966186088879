@@ -1,0 +1,22 @@
+extension/agents/deckbuilder.md
+  s_6b10a4c48e25da::t_d07177b2bf01c2 34-36,831-832
+  s_6b10a4c48e25da::t_98208112e50c0d 600-606
+  s_6b10a4c48e25da::t_59d234730f52ef 653-656,901-903
+  s_6b10a4c48e25da::t_0d85e794fd043a 823-830,833,934-949
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "53c9065f0c5dfe751006d7d5ae11966186088879",
+  "prompts": {},
+  "sessions": {
+    "s_6b10a4c48e25da": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e2aa3-e8d2-733e-a86e-3ebc70374b93",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
