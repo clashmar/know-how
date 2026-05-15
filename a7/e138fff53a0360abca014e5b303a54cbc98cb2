@@ -1,0 +1,24 @@
+extension/agents/deckbuilder.md
+  s_6b10a4c48e25da::t_59d234730f52ef 669-672,917-919
+  s_6b10a4c48e25da::t_2f843bfe92957c 94-99,104-112,122
+  s_6b10a4c48e25da::t_0d85e794fd043a 839-846,849,950-965
+  s_6b10a4c48e25da::t_d07177b2bf01c2 34-36,847-848
+  s_6b10a4c48e25da::t_5afb733d20c9ef 123-124
+  s_6b10a4c48e25da::t_98208112e50c0d 616-622
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "a7e138fff53a0360abca014e5b303a54cbc98cb2",
+  "prompts": {},
+  "sessions": {
+    "s_6b10a4c48e25da": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e2aa3-e8d2-733e-a86e-3ebc70374b93",
+        "model": "gpt-5.4"
+      },
+      "human_author": null
+    }
+  }
+}
