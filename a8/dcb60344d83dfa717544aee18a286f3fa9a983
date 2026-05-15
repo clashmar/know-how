@@ -1,0 +1,30 @@
+extension/skills/closing-out-work/SKILL.md
+  s_6b10a4c48e25da::t_2b407bfbfeca0b 143-145,147-159,161
+extension/skills/planning/SKILL.md
+  s_951e25e66564b1::t_03d6e381d7195c 26-27
+  s_951e25e66564b1::t_392ed3af892e61 24-25,28,114-119,123-125
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "a8dcb60344d83dfa717544aee18a286f3fa9a983",
+  "prompts": {},
+  "sessions": {
+    "s_6b10a4c48e25da": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e2aa3-e8d2-733e-a86e-3ebc70374b93",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    },
+    "s_951e25e66564b1": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e2a9b-bb6c-768d-9fc2-8689ddb87114",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
