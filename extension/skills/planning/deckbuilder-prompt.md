@@ -52,6 +52,18 @@ array. Each entry in `sections` must have a `type` field from this catalog:
 | `diagram`           | Mermaid diagram (flowchart, sequence, class, state)         |
 | `testing-strategy`  | Optional testing approach badge + critical behaviors + manual checks |
 
+## Optional `layout` field
+
+Sections may include an optional `layout` field to control placement in the
+masonry flow:
+
+- `"auto"` or omitted: use the section type's default placement (`title` defaults to `full`, `diagram` defaults to `wide`, all other section types default to `normal`)
+- `"normal"`: standard card that joins the shared masonry band
+- `"wide"`: wider block for content like diagrams that needs more room
+- `"full"`: full-page-width block
+
+Use `layout` only when the content needs a non-default footprint. An explicit `"layout": "wide"` on a diagram is optional and just makes that default obvious in examples.
+
 ## Example payload
 
 ```json
@@ -64,7 +76,7 @@ array. Each entry in `sections` must have a `type` field from this catalog:
     {"type": "code-block", "language": "typescript", "content": "interface Config {\n  endpoint: string;\n  retries: number;\n}", "caption": "Core configuration interface"},
     {"type": "decision-log", "decisions": [{"decision": "Use Flexoki CSS variables", "rationale": "Consistent color system, no hardcoded hex values in templates", "alternatives": "Tailwind tokens (heavier), raw hex everywhere (brittle)"}]},
     {"type": "comparison-table", "headers": ["Approach", "Pros", "Cons"], "rows": [["Typography-first", "Clean, content breathes", "Depends on writer quality"], ["Component kit", "Guides good writing", "More to maintain"]]},
-    {"type": "diagram", "content": "graph TD\n  A[Controller] -->|JSON payload| B[Deckbuilder]\n  B -->|HTML file| C[Browser]\n  C -->|Review| D[User]", "caption": "Deckbuilder rendering pipeline"},
+    {"type": "diagram", "layout": "wide", "content": "graph TD\n  A[Controller] -->|JSON payload| B[Deckbuilder]\n  B -->|HTML file| C[Browser]\n  C -->|Review| D[User]", "caption": "Deckbuilder rendering pipeline"},
     {"type": "testing-strategy", "approach": "manual", "critical_behaviors": ["All 8 components render correctly", "Flexoki colors match canonical palette"], "manual_checks": ["Open HTML in browser", "Verify syntax highlighting", "Check no fluff in page source"], "do_not_test": ["Exact pixel values", "Cross-browser rendering"]}
   ]
 }

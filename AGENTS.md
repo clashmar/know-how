@@ -15,7 +15,7 @@ The know-how extension bundles six agents in `extension/agents/`:
 - **reviewer** — Code review. Checks spec compliance and code quality. Read-only.
 - **guardian** — Convention enforcement. Checks documented project rules at per-task review. Read-only.
 - **maester** — Process optimization. Surfurces improvements, audits memory, detects patterns at close-out.
-- **deckbuilder** — Renders structured JSON payloads into left-aligned multi-column HTML/CSS dashboards.
+- **deckbuilder** — Renders structured JSON payloads into left-aligned multi-column HTML/CSS dashboards with a unified masonry layout.
 
 The install script (`scripts/install`) copies these agent definitions from
 `extension/agents/` to `~/.pi/agent/agents/`. The dispatch extension
