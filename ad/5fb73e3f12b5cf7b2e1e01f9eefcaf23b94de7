@@ -1,0 +1,52 @@
+extension/skills/closing-out-work/optimization-report-prompt.md
+  s_6b10a4c48e25da::t_b15f05e51f3b4e 1-15,21-49,51-61,67,70,72-86,88-97,99-103,105-120,122-125,127-151
+  s_6b10a4c48e25da::t_863b1f49f9bdfb 50
+  s_6b10a4c48e25da::t_0ed4c7fd5191f0 63-66,71,126
+  s_6b10a4c48e25da::t_b29a33c288d611 152-159
+  s_6b10a4c48e25da::t_7281c49e323b55 87,98,104
+  s_6b10a4c48e25da::t_aa2e50aac324a7 68-69
+  s_6b10a4c48e25da::t_a24d7aa20f0139 62,121
+  s_77dce27cd025cd::t_a2e9230060020d 16-20
+AGENTS.md
+  s_6b10a4c48e25da::t_6dd87455c1e5ac 18
+extension/agents/deckbuilder.md
+  s_6b10a4c48e25da::t_7281c49e323b55 255-259,261-264,273-278,286-296
+  s_6b10a4c48e25da::t_2253cc5315677f 279-285
+  s_6b10a4c48e25da::t_863b1f49f9bdfb 468-469,472-488,496-498,501-517,624-629,631-633,635
+  s_6b10a4c48e25da::t_b29a33c288d611 120-124,127-133,135,137-139,142,147,353-354,374-378,387-391,622-623,630
+  s_6b10a4c48e25da::t_b6563c4c934a57 596-599,605
+  s_6b10a4c48e25da::t_b15f05e51f3b4e 47-48,90-91,111-112,125-126,134,136,140-141,143-146,148-149,161-162,173,176-178,188-189,193,196-197,210-211,224-228,239,297,300,304-311,313,318,321,323-333,344-345,373,379,384-386,392,398-399,409,411,542-545,620-621
+  s_6b10a4c48e25da::t_982b427e907c39 78-82,234-235,237,240-252,260,265-272
+README.md
+  s_6b10a4c48e25da::t_02c043b61be1a3 85-88
+extension/skills/planning/deckbuilder-prompt.md
+  s_6b10a4c48e25da::t_863b1f49f9bdfb 50-51
+  s_6b10a4c48e25da::t_b15f05e51f3b4e 53
+extension/skills/closing-out-work/SKILL.md
+  s_6b10a4c48e25da::t_2b407bfbfeca0b 143-145,147-150,152-159,161
+  s_77dce27cd025cd::t_3391b5c00eeb19 151
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "ad5fb73e3f12b5cf7b2e1e01f9eefcaf23b94de7",
+  "prompts": {},
+  "sessions": {
+    "s_6b10a4c48e25da": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e2aa3-e8d2-733e-a86e-3ebc70374b93",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    },
+    "s_77dce27cd025cd": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e2ac6-f375-76cf-9537-e427d73b2163",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
