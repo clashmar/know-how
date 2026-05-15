@@ -1,0 +1,23 @@
+extension/tools/present-choice.ts
+  s_c8c44bd93c7184::t_3353d91f833bfd 65
+  s_c8c44bd93c7184::t_a5c16cea29c83d 1,59-64,66-73
+extension/tools/present-decisions.ts
+  s_c8c44bd93c7184::t_6dfeed314a8666 1,37-42,44-51
+  s_c8c44bd93c7184::t_9864e78e4e8b16 43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "a40f1d961fce109c41377bad36944256ea1dfd8f",
+  "prompts": {},
+  "sessions": {
+    "s_c8c44bd93c7184": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e2ad5-b29c-773d-9830-c8633ab0ad2c",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
