@@ -1,0 +1,19 @@
+extension/skills/session-reflection/SKILL.md
+  s_77dce27cd025cd::t_f801fd03f63a23 75-76,89-214
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "7d1b3cd9c564d6397e8a8f0fd0356baa9b031d69",
+  "prompts": {},
+  "sessions": {
+    "s_77dce27cd025cd": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e2ac6-f375-76cf-9537-e427d73b2163",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
