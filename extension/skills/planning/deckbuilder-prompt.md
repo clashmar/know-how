@@ -1,7 +1,8 @@
 # Deckbuilder Subagent Prompt Template
 
-Use this template when dispatching the **deckbuilder** agent to render a design
-spec as an HTML dashboard.
+Use this template only when the user has chosen the full HTML spec option and
+you are dispatching the **deckbuilder** agent to render a design spec as an
+HTML dashboard.
 
 ## Quick Reference
 

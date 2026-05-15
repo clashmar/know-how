@@ -21,13 +21,11 @@ Create a task for each of these items and complete them in order:
 3. **Propose 2-3 approaches** — include trade-offs and a recommendation
 4. **Present the design** — scale detail to complexity, get approval section by section
 5. **Decide the testing strategy** — identify critical behaviors, manual checks, and whether the work should use TDD or be manually tested
-6. **Write the design doc** — read `./deckbuilder-prompt.md` for the dispatch
-   format and payload structure, then dispatch the **deckbuilder** agent with the
-   validated spec as a JSON payload and output path
-   `~/.know-how/<project-name>/specs/YYYY-MM-DD-<topic>.html`. If the controller
-   is still in read mode, the dispatch gate will surface write-mode approval
-   automatically before deckbuilder starts. The deckbuilder returns a `file://`
-   link — present this link to the user.
+6. **Write the design doc** — call `present_choice` to ask whether the user
+   wants a full HTML spec or a markdown spec saved in the specs folder. State
+   the trade-offs neutrally — do not recommend either option. Then follow the
+   documentation rules below for the chosen format and present the resulting
+   path or link to the user.
 7. **Self-review the spec** — remove ambiguity, placeholders, and contradictions
 8. **Ask the user to review the spec** — wait for approval before moving on
 9. **Transition to implementation planning** — if the controller is still in read mode,
@@ -113,13 +111,18 @@ The terminal state is invoking `know-how:writing-plans`.
 
 **Documentation:**
 
-- Dispatch the `deckbuilder` agent with the validated spec as a JSON payload.
-  If the controller is still in read mode, the dispatch gate will surface
-  write-mode approval automatically before deckbuilder starts.
-  (see `deckbuilder-prompt.md` for format) and output path
+- Always call `present_choice` to offer a full HTML spec or a markdown spec.
+  State the trade-offs neutrally — do not recommend either option.
+- If the user chooses HTML, dispatch the `deckbuilder` agent with the validated
+  spec as a JSON payload. If the controller is still in read mode, the
+  write-capable gate will surface write-mode approval automatically before
+  deckbuilder starts. (see `deckbuilder-prompt.md` for format) Use output path
   `~/.know-how/<project-name>/specs/YYYY-MM-DD-<topic>.html`.
   The deckbuilder writes the HTML file and returns a `file://` link.
   Present this link to the user.
+- If the user chooses markdown, write the validated spec directly to
+  `~/.know-how/<project-name>/specs/YYYY-MM-DD-<topic>.md` and present the path
+  to the user.
 - Derive `<project-name>` from the git repository root (`git rev-parse --show-toplevel`)
   basename, lowercased with non-alphanumeric runs replaced by hyphens.
 - If `~/.know-how/<project-name>/` does not exist, use `present_choice` to
