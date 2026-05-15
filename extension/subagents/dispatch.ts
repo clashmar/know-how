@@ -16,6 +16,7 @@ import { isInReadMode, isRoleLocked, isWriteCapableRole, requestWriteMode } from
 import type { WriteModeApprovalRequest } from "../write-mode/approval";
 import { renderResultView } from "./render";
 import { openProgressOverlay } from "./progress-overlay";
+import { createResponseCollector } from "./response-collector";
 import { readSettings, type Settings } from "../settings";
 
 /** Module-level state shared between execute and renderCall for live updates. */
@@ -220,23 +221,24 @@ function spawnPi(
       stdio: ["pipe", "pipe", "pipe"],
     });
 
-    let stdout = "";
-    let stderr = "";
+    // Keep stdout/stderr bounded while the child runs. Subagents can emit a lot of JSONL,
+    // and concatenating every chunk into one giant string can crash Node with Invalid string length.
+    const responseCollector = createResponseCollector();
 
     child.stdout?.on("data", (data: Buffer) => {
       const chunk = data.toString();
-      stdout += chunk;
+      responseCollector.appendStdout(chunk);
       if (onData) onData(chunk);
     });
     child.stderr?.on("data", (data: Buffer) => {
-      stderr += data.toString();
+      responseCollector.appendStderr(data.toString());
     });
 
     // Close stdin — pi may block reading from an open pipe
     child.stdin?.end();
 
     child.on("close", (code) => {
-      const extracted = extractResponse(stdout);
+      const extracted = responseCollector.finalize();
       if (code === 0) {
         if (extracted.error && !extracted.text) {
           reject(new Error(extracted.error));
@@ -252,8 +254,8 @@ function spawnPi(
       } else {
         const details = [
           extracted.error,
-          stderr.trim() || undefined,
-          !stderr.trim() ? stdout.trim() || undefined : undefined,
+          extracted.stderrTail.trim() || undefined,
+          !extracted.stderrTail.trim() ? extracted.stdoutTail.trim() || undefined : undefined,
         ].filter((value): value is string => Boolean(value));
         reject(
           new Error(
@@ -274,83 +276,6 @@ function spawnPi(
   });
 }
 
-interface ExtractedResponse {
-  text: string;
-  error?: string;
-}
-
-function extractErrorText(error: unknown): string | undefined {
-  if (typeof error === "string") {
-    return error;
-  }
-  if (!error || typeof error !== "object") {
-    return undefined;
-  }
-
-  const candidate = error as { errorMessage?: unknown; message?: unknown; error?: unknown };
-  if (typeof candidate.errorMessage === "string") {
-    return candidate.errorMessage;
-  }
-  if (typeof candidate.message === "string") {
-    return candidate.message;
-  }
-  return extractErrorText(candidate.error);
-}
-
-function extractResponse(stdout: string): ExtractedResponse {
-  // With --mode json, stdout is JSONL. Extract assistant message text and surfaced errors.
-  const parts: string[] = [];
-  let surfacedError: string | undefined;
-
-  for (const line of stdout.split("\n")) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-
-    let evt: {
-      type?: string;
-      error?: unknown;
-      message?: {
-        role?: string;
-        content?: Array<{ type?: string; text?: string }>;
-        stopReason?: string;
-        errorMessage?: string;
-      };
-    };
-    try {
-      evt = JSON.parse(trimmed) as typeof evt;
-    } catch {
-      if (!surfacedError && trimmed.startsWith("Error:")) {
-        surfacedError = trimmed;
-      }
-      continue;
-    }
-
-    if (evt.type === "error") {
-      surfacedError = extractErrorText(evt.error) ?? surfacedError;
-      continue;
-    }
-
-    if (evt.type === "message_end" && evt.message?.role === "assistant") {
-      if (evt.message.stopReason === "error" || evt.message.stopReason === "aborted") {
-        surfacedError = evt.message.errorMessage
-          ?? surfacedError
-          ?? `Assistant stopped with reason: ${evt.message.stopReason}`;
-      }
-      if (evt.message.content) {
-        for (const part of evt.message.content) {
-          if (part.type === "text" && part.text) {
-            parts.push(part.text);
-          }
-        }
-      }
-    }
-  }
-
-  return {
-    text: parts.join("\n").trim(),
-    error: surfacedError,
-  };
-}
 
 function buildModelList(settings: Settings, agentName?: string): string[] {
   const defaultModelId = settings.defaultProvider && settings.defaultModel
