@@ -75,7 +75,11 @@ This loads this skill into context. Then:
    `~/.know-how/<project-name>/reflections/YYYY-MM-DD-<topic>.md` using the write
    tool.
 
-4. **Persist to pi-memory** — for each key decision, correction, or lesson:
+4. **Present the saved reflection to the user** as a short markdown link label,
+   not a bare filesystem path, for example `[Open reflection](file://...)`.
+   This keeps the link clickable in narrow terminals.
+
+5. **Persist to pi-memory** — for each key decision, correction, or lesson:
    - Call memory_search to find existing facts
    - Call memory_forget on any facts that are now obsolete
    - Call memory_remember for new/updated decisions, project facts, and lessons

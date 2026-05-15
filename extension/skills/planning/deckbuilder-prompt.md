@@ -13,6 +13,10 @@ No reads:    deckbuilder doesn't use the reads parameter
 Output:      file://<link>  (returned by deckbuilder as its response)
 ```
 
+When showing the deckbuilder result to the human, do not paste the bare
+`file://` URL. Wrap it in a short markdown link label such as
+`[Open spec](file://...)` so it stays clickable in narrow terminals.
+
 When dispatching, the `task` text must contain exactly two things:
 
 1. **`OUTPUT PATH:`** followed by the target file path
