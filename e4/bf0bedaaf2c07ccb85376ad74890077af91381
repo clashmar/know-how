@@ -1,0 +1,23 @@
+extension/skills/session-reflection/SKILL.md
+  s_77dce27cd025cd::t_92b1188fb8f8d1 78-82
+extension/skills/planning/deckbuilder-prompt.md
+  s_77dce27cd025cd::t_cc4cb183e12ed0 16-19
+extension/skills/planning/SKILL.md
+  s_77dce27cd025cd::t_63c3438889a81d 122
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "e4bf0bedaaf2c07ccb85376ad74890077af91381",
+  "prompts": {},
+  "sessions": {
+    "s_77dce27cd025cd": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e2ac6-f375-76cf-9537-e427d73b2163",
+        "model": "gpt-5.4"
+      },
+      "human_author": null
+    }
+  }
+}
