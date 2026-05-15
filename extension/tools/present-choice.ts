@@ -1,3 +1,4 @@
+import { Text, Container } from "@earendil-works/pi-tui";
 import { Type } from "@sinclair/typebox";
 import { ChoicePicker } from "../ui/choice-picker";
 import type { ChoiceOption } from "../ui/choice-picker";
@@ -55,6 +56,21 @@ export function registerPresentChoice(pi: ExtensionAPI): void {
       "Do not add your own other option in options, and keep otherLabel short. " +
       "Do NOT ask the user to type their choice — call this tool instead.",
     parameters: PresentChoiceParams,
+    renderCall(args, theme) {
+      const container = new Container();
+      const optionCount = args.options.length;
+      const optionLabel = optionCount === 1 ? "option" : "options";
+
+      container.addChild(new Text(
+        `${theme.fg("toolTitle", theme.bold("choice"))} ${theme.fg("dim", "· select one")}`,
+        0, 0,
+      ));
+      container.addChild(new Text(
+        `${theme.fg("accent", args.title)} ${theme.fg("dim", `· ${optionCount} ${optionLabel}`)}`,
+        0, 0,
+      ));
+      return container;
+    },
 
     async execute(_toolCallId, params, _signal, _onUpdate, ctx): Promise<AgentToolResult<unknown>> {
       const options: ChoiceOption[] = params.options;

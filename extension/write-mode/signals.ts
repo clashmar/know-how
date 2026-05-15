@@ -9,6 +9,7 @@ export const STAY_READ_MODE_VALUE = "__stay-read-mode__";
 
 const ENABLE_WRITE_MODE_SELECTIONS = new Set([
   normalizeWriteModeSelection(ENABLE_WRITE_MODE_VALUE),
+  normalizeWriteModeSelection("enable"),
   normalizeWriteModeSelection("enable-write"),
   normalizeWriteModeSelection("enable write mode"),
   normalizeWriteModeSelection("switch-write"),

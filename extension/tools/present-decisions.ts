@@ -1,3 +1,4 @@
+import { Text, Container } from "@earendil-works/pi-tui";
 import { Type } from "@sinclair/typebox";
 import { DecisionForm } from "../ui/decision-form";
 import type { Decision, DecisionOption } from "../ui/decision-form";
@@ -33,6 +34,21 @@ export function registerPresentDecisions(pi: ExtensionAPI): void {
       "(e.g. execution style + worktree strategy + autonomy level). " +
       "Do NOT ask the user to type their choices — call this tool instead.",
     parameters: PresentDecisionsParams,
+    renderCall(args, theme) {
+      const container = new Container();
+      const decisionCount = args.decisions.length;
+      const decisionLabel = decisionCount === 1 ? "decision" : "decisions";
+
+      container.addChild(new Text(
+        `${theme.fg("toolTitle", theme.bold("choices"))} ${theme.fg("dim", "· choose related options")}`,
+        0, 0,
+      ));
+      container.addChild(new Text(
+        `${theme.fg("accent", args.title)} ${theme.fg("dim", `· ${decisionCount} ${decisionLabel}`)}`,
+        0, 0,
+      ));
+      return container;
+    },
 
     async execute(_toolCallId, params, _signal, _onUpdate, ctx): Promise<AgentToolResult<unknown>> {
       const decisions: Decision[] = params.decisions.map((d: { label: string; options: DecisionOption[]; tooltip?: string; otherLabel?: string }) => ({
