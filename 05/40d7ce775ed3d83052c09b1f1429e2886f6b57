@@ -1,0 +1,24 @@
+docs/config.md
+  s_4892e9180b94df::t_35b105a63ab1f5 1-2,4-39,46-60
+README.md
+  s_4892e9180b94df::t_463f71814704fb 4-22
+  s_4892e9180b94df::t_9805f4802c953d 44-47,55
+docs/shoutouts.md
+  s_4892e9180b94df::t_fbbc1360555ee5 1-2,4-6,8-10,12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "0540d7ce775ed3d83052c09b1f1429e2886f6b57",
+  "prompts": {},
+  "sessions": {
+    "s_4892e9180b94df": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e2b06-6f41-7388-85f3-cad8b0c7efbf",
+        "model": "gpt-5.4-mini"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
