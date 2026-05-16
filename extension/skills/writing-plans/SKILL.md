@@ -365,6 +365,13 @@ Call `present_decisions` with title "Plan Configuration" and three decisions:
 
 Read the returned map, record the `Execution Style:`, `Execution Autonomy:`, and `Worktree Strategy:` fields in the plan header, then save the final plan. Before saving the file, if the controller is still in read mode, use the shared write-mode approval prompt first.
 
+### Set the session goal
+
+After writing the plan and before handing off for execution, call
+`set_session_goal` with the plan title or a complete sentence (but no punctuation or emojis) under 8 words
+describing the work (e.g. "Refactor room editor" or "Create current goal
+widget"). This records what this plan implements.
+
 Both execution styles must follow the declared autonomy mode and worktree strategy exactly.
 
 **If Subagent-Driven chosen:**

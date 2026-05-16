@@ -200,6 +200,14 @@ export async function requestWriteMode(ctx: ExtensionContext, request?: WriteMod
   return _requestWriteMode(ctx, request);
 }
 
+/**
+ * Sets the current session goal on the active editor.
+ * Safe to call even if no editor instance exists yet.
+ */
+export function setSessionGoal(goal: string | null): void {
+  modeEditor?.setGoal(goal);
+}
+
 // Editor reference — updated on toggle
 let modeEditor: ModeAwareEditor | undefined;
 

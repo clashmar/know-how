@@ -28,7 +28,8 @@ Create a task for each of these items and complete them in order:
    path or link to the user.
 7. **Self-review the spec** — remove ambiguity, placeholders, and contradictions
 8. **Ask the user to review the spec** — wait for approval before moving on
-9. **Transition to implementation planning** — if the controller is still in read mode,
+9. **Set the session goal** — call `set_session_goal` with the spec title as a complete sentence (but no punctuation or emojis) under 8 words.
+10. **Transition to implementation planning** — if the controller is still in read mode,
    use the shared write-mode approval prompt before continuing (the plan will be
    written to disk). Then invoke `know-how:writing-plans`.
 <IMPORTANT>
@@ -148,6 +149,14 @@ After the self-review passes, ask the user to review the written spec before pla
 > "Spec written to `<path>`. Please review it and let me know if you want any changes before we write the implementation plan."
 
 Wait for approval before invoking the next skill.
+
+### Set the session goal
+
+After the user approves the spec and before transitioning to implementation
+planning, call `set_session_goal` with the spec title as a complete sentence
+under 8 words describing the work (e.g. "Refactor room editor" or
+"Create current goal widget"). This displays the goal in the editor's bottom
+border for the duration of the session.
 
 ## Key Principles
 

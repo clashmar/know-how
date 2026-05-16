@@ -6,7 +6,7 @@
  * skills directory for pi discovery.
  */
 
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI, AgentToolResult, AgentToolUpdateCallback, ExtensionContext, Theme } from "@mariozechner/pi-coding-agent";
 // @mariozechner/pi-coding-agent is deprecated upstream; will migrate when @samfp/pi-memory updates
 import type { MemoryStore, SemanticEntry } from "@samfp/pi-memory/store";
 import fs from "node:fs";
@@ -27,8 +27,10 @@ import {
 	loadProjectSkill,
 	PROJECT_SKILLS_DIR,
 } from "./startup/skill-discovery";
-import { registerReadMode } from "./write-mode/read-mode";
+import { registerReadMode, setSessionGoal } from "./write-mode/read-mode";
 import { beforeAgentStart } from "./startup/session-start";
+import { Type } from "@sinclair/typebox";
+import { Text } from "@earendil-works/pi-tui";
 import { registerPresentChoice } from "./tools/present-choice";
 import { registerPresentDecisions } from "./tools/present-decisions";
 import { MEMORY_NAMESPACES } from "./memory-convention";
@@ -50,6 +52,9 @@ type PiMemoryModule = {
 };
 
 let _piMemory: PiMemoryModule | null | undefined;
+
+/** Current session goal shown in the editor's bottom border. Set by agents via set_session_goal tool. */
+let currentGoal: string | null = null;
 
 function getPiMemory(): PiMemoryModule | null {
 	if (_piMemory !== undefined) return _piMemory ?? null;
@@ -331,6 +336,53 @@ export default function (pi: ExtensionAPI) {
 	registerPresentChoice(pi);
 	registerPresentDecisions(pi);
 
+	// Register set_session_goal tool — agents call this when a spec is agreed
+	pi.registerTool({
+		name: "set_session_goal",
+		label: "Set Session Goal",
+		description:
+			"Set the current session goal shown in the editor's bottom border. "
+			+ "Call this when a spec is agreed or when starting a new goal. "
+			+ "The goal must be a complete sentence up to 8 words describing the work.",
+		parameters: Type.Object({
+			goal: Type.String({
+				description: "Complete sentence up to 8 words describing the work. "
+					+ "Pass empty string to clear the goal.",
+			}),
+		}),
+		async execute(
+			_toolCallId: string,
+			params: { goal: string },
+			_signal: AbortSignal | undefined,
+			_onUpdate: AgentToolUpdateCallback<unknown> | undefined,
+			_ctx: ExtensionContext,
+		): Promise<AgentToolResult<unknown>> {
+			const cleaned = params.goal.trim();
+			currentGoal = cleaned.length > 0 ? cleaned : null;
+			setSessionGoal(currentGoal);
+			return {
+				content: [
+					{
+						type: "text" as const,
+						text: currentGoal
+							? `Goal set to: ${currentGoal}`
+							: "Goal cleared.",
+					},
+				],
+				details: {},
+			};
+		},
+		renderCall(
+			_args: { goal: string },
+			theme: Theme,
+		) {
+			return new Text(
+				`${theme.fg("toolTitle", theme.bold("goal"))} ${theme.fg("dim", "· set session goal")}`,
+				0, 0,
+			);
+		},
+	});
+
 	// Expose skills and project skills directories for pi auto-discovery
 	pi.on("resources_discover", async (_event, _ctx) => {
 		const paths: string[] = [];
@@ -426,6 +478,15 @@ export default function (pi: ExtensionAPI) {
 				content: result.block,
 				display: false,
 			},
+		};
+	});
+
+	// Inject current session goal into system prompt
+	pi.on("before_agent_start", async (event, _ctx) => {
+		if (!currentGoal) return;
+		return {
+			systemPrompt:
+				event.systemPrompt + `\n\n[Current goal: ${currentGoal}]`,
 		};
 	});
 

@@ -13,13 +13,23 @@ import { borderColor, BORDER_CHAR } from "../ui/border-style";
 
 const ANSI_RE = /\x1b\[\d+(;\d+)*m/g;
 
+const BORDER_EDGE_WIDTH = 2;
+const MAX_GOAL_WORDS = 8;
+
 type EditorMode = "read" | "write" | "locked";
 
 export class ModeAwareEditor extends CustomEditor {
   private editorMode: EditorMode = "read";
+  private currentGoal: string | null = null;
 
   setMode(readMode: boolean, locked: boolean, _role?: string): void {
     this.editorMode = locked ? "locked" : readMode ? "read" : "write";
+    this.tui?.requestRender();
+  }
+
+  /** Sets the current session goal shown in the bottom border. Null clears it. */
+  setGoal(goal: string | null): void {
+    this.currentGoal = goal;
     this.tui?.requestRender();
   }
 
@@ -49,7 +59,7 @@ export class ModeAwareEditor extends CustomEditor {
     // Top border — mode label left-aligned
     const modeLabelText = this.editorMode === "write" ? " WRITE " : " READ ";
     const labelLen = modeLabelText.length;
-    const leftLen = 2;
+    const leftLen = BORDER_EDGE_WIDTH;
     const rightLen = Math.max(0, width - leftLen - labelLen);
     result.push(color(BORDER_CHAR.repeat(leftLen)) + color(modeLabelText) + color(BORDER_CHAR.repeat(rightLen)));
 
@@ -58,8 +68,21 @@ export class ModeAwareEditor extends CustomEditor {
       result.push(lines[i]);
     }
 
-    // Bottom border — thick line
-    result.push(color(BORDER_CHAR).repeat(width));
+    // Bottom border — right-aligned goal label or plain fill
+    if (this.currentGoal) {
+      // Reserve 4 chars for: space + label text + space + right border(2)
+      const goal = truncateToFit(this.currentGoal, MAX_GOAL_WORDS, width - 4);
+      const padded = " " + goal + " ";
+      const rightLen = BORDER_EDGE_WIDTH; // ━━
+      const leftLen = Math.max(0, width - padded.length - rightLen);
+      result.push(
+        color(BORDER_CHAR.repeat(leftLen))
+        + color(padded)
+        + color(BORDER_CHAR.repeat(rightLen))
+      );
+    } else {
+      result.push(color(BORDER_CHAR.repeat(width)));
+    }
 
     // Autocomplete lines (after bottom border, if any)
     for (let i = bottomBorderIdx + 1; i < lines.length; i++) {
@@ -69,3 +92,24 @@ export class ModeAwareEditor extends CustomEditor {
     return result;
   }
 }
+
+/**
+ * Truncates text to fit within a maximum width, first by words then by characters.
+ * The result is suitable for rendering within a border label (no padding included).
+ */
+function truncateToFit(text: string, maxWords: number, maxWidth: number): string {
+  // First pass: word truncation
+  let result = text.trim();
+  const words = result.split(/\s+/);
+  if (words.length > maxWords) {
+    result = words.slice(0, maxWords).join(" ") + "…";
+  }
+
+  // Second pass: width truncation
+  if (result.length > maxWidth) {
+    result = result.slice(0, Math.max(0, maxWidth - 1)) + "…";
+  }
+
+  return result;
+}
+
