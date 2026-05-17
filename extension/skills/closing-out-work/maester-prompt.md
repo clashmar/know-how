@@ -5,6 +5,12 @@
 Use this template when dispatching the maester agent at close-out.
 Fill in all `<…>` placeholders from this session's context before dispatching.
 
+If no formal per-task reviewers were dispatched:
+
+- Set **Per-task review outputs** to `no per-task reviews — ad-hoc session`.
+- Treat **Tasks completed** and **User corrections and steering received this session** as first-class evidence for optimization findings.
+- Explicitly call out that formal review count is zero.
+
 ```md
 subagent({
   agent: "maester",
