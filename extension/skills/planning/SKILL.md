@@ -120,7 +120,7 @@ The terminal state is invoking `know-how:writing-plans`.
   deckbuilder starts. (see `deckbuilder-prompt.md` for format) Use output path
   `~/.know-how/<project-name>/specs/YYYY-MM-DD-<topic>.html`.
   The deckbuilder writes the HTML file and returns a `file://` link.
-  Present it to the user as a short markdown link label, not as a bare URL.
+  > **Important:** Present it as a short markdown link label like `[Open spec](file://...)`, never a bare `file://...` URL.
 - If the user chooses markdown, write the validated spec directly to
   `~/.know-how/<project-name>/specs/YYYY-MM-DD-<topic>.md` and present the path
   to the user.

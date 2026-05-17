@@ -365,6 +365,13 @@ Call `present_decisions` with title "Plan Configuration" and three decisions:
 
 Read the returned map, record the `Execution Style:`, `Execution Autonomy:`, and `Worktree Strategy:` fields in the plan header, then save the final plan. Before saving the file, if the controller is still in read mode, use the shared write-mode approval prompt first.
 
+After saving, present file artifacts as short markdown links (not bare paths or bare `file://` URLs). Use concise labels, for example:
+
+- `[Open spec](file://...)` when a spec file exists
+- `[Open plan](file://...)`
+
+Then present the chosen execution configuration and handoff status.
+
 ### Set the session goal
 
 After writing the plan and before handing off for execution, call
