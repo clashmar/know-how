@@ -1,0 +1,19 @@
+extension/skills/closing-out-work/maester-prompt.md
+  s_8c81d6248a4b27::t_3d156d57b981f7 8-13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "76522ab4c085f06f54036aff16bfba5d9048c62a",
+  "prompts": {},
+  "sessions": {
+    "s_8c81d6248a4b27": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e35f3-bbe8-701c-8844-aa30d9ed4e8e",
+        "model": "gpt-5.3-codex"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
