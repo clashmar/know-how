@@ -270,7 +270,7 @@ function spawnPi(
     });
 
     if (signal && typeof signal.addEventListener === "function") {
-      const onAbort = () => { child.kill(); signal.removeEventListener("abort", onAbort); };
+      const onAbort = () => { child.kill("SIGKILL"); signal.removeEventListener("abort", onAbort); };
       signal.addEventListener("abort", onAbort, { once: true });
     }
   });
@@ -357,6 +357,8 @@ async function dispatchAgent(
     } catch (error) {
       const attemptError = error instanceof Error ? error : new Error(String(error));
       failures.push({ model, error: attemptError.message });
+      // Don't try fallback models if the user cancelled (Escape)
+      if (signal?.aborted) break;
       const nextModel = shouldRetryWithFallback(attemptError) ? candidates[i + 1] : undefined;
       if (onModelChange) {
         onModelChange({
