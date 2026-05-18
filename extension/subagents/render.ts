@@ -1,6 +1,6 @@
 // extension/subagents/render.ts
 
-import { Container, Text, Spacer, truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
+import { Container, Text, truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
 import type { Component } from "@earendil-works/pi-tui";
 import type { Theme } from "@mariozechner/pi-coding-agent";
 // @mariozechner/pi-coding-agent is deprecated upstream; will migrate when @samfp/pi-memory updates
@@ -87,99 +87,6 @@ function wrapPlainText(text: string, maxWidth: number): string[] {
   return wrapped.length > 0 ? wrapped : [""];
 }
 
-function renderWrappedError(
-  container: Container,
-  theme: Theme,
-  firstPrefix: string,
-  continuationPrefix: string,
-  errorText: string,
-  maxWidth: number,
-): void {
-  let isFirstLine = true;
-
-  for (const sourceLine of normalizeErrorLines(errorText)) {
-    const prefix = isFirstLine ? firstPrefix : continuationPrefix;
-    const availableWidth = Math.max(1, maxWidth - visibleWidth(prefix));
-    const wrappedLines = wrapPlainText(sourceLine, availableWidth);
-
-    for (const wrappedLine of wrappedLines) {
-      const currentPrefix = isFirstLine ? firstPrefix : continuationPrefix;
-      container.addChild(new Text(error(theme, `${currentPrefix}${wrappedLine}`), 0, 0));
-      isFirstLine = false;
-    }
-  }
-}
-
-function statJoin(theme: Theme, parts: string[]): string {
-  return parts.filter(Boolean).map((p) => dim(theme, p)).join(` ${dim(theme, "·")} `);
-}
-
-function joinPlainStats(parts: string[]): string {
-  return parts.join(" · ");
-}
-
-// Never truncate the styled header line; fit raw text first or the ellipsis can lose background fill.
-function fitPlainText(text: string, maxWidth: number): string {
-  if (maxWidth <= 0) return "";
-  if (visibleWidth(text) <= maxWidth) return text;
-  if (maxWidth === 1) return "…";
-
-  let truncated = text;
-  while (truncated.length > 0 && visibleWidth(`${truncated}…`) > maxWidth) {
-    truncated = truncated.slice(0, -1);
-  }
-  return truncated.length > 0 ? `${truncated}…` : "…";
-}
-
-function stateStats(state: SubagentState, theme: Theme, maxStatsWidth?: number): string {
-  const parts: string[] = [];
-  if (state.toolCount > 0) parts.push(`${state.toolCount} tool${state.toolCount === 1 ? "" : "s"}`);
-  if (state.tokens > 0) parts.push(`${formatTokens(state.tokens)} tok`);
-  if (state.model) {
-    if (maxStatsWidth === undefined) {
-      parts.push(state.model);
-    } else {
-      const usedWidth = visibleWidth(joinPlainStats(parts));
-      const separatorWidth = parts.length > 0 ? 3 : 0;
-      const availableWidth = maxStatsWidth - usedWidth - separatorWidth;
-      const model = fitPlainText(state.model, availableWidth);
-      if (model) {
-        parts.push(model);
-      }
-    }
-  }
-  return statJoin(theme, parts);
-}
-
-function buildStateHeaderLine(
-  prefix: string,
-  state: SubagentState,
-  theme: Theme,
-  maxWidth: number,
-): string {
-  const statsMaxWidth = Math.max(0, maxWidth - visibleWidth(prefix) - 3);
-  const stats = stateStats(state, theme, statsMaxWidth);
-  return stats ? `${prefix} ${dim(theme, "·")} ${stats}` : prefix;
-}
-
-function renderStateHeader(
-  container: Container,
-  state: SubagentState,
-  theme: Theme,
-  glyph: string,
-  maxWidth: number,
-): void {
-  const prefix = `${glyph} ${bold(theme, state.agent)}`;
-  container.addChild(new Text(buildStateHeaderLine(prefix, state, theme, maxWidth), 0, 0));
-}
-
-function statusGlyph(state: SubagentState, theme: Theme): string {
-  if (state.status === "running") return accent(theme, spinnerFrame());
-  if (state.status === "pending") return muted(theme, "◦");
-  if (state.status === "done") return success(theme, "✓");
-  return error(theme, "✗");
-}
-
 function renderWrappedText(
   container: Container,
   formatLine: (value: string) => string,
@@ -204,130 +111,142 @@ function renderWrappedText(
   }
 }
 
-function currentToolText(state: SubagentState): string | undefined {
-  if (state.currentToolArgs && state.currentToolArgs.trim().length > 0) {
-    return state.currentToolArgs;
-  }
-  if (state.currentTool) {
-    return state.currentTool;
-  }
-  return undefined;
-}
+function renderWrappedError(
+  container: Container,
+  theme: Theme,
+  firstPrefix: string,
+  continuationPrefix: string,
+  errorText: string,
+  maxWidth: number,
+): void {
+  let isFirstLine = true;
 
-function renderCompactSingle(state: SubagentState, theme: Theme, width: number): Container {
-  const container = new Container();
-  const innerWidth = width - 4;
-  renderStateHeader(container, state, theme, statusGlyph(state, theme), innerWidth);
+  for (const sourceLine of normalizeErrorLines(errorText)) {
+    const prefix = isFirstLine ? firstPrefix : continuationPrefix;
+    const availableWidth = Math.max(1, maxWidth - visibleWidth(prefix));
+    const wrappedLines = wrapPlainText(sourceLine, availableWidth);
 
-  if (state.status === "running") {
-    const activity = currentToolText(state);
-    if (activity) {
-      renderWrappedText(container, (value) => dim(theme, value), "  ⎿  ", "     ", activity, innerWidth);
-    } else {
-      container.addChild(new Text(dim(theme, "  ⎿  thinking…"), 0, 0));
-    }
-  } else if (state.status === "failed") {
-    renderWrappedError(container, theme, "  ⎿  ", "     ", state.error ?? "failed", innerWidth);
-  } else if (state.status === "done") {
-    container.addChild(new Text(truncateToWidth(dim(theme, `  ⎿  done, ${formatDuration(state.durationMs)}`), innerWidth, "..."), 0, 0));
-  }
-
-  return container;
-}
-
-/** Expanded single-agent renderer */
-function renderExpandedSingle(state: SubagentState, theme: Theme, width: number): Container {
-  const container = new Container();
-  const innerWidth = width - 4;
-
-  const glyph = state.status === "running" ? accent(theme, "running") :
-    state.status === "done" ? success(theme, "ok") :
-    state.status === "pending" ? muted(theme, "pending") :
-    error(theme, "failed");
-  renderStateHeader(container, state, theme, glyph, innerWidth);
-
-  container.addChild(new Spacer(1));
-
-  if (state.status === "running") {
-    const toolText = currentToolText(state);
-    if (toolText) {
-      renderWrappedText(container, (value) => warning(theme, value), "> ", "  ", toolText, innerWidth);
+    for (const wrappedLine of wrappedLines) {
+      const currentPrefix = isFirstLine ? firstPrefix : continuationPrefix;
+      container.addChild(new Text(error(theme, `${currentPrefix}${wrappedLine}`), 0, 0));
+      isFirstLine = false;
     }
   }
+}
+
+function statusGlyph(state: SubagentState, theme: Theme): string {
+  if (state.status === "running") return accent(theme, spinnerFrame());
+  if (state.status === "pending") return muted(theme, "◦");
+  if (state.status === "done") return success(theme, "✓");
+  return error(theme, "✗");
+}
+
+function taskForAgent(details: DispatchDetails, state: SubagentState, index: number): string {
+  const byIndex = details.results[index]?.task;
+  if (byIndex) return byIndex;
+  const byAgent = details.results.find((result) => result.agent === state.agent)?.task;
+  return byAgent ?? "(task unavailable)";
+}
+
+function formatToolPreview(tool: { tool: string; args: string }): string {
+  const args = tool.args.trim();
+  if (!args) {
+    return `→ ${tool.tool}`;
+  }
+  if (args.startsWith("$") || args.startsWith(`${tool.tool} `) || args === tool.tool) {
+    return `→ ${args}`;
+  }
+  return `→ ${tool.tool}: ${args}`;
+}
+
+function renderStatsLine(state: SubagentState, theme: Theme): string {
+  const parts: string[] = [];
+  if (state.toolCount > 0) parts.push(`${state.toolCount} tool${state.toolCount === 1 ? "" : "s"}`);
+  if (state.tokens > 0) parts.push(`${formatTokens(state.tokens)} tok`);
+  if (state.model) parts.push(state.model);
+  if (state.status === "done" && state.durationMs > 0) parts.push(formatDuration(state.durationMs));
+  return parts.length > 0 ? dim(theme, `(${parts.join(" · ")})`) : "";
+}
+
+function renderAgentBlock(
+  container: Container,
+  details: DispatchDetails,
+  state: SubagentState,
+  index: number,
+  theme: Theme,
+  width: number,
+  separator: string | undefined,
+): void {
+  const innerWidth = width - 4;
+  const glyph = statusGlyph(state, theme);
+  const task = taskForAgent(details, state, index);
+
+  if (separator) {
+    container.addChild(new Text(dim(theme, separator), 0, 0));
+  }
+
+  container.addChild(new Text(`${glyph} ${bold(theme, state.agent)}`, 0, 0));
+  renderWrappedText(container, (value) => dim(theme, value), "  Task: ", "        ", task, innerWidth);
 
   if (state.recentTools.length > 0) {
     for (const tool of state.recentTools.slice(-3)) {
-      const maxArgs = Math.max(40, innerWidth - 24);
-      const argsPreview = tool.args.length <= maxArgs ? tool.args : `${tool.args.slice(0, maxArgs)}...`;
-      container.addChild(new Text(truncateToWidth(dim(theme, `  ${tool.tool}: ${argsPreview}`), innerWidth, "..."), 0, 0));
+      renderWrappedText(container, (value) => warning(theme, value), "  ", "  ", formatToolPreview(tool), innerWidth);
     }
-    container.addChild(new Spacer(1));
-  }
-
-  const recentLines = state.recentOutput.slice(-5);
-  if (recentLines.length > 0) {
-    for (const line of recentLines) {
-      container.addChild(new Text(truncateToWidth(muted(theme, `  ${line}`), innerWidth, "..."), 0, 0));
+  } else if (state.status === "running") {
+    const activity = state.currentToolArgs?.trim() || state.currentTool?.trim();
+    if (activity) {
+      renderWrappedText(container, (value) => warning(theme, value), "  ", "  ", `→ ${activity}`, innerWidth);
+    } else {
+      container.addChild(new Text(dim(theme, "  (running...)"), 0, 0));
     }
-    container.addChild(new Spacer(1));
   }
 
-  if (state.status === "failed") {
-    renderWrappedError(container, theme, "Error: ", "       ", state.error ?? "unknown", innerWidth);
-  } else if (state.status === "done") {
-    container.addChild(new Text(truncateToWidth(success(theme, `Done, ${formatDuration(state.durationMs)}`), innerWidth, "..."), 0, 0));
+  for (const line of state.recentOutput.slice(-3)) {
+    renderWrappedText(container, (value) => muted(theme, value), "  ", "  ", line, innerWidth);
   }
 
-  return container;
+  if (state.status === "failed" && state.error) {
+    renderWrappedError(container, theme, "  Error: ", "         ", state.error, innerWidth);
+  }
+
+  const stats = renderStatsLine(state, theme);
+  if (stats) {
+    container.addChild(new Text(truncateToWidth(`  ${stats}`, innerWidth, "..."), 0, 0));
+  }
 }
 
-/** Multi-agent tree layout */
-function renderMultiAgent(states: SubagentState[], theme: Theme, width: number, dispatchStartedAt: number): Container {
+function renderDispatch(details: DispatchDetails, theme: Theme, width: number): Container {
   const container = new Container();
+  const states = details.progress;
   const innerWidth = width - 4;
 
-  const running = states.filter(s => s.status === "running").length;
-  const done = states.filter(s => s.status === "done").length;
-  const failed = states.filter(s => s.status === "failed").length;
+  const running = states.filter((state) => state.status === "running").length;
+  const done = states.filter((state) => state.status === "done").length;
+  const failed = states.filter((state) => state.status === "failed").length;
 
-  let glyph: string;
-  if (running > 0) glyph = accent(theme, spinnerFrame());
-  else if (failed > 0) glyph = error(theme, "✗");
-  else glyph = success(theme, "✓");
+  const glyph = running > 0
+    ? accent(theme, spinnerFrame())
+    : failed > 0
+      ? error(theme, "✗")
+      : success(theme, "✓");
 
-  const headerParts = [];
-  if (running > 0) headerParts.push(`${running} running`);
-  headerParts.push(`${done}/${states.length} done`);
-  if (failed > 0) headerParts.push(`${failed} failed`);
+  const elapsed = states.some((state) => state.status !== "pending")
+    ? formatDuration(Date.now() - details.dispatchStartedAt)
+    : "starting";
 
-  const hasStarted = states.some(s => s.status !== "pending");
-  const elapsed = hasStarted ? formatDuration(Date.now() - dispatchStartedAt) : "starting";
-
+  const statusText = `${running} running, ${done}/${states.length} done${failed > 0 ? `, ${failed} failed` : ""}`;
   container.addChild(new Text(
-    truncateToWidth(`${glyph} ${bold(theme, "dispatch")} ${dim(theme, "·")} ${dim(theme, elapsed)} ${dim(theme, "·")} ${dim(theme, headerParts.join(", "))}`, innerWidth, "..."),
-    0, 0,
+    truncateToWidth(
+      `${glyph} ${bold(theme, "dispatch")} ${dim(theme, "·")} ${dim(theme, elapsed)} ${dim(theme, "·")} ${dim(theme, statusText)}`,
+      innerWidth,
+      "...",
+    ),
+    0,
+    0,
   ));
 
-  states.forEach((state, i) => {
-    const isLast = i === states.length - 1;
-    const branch = isLast ? "└─" : "├─";
-    const cont = isLast ? "   " : "│  ";
-
-    const prefix = `${dim(theme, branch)} ${statusGlyph(state, theme)} ${bold(theme, state.agent)}`;
-    container.addChild(new Text(buildStateHeaderLine(prefix, state, theme, innerWidth), 0, 0));
-
-    if (state.status === "running") {
-      const toolText = currentToolText(state);
-      if (toolText) {
-        const firstPrefix = `${cont} ⎿  `;
-        const continuationPrefix = " ".repeat(visibleWidth(firstPrefix));
-        renderWrappedText(container, (value) => dim(theme, value), firstPrefix, continuationPrefix, toolText, innerWidth);
-      }
-    } else if (state.status === "failed" && state.error) {
-      const firstPrefix = `${cont} ⎿  `;
-      const continuationPrefix = " ".repeat(visibleWidth(firstPrefix));
-      renderWrappedError(container, theme, firstPrefix, continuationPrefix, state.error, innerWidth);
-    }
+  states.forEach((state, index) => {
+    renderAgentBlock(container, details, state, index, theme, width, index === 0 ? undefined : "──");
   });
 
   return container;
@@ -344,47 +263,32 @@ export function renderResultView(
   }
 
   const states = details.progress;
-  const hasRunning = states.some(s => s.status === "running" || s.status === "pending");
+  const hasRunning = states.some((state) => state.status === "running" || state.status === "pending");
 
-  // Animation timer — re-render while agents are running
-  const ANIM_KEY = "subagentResultAnimationTimer";
+  const animKey = "subagentResultAnimationTimer";
   if (hasRunning) {
-    if (!context.state[ANIM_KEY]) {
+    if (!context.state[animKey]) {
       const timer = setInterval(() => {
         try { context.invalidate(); } catch { /* stale ctx */ }
       }, ANIMATION_INTERVAL_MS);
       if (typeof timer === "object" && "unref" in timer) {
         (timer as unknown as { unref(): void }).unref();
       }
-      context.state[ANIM_KEY] = timer;
+      context.state[animKey] = timer;
     }
   } else {
-    const timer = context.state[ANIM_KEY] as ReturnType<typeof setInterval> | undefined;
+    const timer = context.state[animKey] as ReturnType<typeof setInterval> | undefined;
     if (timer) {
       clearInterval(timer);
-      delete context.state[ANIM_KEY];
+      delete context.state[animKey];
     }
   }
 
-  return buildView(states, false, theme, details.dispatchStartedAt);
+  return buildView(details, theme);
 }
 
-/** Renders subagent states as a compact, expanded, or multi-agent tree layout. */
-export function buildView(
-  states: SubagentState[],
-  expanded: boolean,
-  theme: Theme,
-  dispatchStartedAt: number,
-): Component {
+/** Renders subagent states as an inline dispatch feed. */
+export function buildView(details: DispatchDetails, theme: Theme): Component {
   const width = process.stdout.columns || 120;
-
-  if (states.length === 0) return new Container();
-
-  if (states.length === 1) {
-    return expanded
-      ? renderExpandedSingle(states[0]!, theme, width)
-      : renderCompactSingle(states[0]!, theme, width);
-  }
-
-  return renderMultiAgent(states, theme, width, dispatchStartedAt);
+  return renderDispatch(details, theme, width);
 }

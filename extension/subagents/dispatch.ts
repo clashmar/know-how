@@ -15,15 +15,12 @@ import {
 import { isInReadMode, isRoleLocked, isWriteCapableRole, requestWriteMode } from "../write-mode/read-mode";
 import type { WriteModeApprovalRequest } from "../write-mode/approval";
 import { renderResultView } from "./render";
-import { openProgressOverlay } from "./progress-overlay";
 import { createResponseCollector } from "./response-collector";
 import { readSettings, type Settings } from "../settings";
 
 /** Module-level state shared between execute and renderCall for live updates. */
 let liveStates: SubagentState[] = [];
 
-/** Snapshot of the most recent dispatch, retained for /progress. */
-let latestDispatchDetails: DispatchDetails | undefined;
 
 // ── Types ────────────────────────────────────────────────────────
 
@@ -481,7 +478,6 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
           progress: states.map(s => ({ ...s })),
           dispatchStartedAt,
         };
-        latestDispatchDetails = details;
         _onUpdate?.({
           content: [{ type: "text" as const, text: `${states.filter(s => s.status !== "pending").length}/${states.length} agents started` }],
           details,
@@ -634,8 +630,6 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
         progress: states.map(s => ({ ...s })),
         dispatchStartedAt,
       };
-      latestDispatchDetails = details;
-
       return {
         content: [{ type: "text" as const, text: output }],
         details,
@@ -658,17 +652,4 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
     },
   });
 
-  pi.registerCommand("progress", {
-    description: "Open the subagent dispatch progress overlay",
-    handler: async (_args, ctx) => {
-      if (!ctx.hasUI) {
-        return;
-      }
-      if (!latestDispatchDetails || latestDispatchDetails.progress.length === 0) {
-        ctx.ui.notify("No subagent dispatch available yet.", "info");
-        return;
-      }
-      openProgressOverlay(ctx, () => latestDispatchDetails);
-    },
-  });
 }
