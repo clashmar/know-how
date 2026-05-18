@@ -141,11 +141,8 @@ function statusGlyph(state: SubagentState, theme: Theme): string {
   return error(theme, "✗");
 }
 
-function taskForAgent(details: DispatchDetails, state: SubagentState, index: number): string {
-  const byIndex = details.results[index]?.task;
-  if (byIndex) return byIndex;
-  const byAgent = details.results.find((result) => result.agent === state.agent)?.task;
-  return byAgent ?? "(task unavailable)";
+function taskForAgent(details: DispatchDetails): string {
+  return details.results[0]?.task ?? "(task unavailable)";
 }
 
 function formatToolPreview(tool: { tool: string; args: string }): string {
@@ -168,22 +165,12 @@ function renderStatsLine(state: SubagentState, theme: Theme): string {
   return parts.length > 0 ? dim(theme, `(${parts.join(" · ")})`) : "";
 }
 
-function renderAgentBlock(
-  container: Container,
-  details: DispatchDetails,
-  state: SubagentState,
-  index: number,
-  theme: Theme,
-  width: number,
-  separator: string | undefined,
-): void {
+function renderSingleAgent(details: DispatchDetails, theme: Theme, width: number): Container {
+  const container = new Container();
+  const state = details.progress;
   const innerWidth = width - 4;
   const glyph = statusGlyph(state, theme);
-  const task = taskForAgent(details, state, index);
-
-  if (separator) {
-    container.addChild(new Text(dim(theme, separator), 0, 0));
-  }
+  const task = taskForAgent(details);
 
   container.addChild(new Text(`${glyph} ${bold(theme, state.agent)}`, 0, 0));
   renderWrappedText(container, (value) => dim(theme, value), "  Task: ", "        ", task, innerWidth);
@@ -213,41 +200,6 @@ function renderAgentBlock(
   if (stats) {
     container.addChild(new Text(truncateToWidth(`  ${stats}`, innerWidth, "..."), 0, 0));
   }
-}
-
-function renderDispatch(details: DispatchDetails, theme: Theme, width: number): Container {
-  const container = new Container();
-  const states = details.progress;
-  const innerWidth = width - 4;
-
-  const running = states.filter((state) => state.status === "running").length;
-  const done = states.filter((state) => state.status === "done").length;
-  const failed = states.filter((state) => state.status === "failed").length;
-
-  const glyph = running > 0
-    ? accent(theme, spinnerFrame())
-    : failed > 0
-      ? error(theme, "✗")
-      : success(theme, "✓");
-
-  const elapsed = states.some((state) => state.status !== "pending")
-    ? formatDuration(Date.now() - details.dispatchStartedAt)
-    : "starting";
-
-  const statusText = `${running} running, ${done}/${states.length} done${failed > 0 ? `, ${failed} failed` : ""}`;
-  container.addChild(new Text(
-    truncateToWidth(
-      `${glyph} ${bold(theme, "dispatch")} ${dim(theme, "·")} ${dim(theme, elapsed)} ${dim(theme, "·")} ${dim(theme, statusText)}`,
-      innerWidth,
-      "...",
-    ),
-    0,
-    0,
-  ));
-
-  states.forEach((state, index) => {
-    renderAgentBlock(container, details, state, index, theme, width, index === 0 ? undefined : "──");
-  });
 
   return container;
 }
@@ -258,15 +210,15 @@ export function renderResultView(
   theme: Theme,
   context: { invalidate: () => void; state: Record<string, unknown> },
 ): Component {
-  if (!details || details.progress.length === 0) {
+  if (!details?.progress) {
     return new Text("no progress data", 0, 0);
   }
 
-  const states = details.progress;
-  const hasRunning = states.some((state) => state.status === "running" || state.status === "pending");
+  const state = details.progress;
+  const isRunning = state.status === "running" || state.status === "pending";
 
   const animKey = "subagentResultAnimationTimer";
-  if (hasRunning) {
+  if (isRunning) {
     if (!context.state[animKey]) {
       const timer = setInterval(() => {
         try { context.invalidate(); } catch { /* stale ctx */ }
@@ -287,8 +239,8 @@ export function renderResultView(
   return buildView(details, theme);
 }
 
-/** Renders subagent states as an inline dispatch feed. */
+/** Renders a single agent's progress inline. */
 export function buildView(details: DispatchDetails, theme: Theme): Component {
   const width = process.stdout.columns || 120;
-  return renderDispatch(details, theme, width);
+  return renderSingleAgent(details, theme, width);
 }

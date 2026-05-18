@@ -52,7 +52,6 @@ export function createInitialState(agent: string, model: string): SubagentState 
   };
 }
 
-export const DISPATCH_KEY = "subagent-dispatch";
 export const ANIMATION_INTERVAL_MS = 80;
 
 export const SPINNER = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
@@ -77,9 +76,8 @@ export function formatTokens(tokens: number): string {
 
 /** Details payload pushed via onUpdate for live progress. */
 export interface DispatchDetails {
-  mode: "parallel";
   results: DispatchResult[];
-  progress: SubagentState[];
+  progress: SubagentState;
   dispatchStartedAt: number;
 }
 

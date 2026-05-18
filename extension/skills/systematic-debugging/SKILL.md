@@ -116,21 +116,16 @@ You MUST complete each phase before proceeding to the next.
 
    ⚠️ HARD GATE: MAX 3 concurrent subagents ⚠️ 
 
-   For each component boundary, dispatch a `scout` subagent via `subagent` PARALLEL mode
-   with `tasks` array and `concurrency`. Each task gets one component boundary to
+   For each component boundary, issue one `subagent(agent, task)` call per boundary —
+   pi runs them in parallel automatically. Each call gets one component boundary to
    investigate, with specific instructions on what to check and a stop boundary.
    Use the `dispatching-parallel-agents/scout-prompt.md` template for task structure — every scout MUST have:
    specific files to read, specific questions, a stop boundary, and a conciseness directive.
 
    ```
-   subagent({
-     tasks: [
-       { agent: "scout", task: "Check component boundary: workflow → build. Read .github/workflows/. Answer: (1) Are env vars defined? (2) Are secrets propagated to steps? Stop after reading listed files. Bullet list under 200 words.", reads: [".github/workflows/"] },
-       { agent: "scout", task: "Check component boundary: build → signing. Read scripts/. Answer: (1) Is keychain unlocked? (2) Is identity found? Stop after reading listed files. Bullet list under 200 words.", reads: ["scripts/"] },
-       { agent: "scout", task: "Check component boundary: signing → codesign. Read scripts/. Answer: (1) What codesign invocation is used? (2) Are all required flags present? Stop after reading listed files. Bullet list under 200 words.", reads: ["scripts/"] }
-     ],
-     concurrency: 3
-   })
+   subagent({ agent: "scout", task: "Check component boundary: workflow → build. Read .github/workflows/. Answer: (1) Are env vars defined? (2) Are secrets propagated to steps? Stop after reading listed files. Bullet list under 200 words.", reads: [".github/workflows/"] })
+   subagent({ agent: "scout", task: "Check component boundary: build → signing. Read scripts/. Answer: (1) Is keychain unlocked? (2) Is identity found? Stop after reading listed files. Bullet list under 200 words.", reads: ["scripts/"] })
+   subagent({ agent: "scout", task: "Check component boundary: signing → codesign. Read scripts/. Answer: (1) What codesign invocation is used? (2) Are all required flags present? Stop after reading listed files. Bullet list under 200 words.", reads: ["scripts/"] })
    ```
 
 5. **Trace Data Flow**

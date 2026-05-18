@@ -14,7 +14,7 @@ When you have multiple unrelated failures (different test files, different subsy
 
 **Core principle:** Dispatch one agent per independent problem domain. Let them work concurrently.
 
-**Path resolution:** All `reads` paths in the template examples below are relative. They resolve against the subagent's working directory, which inherits from your current directory (`ctx.cwd`). If the target code lives in a different directory (e.g., a worktree), set `cwd: /path/to/target` on the subagent tool call to ensure paths resolve correctly. Alternatively, use absolute paths in `reads`.
+**Path resolution:** All `reads` paths in the template examples below are relative. They resolve against the subagent's working directory, which inherits from your current directory (`ctx.cwd`). If the target code lives in a different directory (e.g., a worktree), set `cwd: /path/to/target` on each subagent tool call to ensure paths resolve correctly. Alternatively, use absolute paths in `reads`.
 
 ## When to Use
 
@@ -78,20 +78,15 @@ Each agent gets:
 
 ### 3. Dispatch in Parallel
 
-Dispatch one agent per problem domain concurrently using the `subagent` tool with the `tasks` array and `concurrency` parameter.
+Dispatch one agent per problem domain concurrently by issuing one `subagent(agent, task)` call per agent. Pi handles parallelism across multiple simultaneous tool calls automatically.
 
 Investigation domains use `scout` agents. Fix domains use `worker` agents.
 
 ```
-subagent({
-  tasks: [
-    { agent: "scout", task: "Read src/agents/agent-tool-abort.test.ts. Answer: (1) What are the 3 test names and their expected behavior? (2) What assertions are failing? Stop after reading this file. Bullet list under 300 words.", reads: ["src/agents/agent-tool-abort.test.ts"] },
-    { agent: "worker", task: "Fix batch-completion-behavior.test.ts failures", reads: ["src/agents/batch-completion-behavior.test.ts"] },
-    { agent: "worker", task: "Fix tool-approval-race-conditions.test.ts failures", reads: ["src/agents/tool-approval-race-conditions.test.ts"] }
-  ],
-  concurrency: 3
-  // If target code is in a different directory, add: cwd: "/path/to/worktree"
-})
+subagent({ agent: "scout", task: "Read src/agents/agent-tool-abort.test.ts. Answer: (1) What are the 3 test names and their expected behavior? (2) What assertions are failing? Stop after reading this file. Bullet list under 300 words.", reads: ["src/agents/agent-tool-abort.test.ts"] })
+subagent({ agent: "worker", task: "Fix batch-completion-behavior.test.ts failures", reads: ["src/agents/batch-completion-behavior.test.ts"] })
+subagent({ agent: "worker", task: "Fix tool-approval-race-conditions.test.ts failures", reads: ["src/agents/tool-approval-race-conditions.test.ts"] })
+// If target code is in a different directory, add cwd on each call: subagent({ agent: "worker", task: "...", cwd: "/path/to/worktree" })
 ```
 
 ### 4. Review and Integrate
@@ -168,17 +163,12 @@ Return: Summary of what you found and what you fixed.
 
 **Decision:** Independent domains - abort logic separate from batch completion separate from race conditions
 
-**Dispatch (parallel `worker` agents via `subagent` PARALLEL mode):**
+**Dispatch (parallel `worker` agents via separate `subagent` calls):**
 
 ```
-subagent({
-  tasks: [
-    { agent: "worker", task: "Fix agent-tool-abort.test.ts failures", reads: ["src/agents/agent-tool-abort.test.ts"] },
-    { agent: "worker", task: "Fix batch-completion-behavior.test.ts failures", reads: ["src/agents/batch-completion-behavior.test.ts"] },
-    { agent: "worker", task: "Fix tool-approval-race-conditions.test.ts failures", reads: ["src/agents/tool-approval-race-conditions.test.ts"] }
-  ],
-  concurrency: 3
-})
+subagent({ agent: "worker", task: "Fix agent-tool-abort.test.ts failures", reads: ["src/agents/agent-tool-abort.test.ts"] })
+subagent({ agent: "worker", task: "Fix batch-completion-behavior.test.ts failures", reads: ["src/agents/batch-completion-behavior.test.ts"] })
+subagent({ agent: "worker", task: "Fix tool-approval-race-conditions.test.ts failures", reads: ["src/agents/tool-approval-race-conditions.test.ts"] })
 ```
 
 **Results:**
