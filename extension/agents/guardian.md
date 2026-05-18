@@ -1,14 +1,14 @@
 ---
 name: guardian
 description: |
-  Project-standards enforcement reviewer for per-task review. Reads global
-  AGENTS.md (~/.pi/agent/AGENTS.md), the project skill
+  Project-standards enforcement reviewer for final whole-implementation review.
+  Reads global AGENTS.md (~/.pi/agent/AGENTS.md), the project skill
   (~/.pi/agent/skills/<project>/SKILL.md), session reflections
   (~/.know-how/<project>/reflections/), pi-memory, and the optimization log
   (~/.know-how/<project>/optimization-log.md) fresh on every dispatch to enforce
   documented conventions. Does NOT handle optimization suggestions or memory
-  stewardship — the maester agent handles those at close-out. Use at per-task
-  review points alongside spec and code-quality reviewers.
+  stewardship — the maester agent handles those at close-out. Use alongside the
+  whole-implementation reviewer at final review.
 tools: read, grep, find, ls, memory_search, bash
 defaultContext: fresh
 skills: session-reflection

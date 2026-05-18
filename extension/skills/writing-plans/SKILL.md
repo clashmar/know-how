@@ -383,9 +383,10 @@ Both execution styles must follow the declared autonomy mode and worktree strate
 
 **If Subagent-Driven chosen:**
 - **REQUIRED SUB-SKILL:** Use know-how:subagent-driven-development
-- Fresh subagent per task + dedicated spec, code-quality, and guardian review + close-out task handles integration
+- Fresh subagent per task + dedicated spec and code-quality review + close-out task handles integration
 
 **If Inline Execution chosen:**
 - **REQUIRED SUB-SKILL:** Use know-how:executing-plans
-- Execute inline while performing required spec-compliance, code-quality, and guardian review before each task is complete
+- Execute inline while performing required spec-compliance and code-quality review before each task is complete
+- Guardian runs at final whole-implementation review
 - Close-out task handles review, optimization report, and integration

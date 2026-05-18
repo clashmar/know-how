@@ -264,7 +264,7 @@ Examples:
 
 **Global / cross-project decisions:** Decisions that apply to all projects (e.g., "no `any` types in TypeScript") live under the `know-how` project — since know-how is the process layer that governs all projects.
 
-**Enforcement:** The guardian checks memory keys during per-task review. The maester audits for key-pattern violations during close-out stale-memory sweeps. If a fact uses an unexpected namespace or format, flag it as a naming violation.
+**Enforcement:** The guardian checks memory keys during final review. The maester audits for key-pattern violations during close-out stale-memory sweeps. If a fact uses an unexpected namespace or format, flag it as a naming violation.
 
 ## How to Catch Up
 
