@@ -10,7 +10,6 @@ import {
   spinnerFrame,
   formatDuration,
   formatTokens,
-  ANIMATION_INTERVAL_MS,
 } from "./types";
 
 function bold(theme: Theme, text: string): string {
@@ -208,32 +207,10 @@ function renderSingleAgent(details: DispatchDetails, theme: Theme, width: number
 export function renderResultView(
   details: DispatchDetails | undefined,
   theme: Theme,
-  context: { invalidate: () => void; state: Record<string, unknown> },
+  _context: { invalidate: () => void; state: Record<string, unknown> },
 ): Component {
   if (!details?.progress) {
     return new Text("no progress data", 0, 0);
-  }
-
-  const state = details.progress;
-  const isRunning = state.status === "running" || state.status === "pending";
-
-  const animKey = "subagentResultAnimationTimer";
-  if (isRunning) {
-    if (!context.state[animKey]) {
-      const timer = setInterval(() => {
-        try { context.invalidate(); } catch { /* stale ctx */ }
-      }, ANIMATION_INTERVAL_MS);
-      if (typeof timer === "object" && "unref" in timer) {
-        (timer as unknown as { unref(): void }).unref();
-      }
-      context.state[animKey] = timer;
-    }
-  } else {
-    const timer = context.state[animKey] as ReturnType<typeof setInterval> | undefined;
-    if (timer) {
-      clearInterval(timer);
-      delete context.state[animKey];
-    }
   }
 
   return buildView(details, theme);
