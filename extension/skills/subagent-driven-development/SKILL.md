@@ -108,7 +108,7 @@ digraph process {
     "Reviewer — whole implementation approves?" [shape=diamond];
     "Cancel or discard guardian review for this code state" [shape=box];
     "Guardian result ready?" [shape=diamond];
-    "Guardian — convention compliance (./guardian-reviewer-prompt.md) approves?" [shape=diamond];
+    "Guardian — convention compliance (./guardian-prompt.md) approves?" [shape=diamond];
     "Fix final review issues, re-run relevant verification, and re-review" [shape=box];
     "Worker subagent fixes compliance issues" [shape=box];
     "Use know-how:closing-out-work to close out work, get user review, then choose integration" [shape=box style=filled fillcolor=lightgreen];
@@ -155,9 +155,9 @@ digraph process {
     "Cancel or discard guardian review for this code state" -> "Fix final review issues, re-run relevant verification, and re-review";
     "Guardian result ready?" -> "Wait for remaining reviewer results" [label="no"];
     "Wait for remaining reviewer results" -> "Guardian result ready?";
-    "Guardian result ready?" -> "Guardian — convention compliance (./guardian-reviewer-prompt.md) approves?" [label="yes"];
-    "Guardian — convention compliance (./guardian-reviewer-prompt.md) approves?" -> "Use know-how:closing-out-work to close out work, get user review, then choose integration" [label="yes"];
-    "Guardian — convention compliance (./guardian-reviewer-prompt.md) approves?" -> "Worker subagent fixes compliance issues" [label="no"];
+    "Guardian result ready?" -> "Guardian — convention compliance (./guardian-prompt.md) approves?" [label="yes"];
+    "Guardian — convention compliance (./guardian-prompt.md) approves?" -> "Use know-how:closing-out-work to close out work, get user review, then choose integration" [label="yes"];
+    "Guardian — convention compliance (./guardian-prompt.md) approves?" -> "Worker subagent fixes compliance issues" [label="no"];
     "Worker subagent fixes compliance issues" -> "Fix final review issues, re-run relevant verification, and re-review";
     "Fix final review issues, re-run relevant verification, and re-review" -> "Dispatch final review: whole-implementation + guardian in parallel";
 }
@@ -217,7 +217,7 @@ Worker subagents report one of four statuses. Handle each appropriately:
 - `./worker-prompt.md` - Dispatch worker subagent
 - `./spec-reviewer-prompt.md` - Dispatch reviewer for spec compliance
 - `./code-quality-reviewer-prompt.md` - Dispatch reviewer for code quality
-- `./guardian-reviewer-prompt.md` - Dispatch guardian for convention compliance (final review only)
+- `./guardian-prompt.md` - Dispatch guardian for convention compliance (final review only)
 
 ## Per-Task Review Flow
 

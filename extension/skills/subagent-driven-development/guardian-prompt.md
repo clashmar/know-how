@@ -1,16 +1,16 @@
-# Guardian Reviewer Prompt Template
+# Guardian Prompt Template
 
-Use this template when dispatching a guardian reviewer subagent.
+Use this template when dispatching a guardian subagent.
 
-**Purpose:** Run the guardian against the current task's code state after task verification passes.
+**Purpose:** Run the guardian against the current code state after task verification passes.
 
-If spec compliance review finds an issue for the current code state, the controller may cancel this review or discard its result and restart reviews after the spec issue is fixed.
+If spec compliance review finds an issue for the current code state, the controller may discard the guardian result and restart reviews after the spec issue is fixed.
 
 **CWD note for controllers:** If the code being reviewed is in a worktree, set `cwd: /path/to/worktree` when dispatching the guardian.
 The guardian uses `git rev-parse --show-toplevel` to derive the project name for looking up the right project skill, reflections, and optimization log.
 
 ```md
-Subagent dispatch — guardian reviewer:
+Subagent dispatch — guardian:
   Use the `guardian` agent with this template:
 
   WHAT_WAS_IMPLEMENTED: [from worker's report]
