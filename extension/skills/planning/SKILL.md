@@ -121,6 +121,8 @@ The terminal state is invoking `know-how:writing-plans`.
   `~/.know-how/<project-name>/specs/YYYY-MM-DD-<topic>.html`.
   The deckbuilder writes the HTML file and returns a `file://` link.
   > **Important:** Present it as a short markdown link label like `[Open spec](file://...)`, never a bare `file://...` URL.
+  > **Important:** Dispatch the deckbuilder **exactly once** per spec. Just make any
+  > subsequent changes during self-review (step 7) or user review (step 8) inline.
 - If the user chooses markdown, write the validated spec directly to
   `~/.know-how/<project-name>/specs/YYYY-MM-DD-<topic>.md` and present the path
   to the user.
@@ -140,13 +142,19 @@ The terminal state is invoking `know-how:writing-plans`.
 3. Scope check: confirm the scope can be executed as one coherent plan without mixing unrelated subsystems or independent deliverables
 4. Ambiguity check: make edge-case behavior explicit for any case that changes user-visible behavior, validation, failure handling, or state transitions
 
-Fix self-review issues inline. If a fix changes the design materially, present the updated spec to the user before planning.
+Fix self-review issues inline. For HTML specs, edit the generated file
+directly with `bash sed` or `edit` — do not re-dispatch the deckbuilder.
+If a fix changes the design materially, present the updated spec to the
+user before planning.
 
 **User Review Gate:**
 
 After the self-review passes, ask the user to review the written spec before planning.
 
 > "Spec written to `<path>`. Please review it and let me know if you want any changes before we write the implementation plan."
+
+If the user requests changes to an HTML spec, edit the generated file
+directly — do not re-dispatch the deckbuilder.
 
 Wait for approval before invoking the next skill.
 
