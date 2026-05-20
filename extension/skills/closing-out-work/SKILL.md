@@ -7,11 +7,11 @@ description: Use when implementation is complete, verification is passing, and y
 
 ## Overview
 
-Close out implementation by verifying it, giving the testing artifacts, cleaning up residual artifacts, anticipating likely feedback, asking the user to review the work, optimizing and reflecting on the process, and presenting final integration options.
+Close out implementation by verifying it, giving the testing artifacts, cleaning up residual artifacts, anticipating likely feedback, asking the user to review the work, presenting final integration options, then optimizing and reflecting on the process.
 
-**Core principle:** Verify -> help user testing -> clean up -> anticipate feedback -> ask for review -> feedback loop if needed -> optimize and reflect -> integrate.
+**Core principle:** Verify -> help user testing -> clean up -> anticipate feedback -> ask for review -> feedback loop if needed -> integrate -> optimize and reflect.
 
-**Announce at start:** "I'm using the closing-out-work skill to complete this work. Verifying state before moving on to feedback, process optimization, and final integration options."
+**Announce at start:** "I'm using the closing-out-work skill to complete this work. Verifying state before moving on to feedback, final integration options, then process optimization and reflection."
 
 ## The Process
 
@@ -125,75 +125,14 @@ If the user gives feedback, route back through the same gates in order:
 
 Do not skip back directly to next options after making changes.
 
-Once the user approves the work, you MUST execute steps 6 and 7 in parallel...
-
-### Step 8: Maester Optimization
-
-1. Dispatch EXACTLY ONE `maester` agent to perform process optimization and memory
-   stewardship at close-out.
-
-   Fill in all `<…>` placeholders from this session's context, then dispatch
-   (see `./maester-prompt.md`).
-
-2. The maester produces a process optimization report:
-   - De-duplicated optimization suggestions (same gap flagged in multiple
-     tasks → one recommendation)
-   - Stale-memory audit (contradictions, duplicates, superseded facts)
-   - Cross-session auto-surfaces (gaps flagged 3+ times across sessions)
-3. Before any per-suggestion approval UI, call `present_choice` with title `Optimization report format` and options:
-   - HTML report — value: `html`
-   - Inline findings — value: `inline`
-   `present_choice` auto-adds `Something else...`; do not add a duplicate. `otherLabel` renames it, so keep it short.
-4. If the human chooses `HTML report`:
-   - Read `./optimization-report-prompt.md`
-   - Fill in the prompt with the maester findings and current session context
-   - Dispatch `deckbuilder` to save a persistent report at `~/.know-how/<project-name>/reports/YYYY-MM-DD-<topic>-optimization-report.html`
-   - Present the saved report as a short markdown link before continuing
-5. If the human chooses `Inline findings`, present the same report content inline before continuing:
-   - Cross-session auto-surfaces first
-   - De-duplicated optimization suggestions with enough evidence to make a decision
-   - Stale-memory audit findings
-6. After the report is shown, present the maester suggestions to the human as actionable decision points.
-7. For each maester suggestion, call `present_choice` with title matching the suggestion summary and options: Apply / Edit / Skip.
-   `present_choice` auto-adds `Something else...`; do not add a duplicate. `otherLabel` renames it, so keep it short.
-8. For approved suggestions:
-   - Apply the doc/memory/skill changes
-9. Re-run verification if project docs were changed.
-
-<HARD-GATE>
-  Surface all maester suggestions, you do not have discretion to skip any. 
-  If the maester flags an optimization, you must present it to the user and ask for approval to apply it. 
-  Do not skip or ignore maester suggestions.
-</HARD-GATE>  
-
-### Step 7: Reflect
-
-Once the maester has been dispatched use the `session-reflection` skill to record 
-key decisions, user corrections, and recurring problems from this work.
-
-The reflection should cover everything from this work unit:
-
-- Decisions made and why
-- Any user corrections or steering received
-- Mistakes and their fixes
-- Patterns that recurred (check prior reflections in
-  `~/.know-how/<project>/reflections/`)
-- Remaining work or follow-ups
-
-Persist key decisions and lessons to pi-memory via `memory_remember`.
-Remove any stale facts via `memory_forget`.
-
-<HARD-GATE>
-  Do not skip reflection. Reflection is essential for learning and improvement.
-</HARD-GATE>
-
+Once the user approves the work, proceed to integration.
 
 ### Step 8: Present Final Options After User Confirmation
 
-ONLY AFTER maester suggestions have been surfaced and the reflection is written, present the user with final integration options using the `present_choice` tool.
+Present the user with final integration options using the `present_choice` tool.
 `present_choice` auto-adds `Something else...`; do not add a duplicate. `otherLabel` renames it, so keep it short.
 
-**If the plan declared `Worktree Strategy: Worktree`** (detected in Step 2), call `present_choice` with:
+**If the plan declared `Worktree Strategy: Worktree`** (detected in Step 3), call `present_choice` with:
 
 - **title:** "Final integration"
 - **options:**
@@ -264,6 +203,66 @@ Then report completion and the resulting PR or branch state.
 Report: "Keeping branch <name> as-is."
 
 Then report completion and the resulting branch state.
+
+### Step 10: Maester Optimization
+
+1. Dispatch EXACTLY ONE `maester` agent to perform process optimization and memory
+   stewardship at close-out.
+
+   Fill in all `<…>` placeholders from this session's context, then dispatch
+   (see `./maester-prompt.md`).
+
+2. The maester produces a process optimization report:
+   - De-duplicated optimization suggestions (same gap flagged in multiple
+     tasks → one recommendation)
+   - Stale-memory audit (contradictions, duplicates, superseded facts)
+   - Cross-session auto-surfaces (gaps flagged 3+ times across sessions)
+3. Before any per-suggestion approval UI, call `present_choice` with title `Optimization report format` and options:
+   - HTML report — value: `html`
+   - Inline findings — value: `inline`
+   `present_choice` auto-adds `Something else...`; do not add a duplicate. `otherLabel` renames it, so keep it short.
+4. If the human chooses `HTML report`:
+   - Read `./optimization-report-prompt.md`
+   - Fill in the prompt with the maester findings and current session context
+   - Dispatch `deckbuilder` to save a persistent report at `~/.know-how/<project-name>/reports/YYYY-MM-DD-<topic>-optimization-report.html`
+   - Present the saved report as a short markdown link before continuing
+5. If the human chooses `Inline findings`, present the same report content inline before continuing:
+   - Cross-session auto-surfaces first
+   - De-duplicated optimization suggestions with enough evidence to make a decision
+   - Stale-memory audit findings
+6. After the report is shown, present the maester suggestions to the human as actionable decision points.
+7. For each maester suggestion, call `present_choice` with title matching the suggestion summary and options: Apply / Edit / Skip.
+   `present_choice` auto-adds `Something else...`; do not add a duplicate. `otherLabel` renames it, so keep it short.
+8. For approved suggestions:
+   - Apply the doc/memory/skill changes
+9. Re-run verification if project docs were changed.
+
+<HARD-GATE>
+  Surface all maester suggestions, you do not have discretion to skip any. 
+  If the maester flags an optimization, you must present it to the user and ask for approval to apply it. 
+  Do not skip or ignore maester suggestions.
+</HARD-GATE>  
+
+### Step 11: Reflect
+
+Once integration is complete, use the `session-reflection` skill to record 
+key decisions, user corrections, and recurring problems from this work.
+
+The reflection should cover everything from this work unit:
+
+- Decisions made and why
+- Any user corrections or steering received
+- Mistakes and their fixes
+- Patterns that recurred (check prior reflections in
+  `~/.know-how/<project>/reflections/`)
+- Remaining work or follow-ups
+
+Persist key decisions and lessons to pi-memory via `memory_remember`.
+Remove any stale facts via `memory_forget`.
+
+<HARD-GATE>
+  Do not skip reflection. Reflection is essential for learning and improvement.
+</HARD-GATE>
 
 ## Common Mistakes
 
