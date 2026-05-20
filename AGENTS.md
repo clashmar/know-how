@@ -92,12 +92,17 @@ system loads them from. That is fine. But **writes always go to the source path*
 If you have just read a file from `~/.pi/agent/extensions/know-how/`, translate the
 path before calling edit or write.
 
-### Keep docs in sync for config and agent changes
+### Keep docs in sync
 
-If any configuration or agent-related code was changed (for example: agent prompts or definitions
-under `extension/agents/`, dispatch logic such as `extension/subagents/dispatch.ts`, scripts that affect
-installation, or settings that affect runtime behaviour), repository documentation must be updated
-to reflect those changes (AGENTS.md, README.md, and any affected `SKILL.md` files).
+When any tool, skill, agent, or other feature is added or changed, documentation
+must be updated as part of the same work:
+
+- **New or changed features** → update the relevant file in `docs/` (e.g., a new
+  config surface goes in `docs/config.md`)
+- **Config or agent changes** (agent prompts, dispatch logic, installation scripts,
+  runtime settings) → update AGENTS.md, README.md, and any affected SKILL.md files
+
+The `docs/` directory is the source of truth for feature-level documentation.
 
 ### Code style: No `any` types
 
