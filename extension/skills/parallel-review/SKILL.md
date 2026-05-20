@@ -74,4 +74,4 @@ Reviewers use the prompt templates from
 - `code-quality-reviewer-prompt.md`
 
 The guardian (used at final review only) uses its dedicated system prompt
-(`~/.pi/agent/agents/guardian.md`).
+(`~/.pi/agent/extensions/know-how/agents/guardian.md`).

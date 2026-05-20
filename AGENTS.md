@@ -18,9 +18,9 @@ The know-how extension bundles six agents in `extension/agents/`:
 - **deckbuilder** — Renders structured JSON payloads into left-aligned multi-column HTML/CSS dashboards with a unified masonry layout.
 
 The install script (`scripts/install`) copies these agent definitions from
-`extension/agents/` to `~/.pi/agent/agents/`. The dispatch extension
-(`extension/subagents/dispatch.ts`) resolves agent prompts by looking in the bundled
-directory first, then falling back to `~/.pi/agent/agents/`.
+`extension/agents/` to `~/.pi/agent/extensions/know-how/agents/`. The dispatch extension
+(`extension/subagents/dispatch.ts`) resolves agent prompts from that bundled directory,
+falling back to `~/.pi/agent/agents/` if not found.
 
 ## Skills
 
@@ -76,8 +76,7 @@ chore(install): update copy targets for new skills directory
 
 ### Edit the source, not the install target
 
-`scripts/install` copies files from this repo to `~/.pi/agent/extensions/know-how/`
-and `~/.pi/agent/agents/`. **Always edit files inside this repo**.
+`scripts/install` copies files from this repo to `~/.pi/agent/extensions/know-how/`. **Always edit files inside this repo**.
 Editing files under `~/.pi/agent/` directly means the change is wiped on the next install
 and nobody can see it in version control.
 
@@ -86,7 +85,7 @@ and nobody can see it in version control.
 | Installed path | Source path in this repo |
 | --- | --- |
 | `~/.pi/agent/extensions/know-how/skills/X/SKILL.md` | `extension/skills/X/SKILL.md` |
-| `~/.pi/agent/agents/X.md` | `extension/agents/X.md` |
+| `~/.pi/agent/extensions/know-how/agents/X.md` | `extension/agents/X.md` |
 
 Skill files are often read from the installed path because that is where the session
 system loads them from. That is fine. But **writes always go to the source path**.
