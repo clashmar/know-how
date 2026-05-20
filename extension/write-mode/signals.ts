@@ -14,6 +14,7 @@ const ENABLE_WRITE_MODE_SELECTIONS = new Set([
   normalizeWriteModeSelection("enable write mode"),
   normalizeWriteModeSelection("switch-write"),
   normalizeWriteModeSelection("switch to write mode"),
+  normalizeWriteModeSelection("__write_mode_enable__"),
 ]);
 
 function normalizeWriteModeSelection(value: string): string {

@@ -15,6 +15,7 @@ import type { WriteModeApprovalRequest, WriteModeTransitionResult } from "./appr
 import { ensureWriteModeForAction } from "./approval";
 import { registerApprovedWriteModeActivator } from "./runtime";
 import { showPresentChoice } from "../tools/present-choice";
+import { getReadModeToolBlacklist } from "../settings";
 
 // ── Bash allowlist ──────────────────────────────────────────────────
 
@@ -141,16 +142,14 @@ function isSafeCommand(command: string): boolean {
 
 // ── Read-only tool set ──────────────────────────────────────────────
 
-const READ_MODE_TOOLS = [
-  "read", "bash", "grep", "find", "ls",
-  "lsp_navigation", "ast_grep_search",
-  "memory_search",
-  "set_context", "monitor_pipeline", "stop_monitor",
-  "subagent",
-  "present_choice", "present_decisions",
-  "jira_ticket", "jira_create_subtask",
-  "todo", "set_session_goal",
-];
+/** Computes the read-mode tool set: all registered tools minus the configured blacklist. */
+function computeReadModeTools(pi: ExtensionAPI): string[] {
+  const blacklist = new Set(getReadModeToolBlacklist());
+  return pi
+    .getAllTools()
+    .map((t) => t.name)
+    .filter((name) => !blacklist.has(name));
+}
 
 // ── Role sets ───────────────────────────────────────────────────────
 // Read-only roles permanently locked to read mode. Write-capable start in write.
@@ -243,7 +242,7 @@ export function registerReadMode(pi: ExtensionAPI): void {
   function enterReadMode(ctx: ExtensionContext): void {
     if (readModeEnabled) return;
     readModeEnabled = true;
-    pi.setActiveTools(READ_MODE_TOOLS);
+    pi.setActiveTools(computeReadModeTools(pi));
     ctx.ui.notify("Read mode — write/edit disabled.", "info");
     updateStatus();
     persistState();
@@ -389,7 +388,7 @@ export function registerReadMode(pi: ExtensionAPI): void {
     if (forceReadOnly || (isSubagent && agentRole && READ_ONLY_ROLES_SET.has(agentRole))) {
       roleLocked = true;
       readModeEnabled = true;
-      pi.setActiveTools(READ_MODE_TOOLS);
+      pi.setActiveTools(computeReadModeTools(pi));
     } else if (!forceReadOnly && isSubagent && agentRole && WRITE_CAPABLE_ROLES_SET.has(agentRole)) {
       roleLocked = false;
       readModeEnabled = false;
@@ -397,7 +396,7 @@ export function registerReadMode(pi: ExtensionAPI): void {
     } else {
       roleLocked = false;
       readModeEnabled = true;
-      pi.setActiveTools(READ_MODE_TOOLS);
+      pi.setActiveTools(computeReadModeTools(pi));
     }
 
     updateStatus();

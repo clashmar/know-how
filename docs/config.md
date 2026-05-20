@@ -7,6 +7,9 @@ What can be configured (so far):
 ```json
 {
   "knowHow": {
+    "readMode": {
+      "toolBlacklist": ["some_custom_tool"]
+    },
     "subagents": {
       "scout": {
         "model": "fast-and-cheap-local-model",
@@ -42,7 +45,7 @@ What can be configured (so far):
           "one-of-the-others"
         ],
         "thinkingLevel": "high"
-      }
+      },
       "deckbuilder": {
         "model": "small-boi-for-frontend",
         "fallbackModels": [
@@ -55,7 +58,13 @@ What can be configured (so far):
 }
 ```
 
+## Read mode tool blacklist
+
+Tools in the blacklist are unavailable in read mode. The default blacklist (`edit`, `write`) is always applied — the config adds to it, not replaces.
+
 ## Defaults
 
 - Unset values fall back to the session default.
 - If a model and its fallback fail, the controller will stop for direction.
+- Subagent configs with no entry fall back to the session defaults.
+- The default read-mode blacklist is `["edit", "write"]` — pi's native write tools. The user `toolBlacklist` extends this list.

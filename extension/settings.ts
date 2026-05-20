@@ -10,8 +10,17 @@ export interface SubagentConfig {
   thinkingLevel?: string;
 }
 
+/** Tool names that pi core registers as write-capable. */
+export const DEFAULT_READ_MODE_BLACKLIST: readonly string[] = ["edit", "write"];
+
+export interface ReadModeConfig {
+  /** Additional tool names to block in read mode. Default blacklist (edit, write) is always applied. */
+  toolBlacklist?: string[];
+}
+
 export interface KnowHowConfig {
   subagents?: Record<string, SubagentConfig>;
+  readMode?: ReadModeConfig;
 }
 
 export interface Settings {
@@ -33,4 +42,11 @@ export function readSettings(): Settings {
   } catch {
     return {};
   }
+}
+
+/** Returns the effective read-mode tool blacklist: default write tools + user config. */
+export function getReadModeToolBlacklist(): readonly string[] {
+  const settings = readSettings();
+  const userBlacklist = settings.knowHow?.readMode?.toolBlacklist ?? [];
+  return [...DEFAULT_READ_MODE_BLACKLIST, ...userBlacklist];
 }
