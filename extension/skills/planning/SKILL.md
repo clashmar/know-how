@@ -28,8 +28,8 @@ Create a task for each of these items and complete them in order:
 8. **Ask the user to review the spec** — wait for approval before moving on
 9. **Set the session goal** — call `set_session_goal` with the spec title as a complete sentence (but no punctuation or emojis) under 8 words.
 10. **Transition to implementation planning** — if the controller is still in read mode,
-   use the shared write-mode approval prompt before continuing (the plan will be
-   written to disk). Then invoke `know-how:writing-plans`.
+   run `/write` to open the write-mode approval prompt before continuing
+   (the plan will be written to disk). Then invoke `know-how:writing-plans`.
 <IMPORTANT>
 
 ## Process Flow

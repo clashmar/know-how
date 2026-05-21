@@ -20,7 +20,7 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 - Derive `<project-name>` from the git repository root (`git rev-parse --show-toplevel`) basename, lowercased with non-alphanumeric runs replaced by hyphens.
 - If `~/.know-how/<project-name>/` does not exist, use `present_choice` to offer: create it, use another path, or skip (write the plan inline to the current context).
 - User preferences for plan location override this default.
-- If the controller is still in read mode, use the shared write-mode approval prompt before saving the plan file (see Execution Handoff section).
+- If the controller is still in read mode, run `/write` to open the write-mode approval prompt before saving the plan file. The approval is automatic — once the user selects the enable option, write mode activates immediately and you can proceed to save.
 
 ## Core Rule
 
@@ -363,7 +363,7 @@ Call `present_decisions` with title "Plan Configuration" and three decisions:
 
 `present_decisions` auto-adds `Something else...` for each decision; do not add duplicates. `otherLabel` renames it, so keep it short.
 
-Read the returned map, record the `Execution Style:`, `Execution Autonomy:`, and `Worktree Strategy:` fields in the plan header, then save the final plan. Before saving the file, if the controller is still in read mode, use the shared write-mode approval prompt first.
+Read the returned map, record the `Execution Style:`, `Execution Autonomy:`, and `Worktree Strategy:` fields in the plan header, then save the final plan. Before saving the file, if the controller is still in read mode, run `/write` first. Once write mode activates, proceed to save.
 
 After saving, present file artifacts as short markdown links (not bare paths or bare `file://` URLs). Use concise labels, for example:
 

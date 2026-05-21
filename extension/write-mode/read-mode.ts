@@ -350,7 +350,11 @@ export function registerReadMode(pi: ExtensionAPI): void {
         message: { customType: "read-mode-context", content: "[Read mode — write/edit blocked]", display: false },
         systemPrompt:
           event.systemPrompt +
-          "\n\n⚠️ READ MODE ACTIVE. You cannot write files. Write-capable steps and dispatched agents require write-mode approval before continuing. If the approval prompt returns the enable/switch option, write mode is already enabled — continue without asking the user to run /write again. Scouts and reviewers are fine.",
+          "\n\n⚠️ READ MODE ACTIVE. You cannot write files. " +
+          "Use the `/write` command to request write-mode approval. " +
+          "Write-capable steps and dispatched agents require write-mode approval before continuing. " +
+          "If the approval prompt returns the enable/switch option, write mode is already enabled — " +
+          "continue without asking the user to run /write again. Scouts and reviewers are fine.",
       };
     }
 

@@ -184,8 +184,9 @@ is a compliance violation.
 ### Controller write-mode handoffs
 
 When a controller workflow reaches a write-capable step while in read mode, it
-uses the shared write-mode approval prompt built on `present_choice` — not a
-typed `/write` switch instruction.
+runs the `/write` command to open the write-mode approval prompt. Once the user
+selects the enable option, write mode activates immediately — no second `/write` is
+needed.
 
 ## Testing
 
