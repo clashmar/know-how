@@ -20,6 +20,8 @@ export interface ReadModeConfig {
 
 export interface KnowHowConfig {
   subagents?: Record<string, SubagentConfig>;
+  /** Shell command to open a directory in the user's preferred editor, e.g. "code .", "phpstorm ." */
+  openCommand?: string;
   readMode?: ReadModeConfig;
 }
 

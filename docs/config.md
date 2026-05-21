@@ -2,11 +2,26 @@
 
 What can be configured (so far):
 
+## openCommand
+
+Shell command run in the session CWD when an agent calls `open_in_editor`.
+
+```json
+{ "knowHow": { "openCommand": "code ." } }
+```
+
+If unset, the tool auto-detects installed editors in priority order
+(VS Code → Cursor → Zed → Sublime → JetBrains IDEs), then falls back
+to the OS default (`open .` on macOS, `xdg-open .` on Linux, `start .` on Windows).
+
+## Subagent models
+
 ## Example
 
 ```json
 {
   "knowHow": {
+    "openCommand": "code .",
     "readMode": {
       "toolBlacklist": ["some_custom_tool"]
     },

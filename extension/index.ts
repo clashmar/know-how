@@ -33,6 +33,10 @@ import { Type } from "@sinclair/typebox";
 import { Text } from "@earendil-works/pi-tui";
 import { registerPresentChoice } from "./tools/present-choice";
 import { registerPresentDecisions } from "./tools/present-decisions";
+import { registerOpenInEditor, detectAvailableEditors } from "./tools/open-in-editor";
+import { resolveEditorCommand } from "./tools/resolve-editor-command";
+import { readSettings } from "./settings";
+import { spawnSync } from "child_process";
 import { MEMORY_NAMESPACES } from "./memory-convention";
 
 // ---------------------------------------------------------------------------
@@ -335,6 +339,7 @@ export default function (pi: ExtensionAPI) {
 	beforeAgentStart(pi);
 	registerPresentChoice(pi);
 	registerPresentDecisions(pi);
+	registerOpenInEditor(pi);
 
 	// Register set_session_goal tool — agents call this when a spec is agreed
 	pi.registerTool({
@@ -607,6 +612,26 @@ Execute its procedure now.`;
 					break;
 				}
 			}
+		},
+	});
+
+	// Register /open command — opens the session CWD in the user's preferred editor
+	pi.registerCommand("open", {
+		description: "Open the current project in your preferred editor",
+		handler: async (_args, ctx) => {
+			const settings = readSettings();
+			const cwd = ctx.cwd;
+			if (!cwd) {
+				ctx.ui.notify("Cannot open: session CWD is not set.", "error");
+				return;
+			}
+			const { command, tip } = resolveEditorCommand(
+				settings.knowHow?.openCommand,
+				detectAvailableEditors(),
+				process.platform,
+			);
+			spawnSync(command, [], { cwd, shell: true, stdio: "pipe" });
+			ctx.ui.notify(tip ? `Opened. ${tip}` : `Opened with: ${command}`, "info");
 		},
 	});
 

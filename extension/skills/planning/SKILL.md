@@ -9,8 +9,6 @@ Help turn ideas into an approved design and a written spec before implementation
 
 Do not invoke implementation skills, write code, scaffold projects, or make behavior changes until you have presented a design and the user has approved it.
 
-
-
 ## Checklist
 
 <IMPORTANT>
@@ -98,7 +96,7 @@ The terminal state is invoking `know-how:writing-plans`.
 **Deciding the testing strategy:**
 
 - Decide whether TDD should be required or manual only
-- Identify the highest-risk behavior worth automated coverage
+- Identify the highest-risk behaviors worth automated coverage
 - Call out visual or cosmetic changes that should be verified manually instead
 - Avoid designs that imply every UI detail needs an automated assertion
 
