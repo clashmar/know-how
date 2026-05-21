@@ -1,0 +1,21 @@
+extension/tools/open-in-editor.ts
+  s_9baccf0a1a3974::t_5b6e302dbf9e39 10
+extension/index.ts
+  s_9baccf0a1a3974::t_8f470d66f9f90a 38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "9716d22580a0f5ebb7de2c81b070e30feec129b6",
+  "prompts": {},
+  "sessions": {
+    "s_9baccf0a1a3974": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e4a04-3c9c-743f-9ef7-8fbbff9168c2",
+        "model": "claude-sonnet-4.6"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
