@@ -1,0 +1,19 @@
+extension/subagents/dispatch.ts
+  s_ac25e71347c05e::t_7ceea4cd706121 322-326
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "5b97770f3ef1d1370ce37a6aaa7dbf685d821da2",
+  "prompts": {},
+  "sessions": {
+    "s_ac25e71347c05e": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019e4f68-af14-73f9-aeb4-ee86ec589f66",
+        "model": "claude-sonnet-4.6"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
