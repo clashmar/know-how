@@ -319,8 +319,11 @@ async function dispatchAgent(
     } catch (error) {
       const attemptError = error instanceof Error ? error : new Error(String(error));
       failures.push({ model, error: attemptError.message });
-      // Don't try fallback models if the user cancelled (Escape)
-      if (signal?.aborted) break;
+      // Don't try fallback models if the user cancelled (Escape).
+      // Exception: if the child was signal-killed, the AbortSignal may have been
+      // set by a pi timeout rather than the user pressing Escape — still retry.
+      const isSignalKill = attemptError.message.includes("was killed by signal");
+      if (signal?.aborted && !isSignalKill) break;
       const nextModel = shouldRetryWithFallback(attemptError) ? candidates[i + 1] : undefined;
       if (onModelChange) {
         onModelChange({ failedModel: model, error: attemptError.message, nextModel });
