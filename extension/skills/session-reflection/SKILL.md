@@ -1,10 +1,9 @@
 ---
 name: session-reflection
 description: |
-  Use when starting or ending meaningful work — captures decisions, user
-  corrections, and recurring problems into project reflections so future
-  sessions reconstruct context and learn from past mistakes. Also use when
-  resuming work on a project to catch up on recent decisions and patterns.
+  Use after meaningful work — captures decisions, user corrections, and
+  recurring problems into project reflections so future sessions can
+  reconstruct context and learn from past mistakes.
 ---
 
 # Session Reflection & Context Reconstruction
@@ -268,17 +267,12 @@ Examples:
 
 ## How to Catch Up
 
-### On session start
+### On demand
 
-When you start a new session on a project with prior reflections, the
-`<project-state>` block is automatically injected into your context. Read it
-first — it tells you where the project stands, recent decisions, and recurring
-patterns to watch.
-
-### When the automatic catch-up is insufficient
-
-Call `/catch-up` to get a fresh synthesis. Or read specific reflection files
-directly from `~/.know-how/<project>/reflections/` using the read tool.
+Session reflections are not loaded automatically at session start. When you
+want a fresh synthesis of prior work, call `/catch-up` or read specific
+reflection files directly from `~/.know-how/<project>/reflections/` using the
+read tool.
 
 ### Supplement with pi-memory
 
@@ -290,9 +284,9 @@ preferences. Run memory_search with a lesson-related query (e.g.
 
 ### closing-out-work
 
-The closing-out-work skill now includes a reflection step (Step 5). When you
-reach that step, produce a reflection covering everything from this work unit:
-decisions made, corrections received, recurring patterns, remaining work.
+The closing-out-work skill includes a reflection step. When you reach that
+step, produce a reflection covering everything from this work unit: decisions
+made, corrections received, recurring patterns, remaining work.
 
 ### planning
 

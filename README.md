@@ -16,7 +16,7 @@ Know-how is a WIP pi extension designed to give developers control over their wo
 
 - **Standards and Scope** are enforced during reviews as well as the usual spec/quality reviews, meaning you spend less time fixing recurring violations of your personal/project standards or arguing with it about random refactoring/reformatting nobody asked for.
 
-- **know-how reflects on the process**. It surfaces process issues to you, optionally actions them, reflects on them and remembers them. know-how piggy-backs on pi-memory with extra layers to integrate it into the workflow and a dedicated agent to maintain memory and analyze it.
+- **know-how reflects on the process**. It surfaces process issues to you, optionally actions them, reflects on them at close-out and remembers them. When you want historical context, use explicit catch-up instead of automatic session-start reflection loading. know-how piggy-backs on pi-memory with extra layers to integrate it into the workflow and a dedicated agent to maintain memory and analyze it.
 
 ## Agents
 

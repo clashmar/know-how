@@ -462,30 +462,6 @@ export default function (pi: ExtensionAPI) {
 	});
 
 
-	// Inject catch-up context on first user message of each session
-	pi.on("before_agent_start", async (event, ctx) => {
-		// Prevent double-injection within the same session
-		const entries = ctx.sessionManager.getEntries();
-		const alreadyInjected = entries.some(
-			(e) =>
-				e.type === CUSTOM_MESSAGE_ENTRY_TYPE &&
-				e.customType === KNOW_HOW_CATCH_UP_MESSAGE_TYPE,
-		);
-		if (alreadyInjected) return;
-
-		const projectName = getProjectName(ctx.cwd);
-		const result = buildCatchUpBlock(projectName);
-		if (!result) return; // silent no-op when nothing to catch up on
-
-		return {
-			message: {
-				customType: KNOW_HOW_CATCH_UP_MESSAGE_TYPE,
-				content: result.block,
-				display: false,
-			},
-		};
-	});
-
 	// Inject current session goal into system prompt
 	pi.on("before_agent_start", async (event, _ctx) => {
 		if (!currentGoal) return;
