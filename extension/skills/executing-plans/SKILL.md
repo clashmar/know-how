@@ -23,8 +23,8 @@ todo rules:
 3. Replace any earlier planning checklist items when execution begins.
 4. Keep exactly one task `in_progress` at a time.
 5. Do not create extra todo items for verification, review gates, or manual checks.
-6. Keep the current task `in_progress` until implementation, required verification, spec-compliance review, and guardian review all succeed.
-7. If review requires more changes, move the same task back to `in_progress` instead of creating a new todo item.
+6. Keep the current task `in_progress` until implementation and required verification succeed.
+7. If review feedback requires changes, move the same task back to `in_progress` instead of creating a new todo item.
 8. Mark the task `completed` only after all required work for that task is finished.
 9. In `Checkpointed` mode, wait for user approval only after marking the current task `completed`.
    </IMPORTANT>
@@ -40,16 +40,13 @@ todo rules:
      "Implement current task" [shape=box];
      "Required verification passes?" [shape=diamond];
      "Fix verification issues" [shape=box];
-     "Spec-compliance review passes?" [shape=diamond];
-     "Fix spec gaps" [shape=box];
-     "Guardian review passes?" [shape=diamond];
-     "Fix convention/quality issues" [shape=box];
+     "Dispatch spec + guardian reviewers" [shape=box];
+     "Address all review feedback" [shape=box];
      "Mark current task completed" [shape=box];
      "Execution Autonomy is Checkpointed?" [shape=diamond];
      "Report status and wait for approval" [shape=box];
      "More tasks remain?" [shape=diamond];
-     "Whole-implementation review passes?" [shape=diamond];
-     "Fix final review issues" [shape=box];
+     "Dispatch whole-implementation reviewer" [shape=box];
      "Invoke closing-out-work" [shape=doublecircle];
 
      "Read plan, extract tasks, and create todo items" -> "Worktree Strategy?";
@@ -60,22 +57,17 @@ todo rules:
      "Implement current task" -> "Required verification passes?";
      "Required verification passes?" -> "Fix verification issues" [label="no"];
      "Fix verification issues" -> "Implement current task";
-     "Required verification passes?" -> "Spec-compliance review passes?" [label="yes"];
-     "Spec-compliance review passes?" -> "Fix spec gaps" [label="no"];
-     "Fix spec gaps" -> "Implement current task";
-     "Spec-compliance review passes?" -> "Guardian review passes?" [label="yes"];
-     "Guardian review passes?" -> "Fix convention/quality issues" [label="no"];
-     "Fix convention/quality issues" -> "Implement current task";
-     "Guardian review passes?" -> "Mark current task completed" [label="yes"];
+     "Required verification passes?" -> "Dispatch spec + guardian reviewers" [label="yes"];
+     "Dispatch spec + guardian reviewers" -> "Address all review feedback";
+     "Address all review feedback" -> "Mark current task completed";
      "Mark current task completed" -> "Execution Autonomy is Checkpointed?";
      "Execution Autonomy is Checkpointed?" -> "Report status and wait for approval" [label="yes"];
      "Execution Autonomy is Checkpointed?" -> "More tasks remain?" [label="no"];
      "Report status and wait for approval" -> "More tasks remain?";
      "More tasks remain?" -> "Implement current task" [label="yes"];
-     "More tasks remain?" -> "Whole-implementation review passes?" [label="no"];
-     "Whole-implementation review passes?" -> "Invoke closing-out-work" [label="yes"];
-     "Whole-implementation review passes?" -> "Fix final review issues" [label="no"];
-     "Fix final review issues" -> "Implement current task";
+     "More tasks remain?" -> "Dispatch whole-implementation reviewer" [label="no"];
+     "Dispatch whole-implementation reviewer" -> "Address all review feedback" [label="feedback"];
+     "Address all review feedback" -> "Invoke closing-out-work" [label="done"];
  }
 ```
 
@@ -142,20 +134,16 @@ Before executing tasks, read `Execution Autonomy` from the plan.
 - `Fully autonomous`: continue task-to-task unless a stop condition interrupts execution.
 - `Checkpointed`: after each completed task, report status and wait for user approval before continuing.
 
-In both autonomy modes, a task is complete only after its required verification, spec-compliance review, and guardian review succeed.
-
-Spec-compliance review and guardian review are separate mandatory gates for every task. Guardian runs per-task — every task gets convention and quality review as it's completed.
-
-If any review leads to code changes, re-run the task's required verification on the updated code, then re-run both review gates before marking the task complete.
+In both autonomy modes, a task is complete after its required verification passes and all review feedback has been addressed.
 
 For each task:
 
 1. Mark the matching todo item as `in_progress`
 2. Follow each step exactly (plan has bite-sized steps)
 3. Run verifications as specified
-4. Dispatch the spec-compliance reviewer (`reviewer` agent with `spec-reviewer-prompt.md`) and the guardian in parallel. Both must approve the same code state before the task is complete. See `know-how:parallel-review` for the parallel dispatch pattern (spec-first precedence, cancel/discard guardian if spec fails, loop-until-both-approve).
-5. If spec review finds issues first, cancel or discard the guardian result, fix the spec issues, re-run verification, and re-dispatch both reviewers on the new code state.
-6. If spec review approves but guardian finds issues, fix the convention/quality issues, re-run verification, and re-review with guardian.
+4. Once verification passes, dispatch the spec-compliance reviewer (`reviewer` agent with `spec-reviewer-prompt.md`) and the guardian in parallel. Let both run to completion — do not cancel either.
+5. Collect all feedback from both reviewers. Address every finding.
+6. Re-run the task's required verification after fixes to confirm nothing broke.
 7. Mark the same todo item as `completed`
 8. If `Execution Autonomy` is `Checkpointed`, report status and wait for user approval before starting the next task
 
@@ -163,8 +151,8 @@ For each task:
 
 After all tasks complete and verified:
 
-- Run a final review: whole-implementation reviewer. Must approve before closing out.
-- If the final review requires code changes, re-run verification and the review on the updated code before continuing
+- Dispatch the whole-implementation reviewer. Collect feedback and address every finding.
+- Re-run verification after any final fixes.
 - Announce: "All implementation tasks complete. Executing close-out task."
 - The plan's close-out task handles verification, cleanup, and integration.
 
@@ -200,8 +188,9 @@ After all tasks complete and verified:
 - Follow the plan's `Testing Approach` exactly
 - Don't skip verifications
 - Don't create extra todo items for verification, review gates, or manual checks
-- Don't mark a task complete before spec-compliance review and guardian review
-- If review changes code, re-run verification and re-review before completion
+- Don't mark a task complete before addressing all review feedback
+- Always dispatch both spec reviewer and guardian in parallel after verification
+- Always re-run verification after any review-driven fixes
 - Don't skip the final whole-implementation review before the close-out task
 - Reference skills when plan says to
 - Stop when blocked, don't guess
@@ -217,3 +206,5 @@ After all tasks complete and verified:
 - **know-how:writing-plans** - Creates the plan this skill executes
 - **know-how:requesting-code-review** - Use for focused review on risky, behavior-changing, or multi-file tasks
 - **know-how:closing-out-work** - Close out work after all tasks, get user review, then choose integration (invoked by the plan's close-out task)
+- **spec-reviewer-prompt.md** - Dispatch template for spec-compliance review (in same directory)
+- **guardian-prompt.md** - Dispatch template for code-quality review (in same directory)

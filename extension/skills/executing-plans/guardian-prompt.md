@@ -3,10 +3,8 @@
 Use this template when dispatching a guardian subagent for per-task code-quality review.
 
 **Purpose:** Run the guardian against the current code state after task verification passes.
-The guardian reviews code quality grounded in project conventions.
-
-If spec compliance review finds an issue for the current code state, the controller may
-discard the guardian result and restart both reviews after the spec issue is fixed.
+The guardian reviews code quality grounded in project conventions. Dispatch in parallel
+with the spec-compliance reviewer — let both run to completion, then address all findings.
 
 **CWD note for controllers:** If the code being reviewed is in a worktree, set `cwd: /path/to/worktree`
 when dispatching the guardian. The guardian uses `git rev-parse --show-toplevel` to derive the

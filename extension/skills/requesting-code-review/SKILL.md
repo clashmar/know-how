@@ -14,7 +14,7 @@ Dispatch the `reviewer` subagent to catch issues before they cascade. The review
 
 **Mandatory:**
 
-- After each task in subagent-driven development
+- After each task in executing-plans
 - After completing major feature
 - Before merge to main
 
@@ -69,8 +69,8 @@ subagent({
 
 For spec-compliance or code-quality reviews, use the appropriate prompt template:
 
-- Spec compliance: see `../../skills/subagent-driven-development/spec-reviewer-prompt.md`
-- Code quality: see `../../skills/subagent-driven-development/guardian-prompt.md`
+- Spec compliance: see `../../skills/executing-plans/spec-reviewer-prompt.md`
+- Code quality: see `../../skills/executing-plans/guardian-prompt.md`
 
 **Placeholders:**
 

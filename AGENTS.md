@@ -8,7 +8,7 @@ process improves over time.
 
 ## Agents
 
-The know-how extension bundles six agents in `extension/agents/`:
+The know-how extension bundles five agents in `extension/agents/`:
 
 - **scout** — Codebase reconnaissance. Reads files, answers bounded questions, returns text report. Read-only.
 - **reviewer** — Code review. Checks spec compliance and code quality. Read-only.

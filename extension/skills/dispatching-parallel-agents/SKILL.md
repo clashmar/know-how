@@ -77,9 +77,9 @@ Each agent gets:
 - A stop boundary ("stop after reading listed files")
 - A conciseness directive ("bullet list under 500 words")
 
-**For review tasks:** dispatch spec reviewer and guardian in parallel per the
-`parallel-review` skill. Each gets a prompt template with the task scope,
-diff, and specific review criteria.
+**For review tasks:** dispatch spec reviewer and guardian in parallel using the prompt
+templates from `../executing-plans/` (`spec-reviewer-prompt.md` and `guardian-prompt.md`).
+Let both run to completion, collect all feedback, then address every finding.
 
 ### 3. Dispatch in Parallel
 
