@@ -25,11 +25,9 @@ Feature planned to easily disable their use in a session. Useful for request-bas
 
 - **scout** - fast recon of codebase that returns summaries to controller.
 
-- **worker** - executes implementation and fixes after review.
+- **reviewer** - checks spec compliance and performs whole-implementation sweeps.
 
-- **reviewer** - called as parallel spec/quality reviewers after worker completes.
-
-- **guardian** - dedicated standards and scope enforcer that knows what you like.
+- **guardian** - per-task code quality review grounded in project conventions.
 
 - **maester** - metacognition layer; reviews whole process and surfaces optimizations.
 

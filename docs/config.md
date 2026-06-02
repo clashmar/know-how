@@ -33,7 +33,7 @@ to the OS default (`open .` on macOS, `xdg-open .` on Linux, `start .` on Window
         ],
         "thinkingLevel": "low"
       },
-      "worker": {
+      "guardian": {
         "model": "no-nonsense-workhorse",
         "fallbackModels": [
           "your-other-subscriptions-workhorse"
@@ -44,13 +44,6 @@ to the OS default (`open .` on macOS, `xdg-open .` on Linux, `start .` on Window
         "model": "keep-it-speedy-here",
         "fallbackModels": [
           "keep-it-speedy-here-too"
-        ],
-        "thinkingLevel": "medium"
-      },
-      "guardian": {
-        "model": "needs-to-read-wider-context",
-        "fallbackModels": [
-          "mid-level-model-recommended"
         ],
         "thinkingLevel": "medium"
       },

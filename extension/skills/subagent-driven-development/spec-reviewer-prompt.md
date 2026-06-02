@@ -2,7 +2,7 @@
 
 Use this template when dispatching a spec compliance reviewer subagent.
 
-**Purpose:** Verify worker built what was requested (nothing more, nothing less)
+**Purpose:** Verify the implementation built what was requested (nothing more, nothing less)
 
 **Before dispatching:** If the code being reviewed is in a worktree, set `cwd: /path/to/worktree` on the subagent tool call. The reviewer's working directory will match the worktree, so relative `reads` paths resolve correctly.
 
@@ -20,11 +20,11 @@ Subagent dispatch — spec reviewer:
 
     ## What Worker Claims They Built
 
-    [From worker's report]
+    [From implementation report]
 
     ## CRITICAL: Do Not Trust the Report
 
-    The worker finished suspiciously quickly. Their report may be incomplete,
+    The implementation finished suspiciously quickly. The report may be incomplete,
     inaccurate, or optimistic. You MUST verify everything independently.
 
     **DO NOT:**

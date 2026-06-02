@@ -11,8 +11,6 @@ Load plan, review critically, read the declared `Execution Autonomy`, execute ta
 
 **Announce at start:** "I'm using the executing-plans skill to implement this plan."
 
-**Use this skill when:** the inline execution path has been chosen for the plan.
-
 ## Checklist
 
 <IMPORTANT>
@@ -25,7 +23,7 @@ todo rules:
 3. Replace any earlier planning checklist items when execution begins.
 4. Keep exactly one task `in_progress` at a time.
 5. Do not create extra todo items for verification, review gates, or manual checks.
-6. Keep the current task `in_progress` until implementation, required verification, spec-compliance review, and code-quality review all succeed.
+6. Keep the current task `in_progress` until implementation, required verification, spec-compliance review, and guardian review all succeed.
 7. If review requires more changes, move the same task back to `in_progress` instead of creating a new todo item.
 8. Mark the task `completed` only after all required work for that task is finished.
 9. In `Checkpointed` mode, wait for user approval only after marking the current task `completed`.
@@ -44,13 +42,13 @@ todo rules:
      "Fix verification issues" [shape=box];
      "Spec-compliance review passes?" [shape=diamond];
      "Fix spec gaps" [shape=box];
-     "Code-quality review passes?" [shape=diamond];
-     "Fix quality issues" [shape=box];
+     "Guardian review passes?" [shape=diamond];
+     "Fix convention/quality issues" [shape=box];
      "Mark current task completed" [shape=box];
      "Execution Autonomy is Checkpointed?" [shape=diamond];
      "Report status and wait for approval" [shape=box];
      "More tasks remain?" [shape=diamond];
-     "Final reviews: whole-implementation + guardian pass?" [shape=diamond];
+     "Whole-implementation review passes?" [shape=diamond];
      "Fix final review issues" [shape=box];
      "Invoke closing-out-work" [shape=doublecircle];
 
@@ -65,18 +63,18 @@ todo rules:
      "Required verification passes?" -> "Spec-compliance review passes?" [label="yes"];
      "Spec-compliance review passes?" -> "Fix spec gaps" [label="no"];
      "Fix spec gaps" -> "Implement current task";
-     "Spec-compliance review passes?" -> "Code-quality review passes?" [label="yes"];
-     "Code-quality review passes?" -> "Fix quality issues" [label="no"];
-     "Fix quality issues" -> "Implement current task";
-     "Code-quality review passes?" -> "Mark current task completed" [label="yes"];
+     "Spec-compliance review passes?" -> "Guardian review passes?" [label="yes"];
+     "Guardian review passes?" -> "Fix convention/quality issues" [label="no"];
+     "Fix convention/quality issues" -> "Implement current task";
+     "Guardian review passes?" -> "Mark current task completed" [label="yes"];
      "Mark current task completed" -> "Execution Autonomy is Checkpointed?";
      "Execution Autonomy is Checkpointed?" -> "Report status and wait for approval" [label="yes"];
      "Execution Autonomy is Checkpointed?" -> "More tasks remain?" [label="no"];
      "Report status and wait for approval" -> "More tasks remain?";
      "More tasks remain?" -> "Implement current task" [label="yes"];
-     "More tasks remain?" -> "Final reviews: whole-implementation + guardian pass?" [label="no"];
-     "Final reviews: whole-implementation + guardian pass?" -> "Invoke closing-out-work" [label="yes"];
-     "Final reviews: whole-implementation + guardian pass?" -> "Fix final review issues" [label="no"];
+     "More tasks remain?" -> "Whole-implementation review passes?" [label="no"];
+     "Whole-implementation review passes?" -> "Invoke closing-out-work" [label="yes"];
+     "Whole-implementation review passes?" -> "Fix final review issues" [label="no"];
      "Fix final review issues" -> "Implement current task";
  }
 ```
@@ -109,8 +107,6 @@ git status --porcelain
 # If dirty: "Working tree has uncommitted changes. Commit them first (outside this workflow) or abort?"
 
 # 3. Derive the project name from the git root directory name
-#    e.g. /Users/lash/Personal/bishop → "bishop"
-#    Sanitize: lowercase, hyphens for non-alphanumeric runs
 PROJECT_NAME=$(basename "$REPO_ROOT" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g; s/^-//; s/-$//')
 
 # 4. Derive a branch name from the plan
@@ -146,9 +142,9 @@ Before executing tasks, read `Execution Autonomy` from the plan.
 - `Fully autonomous`: continue task-to-task unless a stop condition interrupts execution.
 - `Checkpointed`: after each completed task, report status and wait for user approval before continuing.
 
-In both autonomy modes, a task is complete only after its required verification, spec-compliance review, and code-quality review succeed.
+In both autonomy modes, a task is complete only after its required verification, spec-compliance review, and guardian review succeed.
 
-The spec-compliance review and code-quality review are separate mandatory gates for every task in inline execution. Guardian runs at the final whole-implementation review only.
+Spec-compliance review and guardian review are separate mandatory gates for every task. Guardian runs per-task — every task gets convention and quality review as it's completed.
 
 If any review leads to code changes, re-run the task's required verification on the updated code, then re-run both review gates before marking the task complete.
 
@@ -157,9 +153,9 @@ For each task:
 1. Mark the matching todo item as `in_progress`
 2. Follow each step exactly (plan has bite-sized steps)
 3. Run verifications as specified
-4. Re-read the current task and confirm the implementation matches the task and plan without adding unrequested behavior. This is the mandatory spec-compliance review gate.
-5. Run a distinct code-quality review of the changed work before proceeding. This review is mandatory for every task. For risky, behavior-changing, or multi-file tasks, use know-how:requesting-code-review for a focused review.
-6. If any review changes code, re-run the task's required verification and both review gates on the updated state
+4. Dispatch the spec-compliance reviewer (`reviewer` agent with `spec-reviewer-prompt.md`) and the guardian in parallel. Both must approve the same code state before the task is complete. See `know-how:parallel-review` for the parallel dispatch pattern (spec-first precedence, cancel/discard guardian if spec fails, loop-until-both-approve).
+5. If spec review finds issues first, cancel or discard the guardian result, fix the spec issues, re-run verification, and re-dispatch both reviewers on the new code state.
+6. If spec review approves but guardian finds issues, fix the convention/quality issues, re-run verification, and re-review with guardian.
 7. Mark the same todo item as `completed`
 8. If `Execution Autonomy` is `Checkpointed`, report status and wait for user approval before starting the next task
 
@@ -167,7 +163,7 @@ For each task:
 
 After all tasks complete and verified:
 
-- Run a final review: whole-implementation reviewer and guardian in parallel. Both must approve before closing out.
+- Run a final review: whole-implementation reviewer. Must approve before closing out.
 - If the final review requires code changes, re-run verification and the review on the updated code before continuing
 - Announce: "All implementation tasks complete. Executing close-out task."
 - The plan's close-out task handles verification, cleanup, and integration.
@@ -204,14 +200,14 @@ After all tasks complete and verified:
 - Follow the plan's `Testing Approach` exactly
 - Don't skip verifications
 - Don't create extra todo items for verification, review gates, or manual checks
-- Don't mark a task complete before spec-compliance review and code-quality review
+- Don't mark a task complete before spec-compliance review and guardian review
 - If review changes code, re-run verification and re-review before completion
-- Don't skip the final review (whole-implementation + guardian) before the close-out task
+- Don't skip the final whole-implementation review before the close-out task
 - Reference skills when plan says to
 - Stop when blocked, don't guess
 - Never start implementation on main/master branch without explicit user consent
 - Never make git write operations during execution — no commits, pushes, merges, stash, checkout --, branch -D, or worktree remove during task execution. All git integration is gated behind user review at checkpoints and at close-out via closing-out-work
-- Never treat worktree branches as “safe to commit on” — the git write gate applies universally, regardless of branch
+- Never treat worktree branches as "safe to commit on" — the git write gate applies universally, regardless of branch
 - Use the current workspace unless the user explicitly asks for a different setup
 
 ## Integration
@@ -219,5 +215,5 @@ After all tasks complete and verified:
 **Required workflow skills:**
 
 - **know-how:writing-plans** - Creates the plan this skill executes
-- **know-how:requesting-code-review** - Use for focused code review on risky, behavior-changing, or multi-file tasks
+- **know-how:requesting-code-review** - Use for focused review on risky, behavior-changing, or multi-file tasks
 - **know-how:closing-out-work** - Close out work after all tasks, get user review, then choose integration (invoked by the plan's close-out task)

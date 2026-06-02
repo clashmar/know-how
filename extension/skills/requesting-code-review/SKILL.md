@@ -35,8 +35,8 @@ BASE_SHA=$(git rev-parse HEAD~1)  # or origin/main
 HEAD_SHA=$(git rev-parse HEAD)
 ```
 
-If the changes are uncommitted (workers do not commit during execution — this is the
-default for SDD and executing-plans workflows):
+If the changes are uncommitted (implementation does not commit during execution — this is the
+default for executing-plans workflows):
 
 ```bash
 # Use the base branch/commit as the diff base
@@ -58,7 +58,7 @@ subagent({
 })
 ```
 
-For uncommitted changes (default in SDD/executing-plans workflows):
+For uncommitted changes (default in executing-plans workflows):
 
 ```
 subagent({
@@ -70,7 +70,7 @@ subagent({
 For spec-compliance or code-quality reviews, use the appropriate prompt template:
 
 - Spec compliance: see `../../skills/subagent-driven-development/spec-reviewer-prompt.md`
-- Code quality: see `../../skills/subagent-driven-development/code-quality-reviewer-prompt.md`
+- Code quality: see `../../skills/subagent-driven-development/guardian-prompt.md`
 
 **Placeholders:**
 

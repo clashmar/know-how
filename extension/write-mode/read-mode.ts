@@ -3,7 +3,7 @@
  *
  * Role-based read/write gating for subagents. Read-only roles
  * (scout, reviewer, guardian) permanently locked to read mode.
- * Write-capable roles (worker, maester) start in write mode.
+ * Write-capable roles (maester, deckbuilder) start in write mode.
  * Main (human) sessions default to read mode with toggle.
  */
 
@@ -158,7 +158,7 @@ function computeReadModeTools(pi: ExtensionAPI): string[] {
 export const READ_ONLY_ROLES = ["scout", "reviewer", "guardian"] as const;
 
 /** Source-of-truth list of write-capable role names. */
-export const WRITE_CAPABLE_ROLES = ["worker", "maester", "deckbuilder"] as const;
+export const WRITE_CAPABLE_ROLES = ["maester", "deckbuilder"] as const;
 
 const READ_ONLY_ROLES_SET = new Set<string>(READ_ONLY_ROLES);
 const WRITE_CAPABLE_ROLES_SET = new Set<string>(WRITE_CAPABLE_ROLES);

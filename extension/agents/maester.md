@@ -108,7 +108,7 @@ Proposed fix: concrete change (what file, what text)
 
 Run `memory_search` scoped to the current project. Examine all entries for:
 
-- **Contradictions** — two facts that say opposite things (e.g., "workers use
+- **Contradictions** — two facts that say opposite things (e.g., "subagents use
   fresh context" and "guardian uses forked context")
 - **Duplicates** — same fact stored under different keys
 - **Superseded facts** — an old decision that a newer reflection entry

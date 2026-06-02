@@ -11,9 +11,8 @@ process improves over time.
 The know-how extension bundles six agents in `extension/agents/`:
 
 - **scout** — Codebase reconnaissance. Reads files, answers bounded questions, returns text report. Read-only.
-- **worker** — Task implementation. Writes code, runs tests, self-reviews. No git writes.
 - **reviewer** — Code review. Checks spec compliance and code quality. Read-only.
-- **guardian** — Convention enforcement. Checks documented project rules at per-task review. Read-only.
+- **guardian** — Per-task code quality review grounded in project conventions. Read-only.
 - **maester** — Process optimization. Surfaces improvements, audits memory, and detects patterns at close-out.
 - **deckbuilder** — Renders structured JSON payloads into left-aligned multi-column HTML/CSS dashboards with a unified masonry layout.
 

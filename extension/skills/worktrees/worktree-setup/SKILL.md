@@ -6,7 +6,7 @@ description: "Use when a plan declares Worktree Strategy: Worktree"
 # Worktree Setup
 
 Sets up an isolated git worktree for agent-driven development workflows.
-Used by SDD, executing-plans, and any workflow that needs filesystem
+Used by executing-plans and any workflow that needs filesystem
 isolation without touching the main checkout.
 
 ## When to Use
@@ -48,7 +48,7 @@ git worktree add ../${PROJECT_NAME}-<branch-name> \
 
 ## Bootstrap dependencies (sense check)
 
-Before dispatching workers, optionally run one setup/build command in the
+Before starting implementation, optionally run one setup/build command in the
 worktree (for example: `npm ci && npm run -s build --if-present`,
 `cargo build`, or `go build ./...`).
 

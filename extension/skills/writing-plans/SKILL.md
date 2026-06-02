@@ -31,7 +31,6 @@ The plan MUST explicitly state:
 - whether TDD is required or manual only
 - which behaviors need automated coverage
 - which changes should be verified manually
-- whether execution style is `Subagent-Driven` or `Inline Execution`
 - whether execution is `Fully autonomous` or `Checkpointed`
 - whether to work in a `Worktree` or `Direct` on the current branch
 
@@ -174,7 +173,7 @@ The worktree directory is named the same as the branch for simplicity (e.g. `<pr
 
 ## Execution Options
 
-Every plan MUST declare the execution style, execution autonomy, and worktree strategy that will be used during implementation. These decisions are made after the plan is written, just before the final plan is saved and handed off for execution.
+Every plan MUST declare execution autonomy and worktree strategy that will be used during implementation. These decisions are made after the plan is written, just before the final plan is saved and handed off for execution.
 
 ## Plan Document Header
 
@@ -183,15 +182,13 @@ Every plan MUST declare the execution style, execution autonomy, and worktree st
 ```markdown
 # [Feature Name] Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use know-how:subagent-driven-development or know-how:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **REQUIRED SUB-SKILL:** Use know-how:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** [One sentence describing what this builds]
 
 **Architecture:** [2-3 sentences about approach]
 
 **Tech Stack:** [Key technologies/libraries]
-
-**Execution Style:** Subagent-Driven | Inline Execution
 
 **Execution Autonomy:** Fully autonomous | Checkpointed
 
@@ -355,15 +352,14 @@ Fix minor consistency and placeholder issues inline. If you change scope or task
 
 After writing the plan and completing self-review, present the execution configuration using the `present_decisions` tool.
 
-Call `present_decisions` with title "Plan Configuration" and three decisions:
+Call `present_decisions` with title "Plan Configuration" and two decisions:
 
-1. **Execution Style** — options: Subagent-Driven (fresh subagent per task), Inline Execution (executing-plans)
-2. **Worktree Strategy** — options: Worktree (isolated worktree), Direct (current branch)
-3. **Autonomy** — options: Fully autonomous (continuous task-to-task), Checkpointed (pause after each task)
+1. **Worktree Strategy** — options: Worktree (isolated worktree), Direct (current branch)
+2. **Autonomy** — options: Fully autonomous (continuous task-to-task), Checkpointed (pause after each task)
 
 `present_decisions` auto-adds `Something else...` for each decision; do not add duplicates. `otherLabel` renames it, so keep it short.
 
-Read the returned map, record the `Execution Style:`, `Execution Autonomy:`, and `Worktree Strategy:` fields in the plan header, then save the final plan. Before saving the file, if the controller is still in read mode, run `/write` first. Once write mode activates, proceed to save.
+Read the returned map, record the `Execution Autonomy:` and `Worktree Strategy:` fields in the plan header, then save the final plan. Before saving the file, if the controller is still in read mode, run `/write` first. Once write mode activates, proceed to save.
 
 After saving, present file artifacts as short markdown links (not bare paths or bare `file://` URLs). Use concise labels, for example:
 
@@ -379,14 +375,9 @@ After writing the plan and before handing off for execution, call
 describing the work (e.g. "Refactor room editor" or "Create current goal
 widget"). This records what this plan implements.
 
-Both execution styles must follow the declared autonomy mode and worktree strategy exactly.
+**REQUIRED SUB-SKILL:** Use know-how:executing-plans
 
-**If Subagent-Driven chosen:**
-- **REQUIRED SUB-SKILL:** Use know-how:subagent-driven-development
-- Fresh subagent per task + dedicated spec and code-quality review + close-out task handles integration
-
-**If Inline Execution chosen:**
-- **REQUIRED SUB-SKILL:** Use know-how:executing-plans
-- Execute inline while performing required spec-compliance and code-quality review before each task is complete
-- Guardian runs at final whole-implementation review
-- Close-out task handles review, optimization report, and integration
+Execute inline while performing required spec-compliance and guardian review before
+each task is complete. Guardian runs per-task — every task gets convention and quality
+review. The final whole-implementation reviewer sweeps at the end. Close-out task
+handles review, optimization report, and integration.

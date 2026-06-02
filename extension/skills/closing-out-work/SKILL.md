@@ -210,8 +210,8 @@ Then report completion and the resulting branch state.
    stewardship at close-out.
 
    Fill in all `<…>` placeholders from this session's context, then dispatch
-   (see `./maester-prompt.md`). Pass reviewer and guardian evidence inline from
-   their response text.
+   (see `./maester-prompt.md`). Pass reviewer evidence inline from
+   its response text.
 
 2. The maester produces a process optimization report:
    - De-duplicated optimization suggestions (same gap flagged in multiple
