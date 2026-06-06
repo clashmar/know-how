@@ -108,6 +108,10 @@ function buildPiArgs(params: {
 
 // ── Process Spawning ────────────────────────────────────────────
 
+function createAbortError(agentName: string): Error {
+  return new Error(`Subagent "${agentName}" was aborted`);
+}
+
 function spawnPi(
   agentName: string,
   args: string[],
@@ -115,6 +119,10 @@ function spawnPi(
   signal?: AbortSignal,
   onData?: (chunk: string) => void,
 ): Promise<string> {
+  if (signal?.aborted) {
+    return Promise.reject(createAbortError(agentName));
+  }
+
   return new Promise((resolve, reject) => {
     const child = spawn("pi", args, {
       cwd,
@@ -128,6 +136,35 @@ function spawnPi(
     });
 
     const responseCollector = createResponseCollector();
+    let settled = false;
+    let abortedBySignal = false;
+
+    const finishResolve = (text: string) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      resolve(text);
+    };
+
+    const finishReject = (error: Error) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(error);
+    };
+
+    const onAbort = () => {
+      abortedBySignal = true;
+      if (!child.killed) {
+        child.kill("SIGKILL");
+      }
+    };
+
+    const cleanup = () => {
+      if (signal && typeof signal.removeEventListener === "function") {
+        signal.removeEventListener("abort", onAbort);
+      }
+    };
 
     child.stdout?.on("data", (data: Buffer) => {
       const chunk = data.toString();
@@ -142,32 +179,41 @@ function spawnPi(
 
     child.on("close", (code) => {
       const extracted = responseCollector.finalize();
+      if (abortedBySignal) {
+        finishReject(createAbortError(agentName));
+        return;
+      }
       if (code === 0) {
         if (extracted.error && !extracted.text) {
-          reject(new Error(extracted.error));
+          finishReject(new Error(extracted.error));
           return;
         }
-        resolve(extracted.text);
-      } else if (code === null) {
-        reject(new Error(`Subagent "${agentName}" was killed by signal`));
-      } else {
-        const details = [
-          extracted.error,
-          extracted.stderrTail.trim() || undefined,
-          !extracted.stderrTail.trim() ? extracted.stdoutTail.trim() || undefined : undefined,
-        ].filter((value): value is string => Boolean(value));
-        reject(new Error(
-          `Subagent "${agentName}" exited with code ${code}${details.length > 0 ? `\n${details.join("\n")}` : ""}`
-        ));
+        finishResolve(extracted.text);
+        return;
       }
+      if (code === null) {
+        finishReject(new Error(`Subagent "${agentName}" was killed by signal`));
+        return;
+      }
+      const details = [
+        extracted.error,
+        extracted.stderrTail.trim() || undefined,
+        !extracted.stderrTail.trim() ? extracted.stdoutTail.trim() || undefined : undefined,
+      ].filter((value): value is string => Boolean(value));
+      finishReject(new Error(
+        `Subagent "${agentName}" exited with code ${code}${details.length > 0 ? `\n${details.join("\n")}` : ""}`
+      ));
     });
 
     child.on("error", (err) => {
-      reject(new Error(`Failed to spawn pi for "${agentName}": ${err.message}`));
+      if (abortedBySignal) {
+        finishReject(createAbortError(agentName));
+        return;
+      }
+      finishReject(new Error(`Failed to spawn pi for "${agentName}": ${err.message}`));
     });
 
     if (signal && typeof signal.addEventListener === "function") {
-      const onAbort = () => { child.kill("SIGKILL"); signal.removeEventListener("abort", onAbort); };
       signal.addEventListener("abort", onAbort, { once: true });
     }
   });
@@ -228,6 +274,10 @@ async function dispatchAgent(
   const failures: ModelAttemptFailure[] = [];
 
   for (let i = 0; i < candidates.length; i++) {
+    if (signal?.aborted) {
+      throw createAbortError(agentName);
+    }
+
     const model = candidates[i] ?? "default";
     try {
       const { args, tempDir } = buildPiArgs({
@@ -246,10 +296,10 @@ async function dispatchAgent(
       }
     } catch (error) {
       const attemptError = error instanceof Error ? error : new Error(String(error));
+      if (signal?.aborted) {
+        throw createAbortError(agentName);
+      }
       failures.push({ model, error: attemptError.message });
-      // Skip fallbacks on user cancel (Escape), but retry on signal kills from pi timeouts.
-      const isSignalKill = attemptError.message.includes("was killed by signal");
-      if (signal?.aborted && !isSignalKill) break;
       const nextModel = shouldRetryWithFallback(attemptError) ? candidates[i + 1] : undefined;
       if (onModelChange) {
         onModelChange({ failedModel: model, error: attemptError.message, nextModel });
@@ -376,6 +426,9 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
         state.status = "done";
         state.durationMs = Date.now() - dispatchStartedAt;
       } catch (err) {
+        if (signal?.aborted) {
+          throw err;
+        }
         state.status = "failed";
         state.durationMs = Date.now() - dispatchStartedAt;
         state.error = err instanceof Error ? err.message : String(err);
