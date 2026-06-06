@@ -1,65 +1,36 @@
 // extension/types.ts
 
+/** Union of subagent lifecycle states. */
 export type SubagentStatus = "pending" | "running" | "done" | "failed";
 
+/** Tracks live and final state for a dispatched subagent. */
 export interface SubagentState {
   agent: string;
   status: SubagentStatus;
-  
-  // Model info
   model: string;
-  attemptedModels: string[];
-  
-  // Stats (updated during execution)
   toolCount: number;
-  turnCount: number; // LLM requests made by this subagent
-  tokens: number; // 0 if unavailable
-  durationMs: number; // 0 while running, filled on completion
-  
-  // Live activity
-  currentTool?: string;
-  currentToolArgs?: string;
-  currentToolStartedAt?: number;
-  lastActivityAt?: number;
-  activityState?: string;
-  
-  // Live output for expanded view
-  recentOutput: string[]; // last ~5 lines of stdout
-  
-  // Recent tools for expanded view
-  recentTools: Array<{ tool: string; args: string }>;
-  
-  // Error info
+  tokens: number;
+  durationMs: number;
+  dispatchStartedAt: number;
+  lastActivityAt: number;
   error?: string;
-  
-  // Artifacts
-  sessionFile?: string;
-  outputFile?: string;
 }
 
-export function createInitialState(agent: string, model: string): SubagentState {
+/** Creates the initial state for a dispatched subagent. */
+export function createInitialState(agent: string, model: string, dispatchStartedAt: number): SubagentState {
   return {
     agent,
     status: "pending",
     model,
-    attemptedModels: [model],
     toolCount: 0,
-    turnCount: 0,
     tokens: 0,
     durationMs: 0,
-    recentOutput: [],
-    recentTools: [],
+    dispatchStartedAt,
+    lastActivityAt: Date.now(),
   };
 }
 
-export const ANIMATION_INTERVAL_MS = 80;
-
-export const SPINNER = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
-
-export function spinnerFrame(): string {
-  return SPINNER[Math.floor(Date.now() / ANIMATION_INTERVAL_MS) % SPINNER.length];
-}
-
+/** Formats milliseconds as a human-readable duration. */
 export function formatDuration(ms: number): string {
   if (ms < 1000) return `${ms}ms`;
   const seconds = Math.round(ms / 1000);
@@ -69,6 +40,7 @@ export function formatDuration(ms: number): string {
   return `${minutes}m ${remainingSeconds}s`;
 }
 
+/** Formats a token count for compact display. */
 export function formatTokens(tokens: number): string {
   if (tokens < 1000) return String(tokens);
   return `${(tokens / 1000).toFixed(1)}k`;
@@ -81,7 +53,7 @@ export interface DispatchDetails {
   dispatchStartedAt: number;
 }
 
-/** Result returned from a completed subagent dispatch. */
+/** Describes the output returned by a completed subagent. */
 export interface DispatchResult {
   agent: string;
   task: string;

@@ -29,78 +29,6 @@ const SubagentParams = Type.Object({
 // ── Constants ────────────────────────────────────────────────────
 
 const KNOW_HOW_AGENTS_DIR = path.resolve(__dirname, "..", "agents");
-const TOOL_PREVIEW_LIMIT = 240;
-
-function asRecord(value: unknown): Record<string, unknown> {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return {};
-  }
-  return value as Record<string, unknown>;
-}
-
-function getStringArg(args: Record<string, unknown>, ...keys: string[]): string | undefined {
-  for (const key of keys) {
-    const value = args[key];
-    if (typeof value === "string" && value.length > 0) {
-      return value;
-    }
-  }
-  return undefined;
-}
-
-function getNumberArg(args: Record<string, unknown>, key: string): number | undefined {
-  const value = args[key];
-  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
-}
-
-function shortenPath(inputPath: string): string {
-  const home = os.homedir();
-  return inputPath.startsWith(home) ? `~${inputPath.slice(home.length)}` : inputPath;
-}
-
-function previewText(text: string, limit: number = TOOL_PREVIEW_LIMIT): string {
-  return text.length <= limit ? text : `${text.slice(0, limit - 1)}…`;
-}
-
-function formatToolCommand(toolName: string, args: Record<string, unknown>): string {
-  switch (toolName) {
-    case "bash": {
-      const command = getStringArg(args, "command") ?? "...";
-      return `$ ${previewText(command)}`;
-    }
-    case "read": {
-      const filePath = shortenPath(getStringArg(args, "file_path", "path") ?? "...");
-      const offset = getNumberArg(args, "offset");
-      const limit = getNumberArg(args, "limit");
-      if (offset !== undefined || limit !== undefined) {
-        const startLine = offset ?? 1;
-        const endLine = limit !== undefined ? startLine + limit - 1 : undefined;
-        return `read ${filePath}:${startLine}${endLine !== undefined ? `-${endLine}` : ""}`;
-      }
-      return `read ${filePath}`;
-    }
-    case "write":
-      return `write ${shortenPath(getStringArg(args, "file_path", "path") ?? "...")}`;
-    case "edit":
-      return `edit ${shortenPath(getStringArg(args, "file_path", "path") ?? "...")}`;
-    case "ls":
-      return `ls ${shortenPath(getStringArg(args, "path") ?? ".")}`;
-    case "find": {
-      const pattern = getStringArg(args, "pattern") ?? "*";
-      const filePath = shortenPath(getStringArg(args, "path") ?? ".");
-      return `find ${pattern} in ${filePath}`;
-    }
-    case "grep": {
-      const pattern = getStringArg(args, "pattern") ?? "";
-      const filePath = shortenPath(getStringArg(args, "path") ?? ".");
-      return `grep /${pattern}/ in ${filePath}`;
-    }
-    default: {
-      const argsPreview = previewText(JSON.stringify(args) ?? "{}");
-      return argsPreview ? `${toolName} ${argsPreview}` : toolName;
-    }
-  }
-}
 
 // ── Agent Resolution ─────────────────────────────────────────────
 
@@ -319,9 +247,7 @@ async function dispatchAgent(
     } catch (error) {
       const attemptError = error instanceof Error ? error : new Error(String(error));
       failures.push({ model, error: attemptError.message });
-      // Don't try fallback models if the user cancelled (Escape).
-      // Exception: if the child was signal-killed, the AbortSignal may have been
-      // set by a pi timeout rather than the user pressing Escape — still retry.
+      // Skip fallbacks on user cancel (Escape), but retry on signal kills from pi timeouts.
       const isSignalKill = attemptError.message.includes("was killed by signal");
       if (signal?.aborted && !isSignalKill) break;
       const nextModel = shouldRetryWithFallback(attemptError) ? candidates[i + 1] : undefined;
@@ -337,6 +263,7 @@ async function dispatchAgent(
 
 // ── Extension ────────────────────────────────────────────────────
 
+/** Registers the subagent tool on the extension API. */
 export default function dispatchExtension(pi: ExtensionAPI): void {
   pi.registerTool({
     name: "subagent",
@@ -354,11 +281,10 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
 
       const settings = readSettings();
       const models = buildModelList(settings, agentName);
-      const state = createInitialState(agentName, models[0] ?? "unknown");
       const dispatchStartedAt = Date.now();
-      const startedAt = Date.now();
+      const state = createInitialState(agentName, models[0] ?? "unknown", dispatchStartedAt);
       state.status = "running";
-      state.lastActivityAt = startedAt;
+      state.lastActivityAt = dispatchStartedAt;
 
       // ── Write-mode gate ────────────────────────────────────────
       if (isInReadMode() && isWriteCapableRole(agentName)) {
@@ -390,7 +316,6 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
         }
       }
 
-      // Throttled pushUpdate for live renderResult re-renders
       let lastUpdate = 0;
       const UPDATE_THROTTLE_MS = 100;
       function pushUpdate() {
@@ -418,43 +343,21 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
 
             for (const rawLine of rawLines) {
               if (!rawLine.trim()) continue;
-              let evt: { type?: string; message?: { usage?: { input?: number; output?: number }; content?: Array<{ type?: string; text?: string }> }; toolName?: string; args?: unknown };
+              let evt: { type?: string; message?: { usage?: { input?: number; output?: number } } };
               try { evt = JSON.parse(rawLine.trim()) as typeof evt; } catch { continue; }
 
-              if (evt.type === "tool_execution_start" && evt.toolName) {
-                const commandText = formatToolCommand(evt.toolName, asRecord(evt.args));
+              if (evt.type === "tool_execution_start") {
                 state.toolCount++;
-                state.currentTool = evt.toolName;
-                state.currentToolArgs = commandText;
-                state.currentToolStartedAt = Date.now();
-                state.recentTools.push({ tool: evt.toolName, args: commandText });
-                if (state.recentTools.length > 5) state.recentTools.shift();
+                state.lastActivityAt = Date.now();
+                pushUpdate();
                 continue;
               }
 
-              if (evt.type === "tool_execution_end") {
-                state.currentTool = undefined;
-                state.currentToolArgs = undefined;
-                state.currentToolStartedAt = undefined;
-                continue;
-              }
-
-              if (evt.type === "message_end" && evt.message) {
+              if (evt.type === "message_end" && evt.message?.usage) {
                 const usage = evt.message.usage;
-                if (usage) state.tokens += (usage.input || 0) + (usage.output || 0);
-                state.turnCount++;
-                const content = evt.message.content;
-                if (Array.isArray(content)) {
-                  for (const part of content) {
-                    if (part.type === "text" && part.text) {
-                      const lines = part.text.split("\n").filter(l => l.trim());
-                      for (const line of lines.slice(-10)) {
-                        state.recentOutput.push(line.trim().slice(0, 200));
-                        if (state.recentOutput.length > 50) state.recentOutput.shift();
-                      }
-                    }
-                  }
-                }
+                state.tokens += (usage.input || 0) + (usage.output || 0);
+                state.lastActivityAt = Date.now();
+                pushUpdate();
                 continue;
               }
             }
@@ -466,24 +369,20 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
             state.lastActivityAt = Date.now();
             if (info.nextModel) {
               state.model = info.nextModel;
-              if (!state.attemptedModels.includes(info.nextModel)) state.attemptedModels.push(info.nextModel);
             }
             pushUpdate();
           },
         );
         state.status = "done";
-        state.durationMs = Date.now() - startedAt;
+        state.durationMs = Date.now() - dispatchStartedAt;
       } catch (err) {
         state.status = "failed";
-        state.durationMs = Date.now() - startedAt;
+        state.durationMs = Date.now() - dispatchStartedAt;
         state.error = err instanceof Error ? err.message : String(err);
         response = `Error: ${state.error}`;
       }
 
       pushUpdate();
-
-      if (ctx.hasUI) {
-      }
 
       const details: DispatchDetails = {
         results: [{ agent: agentName, task, output: response }],
