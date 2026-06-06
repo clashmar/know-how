@@ -100,6 +100,10 @@ Fix: smallest safe change
 - SHOULD_FIX: minor violation or ambiguous application
 - OBSERVATION: standard exists but code isn't strictly violating, OR a code
   quality concern with no documented convention backing — flag for human judgment
+- PREEXISTING: the violation was NOT introduced by the current diff. Use this
+  as a modifier appended to the severity (e.g. `OBSERVATION-PREEXISTING`).
+  Pre-existing issues should never be SHOULD_FIX or MUST_FIX — they're legacy
+  technical debt the current task didn't create.
 
 If a code quality concern cannot be tied to a documented convention, flag it
 as OBSERVATION only.
