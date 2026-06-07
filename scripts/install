@@ -24,6 +24,22 @@ rm -rf "$EXTENSION_KNOW_HOW_DIR"
 
 cp -r "$SOURCE_EXTENSION_DIR" "$EXTENSION_KNOW_HOW_DIR"
 
+# Install prompt templates
+SOURCE_PROMPTS_DIR="$SOURCE_EXTENSION_DIR/prompts"
+if [ -d "$SOURCE_PROMPTS_DIR" ]; then
+    mkdir -p "$CONFIG_DIR/prompts"
+    # Use nullglob to handle zero .md files without literal glob failure
+    shopt -s nullglob
+    prompts=( "$SOURCE_PROMPTS_DIR/"*.md )
+    shopt -u nullglob
+    if [ ${#prompts[@]} -gt 0 ]; then
+        cp "${prompts[@]}" "$CONFIG_DIR/prompts/"
+        echo "Installed prompt templates: $CONFIG_DIR/prompts/"
+    else
+        echo "No prompt templates found in source."
+    fi
+fi
+
 echo "Installed know-how extension: $EXTENSION_KNOW_HOW_DIR"
 echo ""
 echo "The extension auto-discovers skills, so the symlink is optional but"
