@@ -78,7 +78,7 @@ Each agent gets:
 - A conciseness directive ("bullet list under 500 words")
 
 **For review tasks:** dispatch spec reviewer and guardian in parallel using the prompt
-templates from `../executing-plans/` (`spec-reviewer-prompt.md` and `guardian-prompt.md`).
+templates from `../executing-plans/` (`reviewer-prompt.md` and `guardian-prompt.md`).
 Let both run to completion, collect all feedback, then address every finding.
 
 ### 3. Dispatch in Parallel

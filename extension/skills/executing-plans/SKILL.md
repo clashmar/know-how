@@ -151,7 +151,7 @@ For each task:
 1. Mark the matching todo item as `in_progress`
 2. Follow each step exactly (plan has bite-sized steps)
 3. Run verifications as specified
-4. Once verification passes, dispatch the spec-compliance reviewer (`reviewer` agent with `spec-reviewer-prompt.md`) and the guardian in parallel. Let both run to completion — do not cancel either.
+4. Once verification passes, dispatch the `reviewer` agent (for spec compliance, using `reviewer-prompt.md`) and the `guardian` agent (for code quality, using `guardian-prompt.md`) in parallel. Let both run to completion — do not cancel either.
 5. Collect all feedback from both reviewers. Address every finding.
 6. Re-run the task's required verification after fixes to confirm nothing broke.
 7. Mark the same todo item as `completed`
@@ -216,5 +216,5 @@ After all tasks complete and verified:
 - **know-how:writing-plans** - Creates the plan this skill executes
 - **know-how:requesting-code-review** - Use for focused review on risky, behavior-changing, or multi-file tasks
 - **know-how:closing-out-work** - Close out work after all tasks, get user review, then choose integration (invoked by the plan's close-out task)
-- **spec-reviewer-prompt.md** - Dispatch template for spec-compliance review (in same directory)
+- **reviewer-prompt.md** - Dispatch template for spec-compliance review via `reviewer` agent (in same directory)
 - **guardian-prompt.md** - Dispatch template for code-quality review (in same directory)

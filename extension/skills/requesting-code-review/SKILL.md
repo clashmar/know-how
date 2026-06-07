@@ -69,7 +69,7 @@ subagent({
 
 For spec-compliance or code-quality reviews, use the appropriate prompt template:
 
-- Spec compliance: see `../../skills/executing-plans/spec-reviewer-prompt.md`
+- Spec compliance: see `../../skills/executing-plans/reviewer-prompt.md`
 - Code quality: see `../../skills/executing-plans/guardian-prompt.md`
 
 **Placeholders:**

@@ -1,6 +1,6 @@
-# Spec Compliance Reviewer Prompt Template
+# Spec Compliance Review Prompt Template
 
-Use this template when dispatching a spec compliance reviewer subagent.
+Use this template when dispatching the `reviewer` agent for spec-compliance review.
 
 **Purpose:** Verify the implementation built what was requested (nothing more, nothing less)
 
