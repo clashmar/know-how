@@ -37,6 +37,7 @@ todo rules:
      "Worktree Strategy?" [shape=diamond];
      "Create worktree from current branch" [shape=box];
      "Stay on current branch" [shape=box];
+     "Start background build in worktree" [shape=box];
      "Implement current task" [shape=box];
      "Required verification passes?" [shape=diamond];
      "Fix verification issues" [shape=box];
@@ -52,7 +53,8 @@ todo rules:
      "Read plan, extract tasks, and create todo items" -> "Worktree Strategy?";
      "Worktree Strategy?" -> "Create worktree from current branch" [label="Worktree"];
      "Worktree Strategy?" -> "Stay on current branch" [label="Direct"];
-     "Create worktree from current branch" -> "Implement current task";
+     "Create worktree from current branch" -> "Start background build in worktree";
+     "Start background build in worktree" -> "Implement current task";
      "Stay on current branch" -> "Implement current task";
      "Implement current task" -> "Required verification passes?";
      "Required verification passes?" -> "Fix verification issues" [label="no"];
@@ -112,6 +114,12 @@ git worktree add ../${PROJECT_NAME}-<branch-name> -b ${PROJECT_NAME}-<branch-nam
 
 # 6. Work from the worktree
 cd ../${PROJECT_NAME}-<branch-name>
+
+# 7. Start a background build immediately — saves time on the first verification
+#    Detect the build command from project markers (Cargo.toml → cargo build,
+#    package.json → npm run build, Makefile → make, go.mod → go build ./...).
+#    Run it in the background so implementation can start right away.
+cargo build &  # or equivalent for the project — don't wait, move on
 ```
 
 The agent now works entirely inside the worktree. Tests and file edits happen there.
@@ -120,6 +128,8 @@ gated behind user review at checkpoints (if `Execution Autonomy: Checkpointed`) 
 close-out via closing-out-work.
 
 **If a worktree for this branch already exists**, `cd` into it instead of creating a new one.
+Then start the background build (same as step 7 above) so the first verification
+isn't waiting on a cold build.
 
 #### If `Worktree Strategy: Direct`
 

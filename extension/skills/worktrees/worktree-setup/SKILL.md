@@ -46,15 +46,30 @@ git worktree add ../${PROJECT_NAME}-<branch-name> \
 
 **If a worktree for this branch already exists**, reuse it.
 
-## Bootstrap dependencies (sense check)
+## Build immediately (background)
 
-Before starting implementation, optionally run one setup/build command in the
-worktree (for example: `npm ci && npm run -s build --if-present`,
-`cargo build`, or `go build ./...`).
+As soon as the worktree is created, start the project build in the background.
+This saves time — the build runs while you implement, so the first verification
+step doesn't wait on a cold build.
 
-Use the project's normal bootstrap command if it has custom sandboxing.
-Treat failures as a signal only: note them and continue per plan/user guidance.
-Do not make this step a hard gate.
+**Detect the build command** from project markers in the worktree:
+- `Cargo.toml` → `cargo build`
+- `package.json` → `npm ci && npm run build --if-present`
+- `go.mod` → `go build ./...`
+- `Makefile` → `make` (or `make build` if that target exists)
+
+Or use the project's normal bootstrap command from its contributing docs.
+
+**Run it in the background** so you can proceed with implementation:
+```bash
+cargo build &          # Rust
+npm run build &        # Node
+make &                 # Make-based projects
+```
+
+Do not wait for the build to finish. Start it and move on to implementation.
+Treat build failures as a signal only: note them when you check the build output
+later, and continue per plan/user guidance. This is a time-saver, not a gate.
 
 ## Working in the worktree
 
