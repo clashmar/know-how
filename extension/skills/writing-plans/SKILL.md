@@ -113,6 +113,20 @@ verify correctness.
 
 If the spec covers multiple independent subsystems, it should have been broken into sub-project specs during planning. If it wasn't, suggest breaking this into separate plans — one per subsystem. Each plan should produce working, testable software on its own.
 
+## Reuse Analysis
+
+Before mapping file structure, dispatch a scout to the source and test modules most relevant to this plan. The scout must answer:
+
+1. Do any existing functions or utilities already do what the plan would create? If yes, reuse it and extract it if necessary — don't recreate it.
+2. Does the plan introduce any function or helper that actually belongs in a different domain? If it would create real value for other parts of the codebase, consider extracting it. For example: a test helper that would be useful for other tests, a utility that could be shared across modules, or a parser that could be reused in other contexts.
+
+Do not proceed to file structure mapping until the scout findings are resolved:
+
+- If duplicates are found, remove the planned recreation and reference the existing equivalent.
+- If misplaced functions are found, record their correct home domain in the plan before task decomposition continues.
+
+If the scout finds nothing to flag, note that and continue.
+
 ## File Structure
 
 Before defining tasks, map out which files will be created or modified and what each one is responsible for. This is where decomposition decisions get locked in.
