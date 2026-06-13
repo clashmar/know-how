@@ -1,0 +1,27 @@
+extension/index.ts
+  s_c74c708836deb7::t_5ff4778f5e8b7e 31,340
+tests/self-check-agent-end-checklist.test.ts
+  s_c74c708836deb7::t_43e8c9de833c43 1,3-9,26,28-29,34,36,52,54,101,103
+  s_c74c708836deb7::t_47aa38d6e17adb 2,27,35,53,102,118
+  s_c74c708836deb7::t_258e6668feef83 10-25,30-33,37-51,55-100,104-117
+extension/self-check/agent-end-checklist.ts
+  s_c74c708836deb7::t_e979beb66e5754 14,16-17,22-38,43-48,50-53,55-60,62-65,67-73,75-77
+  s_c74c708836deb7::t_39d7cd3872f549 1-3,8-11,42,54,61,66,74,78
+  s_c74c708836deb7::t_ff8cbae50883c8 4-7,12,20-21,39-41,49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "319cd562350124d722a6b7f100f3d0bd888df74a",
+  "prompts": {},
+  "sessions": {
+    "s_c74c708836deb7": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019ec046-0f8d-7382-8c73-f740738e1341",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
