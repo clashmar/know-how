@@ -360,6 +360,8 @@ After writing the complete plan, look at the spec with fresh eyes and check the 
 
 **3. Type consistency:** Do the types, method signatures, and property names you used in later tasks match what you defined in earlier tasks? A function called `clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug.
 
+**4. Spec sync:** If any design decisions have changed since writing the spec, update the spec to reflect them.
+
 Fix minor consistency and placeholder issues inline. If you change scope or task structure, run the self-review checklist again before handoff. If you find a spec requirement with no task, add the task.
 
 ## Execution Handoff
