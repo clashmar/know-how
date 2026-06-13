@@ -28,6 +28,7 @@ import {
 	PROJECT_SKILLS_DIR,
 } from "./startup/skill-discovery";
 import { registerReadMode, setSessionGoal } from "./write-mode/read-mode";
+import { registerSelfCheck } from "./self-check/agent-end-checklist";
 import { beforeAgentStart } from "./startup/session-start";
 import { Type } from "@sinclair/typebox";
 import { Text } from "@earendil-works/pi-tui";
@@ -336,6 +337,7 @@ const loadSkillContent = (skillName: string): string | null => {
 export default function (pi: ExtensionAPI) {
 	dispatchExtension(pi);
 	registerReadMode(pi);
+	registerSelfCheck(pi);
 	beforeAgentStart(pi);
 	registerPresentChoice(pi);
 	registerPresentDecisions(pi);
