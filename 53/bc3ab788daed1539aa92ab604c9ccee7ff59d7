@@ -1,0 +1,19 @@
+extension/skills/writing-plans/SKILL.md
+  s_8d23c4e1af4d3e::t_fcd51d4a3d148a 363-364
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "53bc3ab788daed1539aa92ab604c9ccee7ff59d7",
+  "prompts": {},
+  "sessions": {
+    "s_8d23c4e1af4d3e": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019ec0cc-0719-76b5-b498-4a0a56e53dcd",
+        "model": "claude-sonnet-4.6"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
