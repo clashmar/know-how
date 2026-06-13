@@ -1,0 +1,41 @@
+extension/index.ts
+  s_a3e570ff59cffe::t_d0d7ae48920692 38,346
+tests/task-snapshot.test.ts
+  s_a3e570ff59cffe::t_3c260114a8171d 1-5,7-32,34-49,51-57,59-61,63-66,68-85
+  s_a3e570ff59cffe::t_d056bf6adf0ab1 6,33,50,58,62,67
+extension/skills/requesting-code-review/SKILL.md
+  s_a3e570ff59cffe::t_07c34e90c9e44a 142
+  s_a3e570ff59cffe::t_f5cdf178b773bf 29,31-38,45,67-76
+extension/skills/executing-plans/guardian-prompt.md
+  s_a3e570ff59cffe::t_1cb43993b481ad 19,24-25
+extension/tools/present-choice.ts
+  s_a3e570ff59cffe::t_3d6a4ca4b408f5 68,71-72,74
+  s_a3e570ff59cffe::t_7ef0cca2dd1f51 69-70
+extension/subagents/dispatch.ts
+  s_a3e570ff59cffe::t_be8cf6fc2fb736 454-455
+  s_a3e570ff59cffe::t_855c699b5f10ee 453,457
+extension/skills/executing-plans/SKILL.md
+  s_a3e570ff59cffe::t_60d1b647b501f4 152-160
+extension/tools/present-decisions.ts
+  s_a3e570ff59cffe::t_ce32141e2efcf7 47-48
+  s_a3e570ff59cffe::t_fd0f1be247aded 46,49-50,52
+extension/tools/task-snapshot.ts
+  s_a3e570ff59cffe::t_440f6dc9c1da7b 66-68,70,91-125
+  s_a3e570ff59cffe::t_790ac82d827d43 1-65,69,71-90,126
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "99393f7ecc9d04043c27fd487b5b97b03e4b06de",
+  "prompts": {},
+  "sessions": {
+    "s_a3e570ff59cffe": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019ec075-b21e-785e-82db-df64ca973373",
+        "model": "claude-sonnet-4.6"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
