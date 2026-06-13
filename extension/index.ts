@@ -29,6 +29,7 @@ import {
 } from "./startup/skill-discovery";
 import { registerReadMode, setSessionGoal } from "./write-mode/read-mode";
 import { registerSelfCheck } from "./self-check/agent-end-checklist";
+import { registerAgentNotify } from "./notify/agent-notify";
 import { beforeAgentStart } from "./startup/session-start";
 import { Type } from "@sinclair/typebox";
 import { Text } from "@earendil-works/pi-tui";
@@ -339,6 +340,7 @@ export default function (pi: ExtensionAPI) {
 	dispatchExtension(pi);
 	registerReadMode(pi);
 	registerSelfCheck(pi);
+	registerAgentNotify(pi);
 	beforeAgentStart(pi);
 	registerPresentChoice(pi);
 	registerPresentDecisions(pi);
