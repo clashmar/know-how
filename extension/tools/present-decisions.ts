@@ -43,8 +43,13 @@ export function registerPresentDecisions(pi: ExtensionAPI): void {
         `${theme.fg("toolTitle", theme.bold("choices"))} ${theme.fg("dim", "· choose related options")}`,
         0, 0,
       ));
+      const termWidth = process.stdout.columns ?? 80;
+      const titleBudget = Math.max(0, termWidth - decisionLabel.length - 15);
+      const title = titleBudget === 0 ? "…" : args.title.length > titleBudget
+        ? args.title.slice(0, titleBudget - 1) + "…"
+        : args.title;
       container.addChild(new Text(
-        `${theme.fg("accent", args.title)} ${theme.fg("dim", `· ${decisionCount} ${decisionLabel}`)}`,
+        `${theme.fg("accent", title)} ${theme.fg("dim", `· ${decisionCount} ${decisionLabel}`)}`,
         0, 0,
       ));
       return container;

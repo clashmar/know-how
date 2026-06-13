@@ -16,11 +16,12 @@ Subagent dispatch — guardian:
 
   WHAT_WAS_IMPLEMENTED: [summary of changes from implementation]
   PLAN_OR_REQUIREMENTS: Task N from [plan-file]
-  DIFF: [output of `git diff` against the base branch or commit]
+  DIFF: [output of task_snapshot(action: "diff", taskId: <id>) — captured by the controller before dispatching]
   WORK_FROM: [directory — set to the worktree path when reviewing worktree-based changes]
   DESCRIPTION: [task summary]
 ```
 
-Use `git diff` against the base branch/commit to see all changes for this task.
+The diff is provided inline in the DIFF field above — captured from task_snapshot before this
+subagent was dispatched. Do not run git diff yourself.
 Review the current file state directly. If `WORK_FROM` is set, resolve file
 reads against that directory.

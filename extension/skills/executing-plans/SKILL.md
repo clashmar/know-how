@@ -149,13 +149,15 @@ In both autonomy modes, a task is complete after its required verification passe
 For each task:
 
 1. Mark the matching todo item as `in_progress`
-2. Follow each step exactly (plan has bite-sized steps)
-3. Run verifications as specified
-4. Once verification passes, dispatch the `reviewer` agent (for spec compliance, using `reviewer-prompt.md`) and the `guardian` agent (for code quality, using `guardian-prompt.md`) in parallel. Let both run to completion — do not cancel either.
-5. Collect all feedback from both reviewers. Address every finding.
-6. Re-run the task's required verification after fixes to confirm nothing broke.
-7. Mark the same todo item as `completed`
-8. If `Execution Autonomy` is `Checkpointed`, report status and wait for user approval before starting the next task
+2. Call `task_snapshot(action: "start", taskId: <id>)` — captures the working-tree baseline before any changes are made
+3. Follow each step exactly (plan has bite-sized steps)
+4. Run verifications as specified
+5. Once verification passes, call `task_snapshot(action: "end", taskId: <id>)` then call `task_snapshot(action: "diff", taskId: <id>)` and capture the output as `DIFF`
+6. Dispatch the `reviewer` agent (for spec compliance, using `reviewer-prompt.md`) and the `guardian` agent (for code quality, using `guardian-prompt.md`) in parallel, passing `DIFF` as the literal diff text in both task strings. Let both run to completion — do not cancel either.
+7. Collect all feedback from both reviewers. Address every finding.
+8. Re-run the task's required verification after fixes to confirm nothing broke.
+9. Mark the same todo item as `completed`
+10. If `Execution Autonomy` is `Checkpointed`, report status and wait for user approval before starting the next task
 
 ### Step 3: Complete Development
 

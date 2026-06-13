@@ -26,17 +26,23 @@ Dispatch the `reviewer` subagent to catch issues before they cascade. The review
 
 ## How to Request
 
-**1. Determine the change range:**
+**1. Determine the diff:**
 
-If the changes are committed:
+If `task_snapshot` was used (default in executing-plans workflows):
+The controller called `task_snapshot(action: "diff", taskId: <id>)` and captured `DIFF` before
+dispatching reviewers. Pass `DIFF` as literal diff text in the reviewer and guardian task strings
+— no git commands needed.
+
+If `task_snapshot` was not used (fallback):
+
+For committed changes:
 
 ```bash
 BASE_SHA=$(git rev-parse HEAD~1)  # or origin/main
 HEAD_SHA=$(git rev-parse HEAD)
 ```
 
-If the changes are uncommitted (implementation does not commit during execution — this is the
-default for executing-plans workflows):
+For uncommitted changes:
 
 ```bash
 # Use the base branch/commit as the diff base
@@ -58,7 +64,16 @@ subagent({
 })
 ```
 
-For uncommitted changes (default in executing-plans workflows):
+When `DIFF` is available from task_snapshot:
+
+```
+subagent({
+  agent: "reviewer",
+  task: "Review code quality for: [description]. Changed files: [list paths]. Diff:\n[DIFF text]. Inspect the diff and changed files only — do not explore unrelated code. Return findings with file:line references."
+})
+```
+
+When using fallback git diff (uncommitted changes):
 
 ```
 subagent({
@@ -124,7 +139,7 @@ You: [Fix progress indicators]
 
 **Executing Plans:**
 
-- Review after each batch (3 tasks)
+- Review after each task using the `task_snapshot`-produced `DIFF` when available
 - Get feedback, apply, continue
 
 **Ad-Hoc Development:**

@@ -35,6 +35,7 @@ import { Text } from "@earendil-works/pi-tui";
 import { registerPresentChoice } from "./tools/present-choice";
 import { registerPresentDecisions } from "./tools/present-decisions";
 import { registerOpenInEditor, detectAvailableEditors } from "./tools/open-in-editor";
+import { registerTaskSnapshot } from "./tools/task-snapshot";
 import { resolveEditorCommand } from "./tools/resolve-editor-command";
 import { readSettings } from "./settings";
 import { spawnSync } from "child_process";
@@ -342,6 +343,7 @@ export default function (pi: ExtensionAPI) {
 	registerPresentChoice(pi);
 	registerPresentDecisions(pi);
 	registerOpenInEditor(pi);
+	registerTaskSnapshot(pi);
 
 	// Register set_session_goal tool — agents call this when a spec is agreed
 	pi.registerTool({

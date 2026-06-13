@@ -450,8 +450,11 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
     },
 
     renderCall(_args, theme, _context) {
+      const termWidth = process.stdout.columns ?? 80;
+      const agentBudget = Math.max(0, termWidth - 12);
+      const agent = agentBudget === 0 ? "…" : (_args.agent ?? "…").slice(0, agentBudget);
       return new Text(
-        `${theme.fg("toolTitle", theme.bold("subagent"))}: ${theme.fg("accent", _args.agent ?? "…")}`,
+        `${theme.fg("toolTitle", theme.bold("subagent"))}: ${theme.fg("accent", agent)}`,
         0, 0,
       );
     },
