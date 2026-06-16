@@ -1,0 +1,22 @@
+extension/self-check/agent-end-checklist.ts
+  s_8446d4d1c8d75c::t_0e651606d9a5f4 50-51,56-60,80
+tests/self-check-agent-end-checklist.test.ts
+  s_8446d4d1c8d75c::t_75ca075d550a3c 6,22-23
+  s_8446d4d1c8d75c::t_df4a3afbec3a10 101-113
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "c2bd1bf1f4b6e476a92d37ee90cfa7cab7368fff",
+  "prompts": {},
+  "sessions": {
+    "s_8446d4d1c8d75c": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "019ed058-ef26-76b8-b70d-cd298d606f5c",
+        "model": "claude-sonnet-4.6"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
