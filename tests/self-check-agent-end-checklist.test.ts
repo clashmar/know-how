@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { registerSelfCheck, SELF_CHECK_PROMPT, CHECKLIST_ITEM } from "../extension/self-check/agent-end-checklist";
 
-type Handler = (event: unknown) => unknown;
+type Handler = (event: unknown, ctx?: unknown) => unknown;
 
 /** Minimal fake of the bits of ExtensionAPI the self-check uses. */
 function makeFakePi() {
@@ -19,8 +19,8 @@ function makeFakePi() {
       sent.push(content);
     },
   };
-  const fire = async (event: string, payload?: unknown) => {
-    for (const handler of handlers.get(event) ?? []) await handler(payload);
+  const fire = async (event: string, payload?: unknown, ctx?: unknown) => {
+    for (const handler of handlers.get(event) ?? []) await handler(payload, ctx);
   };
   return { pi: pi as unknown as ExtensionAPI, sent, fire };
 }
@@ -97,6 +97,19 @@ describe("registerSelfCheck gating", () => {
     await editAndEnd(fire, "id1");
     await editAndEnd(fire, "id2");
     assert.strictEqual(sent.length, 1);
+  });
+
+  it("abortedSignal_sendsNothing", async () => {
+    const { pi, sent, fire } = makeFakePi();
+    registerSelfCheck(pi);
+    await fire("agent_start");
+    await fire("tool_call", { toolName: "edit", toolCallId: "id1" });
+    await fire("tool_execution_end", { toolCallId: "id1", isError: false });
+    const controller = new AbortController();
+    controller.abort();
+    await fire("turn_start", { turnIndex: 0, timestamp: Date.now() }, { signal: controller.signal });
+    await fire("agent_end");
+    assert.strictEqual(sent.length, 0);
   });
 });
 

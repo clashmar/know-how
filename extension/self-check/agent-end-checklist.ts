@@ -19,23 +19,24 @@ export const CHECKLIST_ITEM = {
 
 /** The self-check prompt. Every item is self-gating so the agent applies only what fits the task. */
 export const SELF_CHECK_PROMPT = [
-  "You just edited files. Before calling this done, self-check the work — read the whole of each " +
-    "changed file, not only your diff. Skip any item that doesn't apply to what you changed:",
+  "You just edited somefiles. Before calling this done, please self-check the work and read the whole of each " +
+    "changed file, not only your diff/changes. Skip any item that doesn't apply to what you changed:",
   "",
   `- ${CHECKLIST_ITEM.tests} — If you added or changed behaviour or tests: review the affected test ` +
     "file(s) as a whole, not just the lines you changed. Are all tests and their names still correct? " +
     "Has any new or changed behaviour made a pre-existing test redundant, or left a test name no longer " +
     "semantically accurate?",
   `- ${CHECKLIST_ITEM.comments} — If you wrote or changed comments or documentation: do they follow the ` +
-    "documentation rules in the applicable AGENTS.md (code: public-API JSDoc says WHAT not HOW, other " +
-    "comments minimal; markdown: the project's formatting rules)?",
+    "documentation rules in the applicable AGENTS.md (doc comments say WHAT not HOW?, other " +
+    "comments minimal and no unnessarily decorative comments; markdown: the project's formatting rules)?",
   `- ${CHECKLIST_ITEM.placement} — If you added or moved code: is every new chunk in the right place, and ` +
-    "are all private functions still below public functions (per the code-placement rule in AGENTS.md)?",
+    "are all private functions still below public functions (per the code-placement rule in AGENTS.md)? " +
+    "Is there now any redundant or dead code that should be removed?",
   `- ${CHECKLIST_ITEM.conventions} — Do any of your changes break a convention you already know from this ` +
-    "session — the project's AGENTS.md, loaded skill instructions, a rule the user stated, or a pattern in " +
+    "session; the project's AGENTS.md, loaded skill instructions, a rule the user stated, or a pattern in " +
     "the surrounding code? Flag and fix anything that slipped.",
   "",
-  "Fix anything that's wrong. If everything passes self-check, say so briefly and stop.",
+  "Fix anything that's wrong. Repeat this process until everything passes self-check, then say so briefly and stop.",
 ].join("\n");
 
 /** Registers the post-task self-check nudge. Fires only after the agent edits a file. */
@@ -46,10 +47,17 @@ export function registerSelfCheck(pi: ExtensionAPI): void {
   let editedThisPrompt = false;
   /** One-shot guard so the agent's fix-up turn doesn't re-trigger the check. */
   let suppressNextCheck = false;
+  /** AbortSignal captured from the most recent turn. Aborted when user presses Escape. */
+  let lastTurnSignal: AbortSignal | undefined;
 
   pi.on("agent_start", () => {
     pendingWriteCalls.clear();
     editedThisPrompt = false;
+    lastTurnSignal = undefined;
+  });
+
+  pi.on("turn_start", (_event, ctx) => {
+    lastTurnSignal = ctx.signal;
   });
 
   // `edit` and `write` are the only built-in tools that write files.
@@ -69,6 +77,7 @@ export function registerSelfCheck(pi: ExtensionAPI): void {
       suppressNextCheck = false;
       return;
     }
+    if (lastTurnSignal?.aborted) return;
     if (process.env.PI_SUBAGENT_CHILD) return;
     if (!editedThisPrompt) return;
 
