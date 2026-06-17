@@ -8,29 +8,39 @@ type Handler = (event: unknown, ctx?: unknown) => unknown;
 /** Minimal fake of the bits of ExtensionAPI the self-check uses. */
 function makeFakePi() {
   const handlers = new Map<string, Handler[]>();
-  const sent: string[] = [];
   const pi = {
     on(event: string, handler: Handler) {
       const list = handlers.get(event) ?? [];
       list.push(handler);
       handlers.set(event, list);
     },
-    sendUserMessage(content: string) {
-      sent.push(content);
+    sendMessage() {
+      throw new Error("registerSelfCheck should inject via context, not sendMessage");
+    },
+    sendUserMessage() {
+      throw new Error("registerSelfCheck should not send user messages");
     },
   };
   const fire = async (event: string, payload?: unknown, ctx?: unknown) => {
-    for (const handler of handlers.get(event) ?? []) await handler(payload, ctx);
+    const results: unknown[] = [];
+    for (const handler of handlers.get(event) ?? []) {
+      results.push(await handler(payload, ctx));
+    }
+    return results;
   };
-  return { pi: pi as unknown as ExtensionAPI, sent, fire };
+  return { pi: pi as unknown as ExtensionAPI, fire };
 }
 
-/** Drives one prompt that edits a file and finishes. */
-async function editAndEnd(fire: (event: string, payload?: unknown) => Promise<void>, callId: string, isError = false) {
-  await fire("agent_start");
+/** Drives one turn that edits a file and finishes. */
+async function editTurn(
+  fire: (event: string, payload?: unknown, ctx?: unknown) => Promise<unknown[]>,
+  callId: string,
+  isError = false,
+) {
+  await fire("turn_start", { turnIndex: 0, timestamp: Date.now() }, { signal: new AbortController().signal });
   await fire("tool_call", { toolName: "edit", toolCallId: callId });
   await fire("tool_execution_end", { toolCallId: callId, isError });
-  await fire("agent_end");
+  await fire("turn_end", { turnIndex: 0, message: undefined, toolResults: [] });
 }
 
 describe("SELF_CHECK_PROMPT", () => {
@@ -52,64 +62,106 @@ describe("SELF_CHECK_PROMPT", () => {
 });
 
 describe("registerSelfCheck gating", () => {
-  it("successfulEditThenEnd_sendsOneCheck", async () => {
-    const { pi, sent, fire } = makeFakePi();
+  it("successfulEditTurn_nextContextInjectsOneCheck", async () => {
+    const { pi, fire } = makeFakePi();
     registerSelfCheck(pi);
-    await editAndEnd(fire, "id1");
-    assert.strictEqual(sent.length, 1);
+    await fire("agent_start");
+    await editTurn(fire, "id1");
+    const [result] = await fire("context", { messages: [] });
+    assert.ok(result && typeof result === "object");
+    const messages = (result as { messages?: Array<{ content: string }> }).messages;
+    assert.strictEqual(messages?.length, 1);
   });
 
-  it("successfulEditThenEnd_sendsTheChecklistPrompt", async () => {
-    const { pi, sent, fire } = makeFakePi();
+  it("successfulEditTurn_nextContextInjectsTheChecklistPrompt", async () => {
+    const { pi, fire } = makeFakePi();
     registerSelfCheck(pi);
-    await editAndEnd(fire, "id1");
-    assert.strictEqual(sent[0], SELF_CHECK_PROMPT);
+    await fire("agent_start");
+    await editTurn(fire, "id1");
+    const [result] = await fire("context", { messages: [] });
+    const messages = (result as { messages?: Array<{ content: string }> }).messages;
+    assert.strictEqual(messages?.[0]?.content, SELF_CHECK_PROMPT);
+  });
+
+  it("successfulEditTurn_contextInjectionUsesHiddenCustomMessage", async () => {
+    const { pi, fire } = makeFakePi();
+    registerSelfCheck(pi);
+    await fire("agent_start");
+    await editTurn(fire, "id1");
+    const [result] = await fire("context", { messages: [] });
+    const message = (result as {
+      messages?: Array<{
+        role: string;
+        customType?: string;
+        content: string;
+        display?: boolean;
+        timestamp: number;
+      }>;
+    }).messages?.[0];
+    assert.deepStrictEqual(message, {
+      role: "custom",
+      customType: "know-how:self-check",
+      content: SELF_CHECK_PROMPT,
+      display: false,
+      timestamp: message?.timestamp,
+    });
   });
 
   it("endWithoutEdit_sendsNothing", async () => {
-    const { pi, sent, fire } = makeFakePi();
+    const { pi, fire } = makeFakePi();
     registerSelfCheck(pi);
     await fire("agent_start");
     await fire("agent_end");
-    assert.strictEqual(sent.length, 0);
+    const [result] = await fire("context", { messages: [] });
+    assert.strictEqual(result, undefined);
   });
 
-  it("erroredEditThenEnd_sendsNothing", async () => {
-    const { pi, sent, fire } = makeFakePi();
-    registerSelfCheck(pi);
-    await editAndEnd(fire, "id1", true);
-    assert.strictEqual(sent.length, 0);
-  });
-
-  it("readOnlyToolThenEnd_sendsNothing", async () => {
-    const { pi, sent, fire } = makeFakePi();
+  it("erroredEditTurn_sendsNothing", async () => {
+    const { pi, fire } = makeFakePi();
     registerSelfCheck(pi);
     await fire("agent_start");
+    await editTurn(fire, "id1", true);
+    const [result] = await fire("context", { messages: [] });
+    assert.strictEqual(result, undefined);
+  });
+
+  it("readOnlyTurn_sendsNothing", async () => {
+    const { pi, fire } = makeFakePi();
+    registerSelfCheck(pi);
+    await fire("agent_start");
+    await fire("turn_start", { turnIndex: 0, timestamp: Date.now() }, { signal: new AbortController().signal });
     await fire("tool_call", { toolName: "read", toolCallId: "id1" });
     await fire("tool_execution_end", { toolCallId: "id1", isError: false });
-    await fire("agent_end");
-    assert.strictEqual(sent.length, 0);
+    await fire("turn_end", { turnIndex: 0, message: undefined, toolResults: [] });
+    const [result] = await fire("context", { messages: [] });
+    assert.strictEqual(result, undefined);
   });
 
-  it("fixUpTurnAfterCheck_doesNotResend", async () => {
-    const { pi, sent, fire } = makeFakePi();
+  it("nonEditTurnAfterEditTurn_doesNotInjectAnotherCheck", async () => {
+    const { pi, fire } = makeFakePi();
     registerSelfCheck(pi);
-    await editAndEnd(fire, "id1");
-    await editAndEnd(fire, "id2");
-    assert.strictEqual(sent.length, 1);
+    await fire("agent_start");
+    await editTurn(fire, "id1");
+    await fire("context", { messages: [] });
+    await fire("message_start", { message: { role: "user", content: [{ type: "text", text: "commit message?" }] } });
+    await fire("turn_start", { turnIndex: 1, timestamp: Date.now() }, { signal: new AbortController().signal });
+    await fire("turn_end", { turnIndex: 1, message: undefined, toolResults: [] });
+    const [result] = await fire("context", { messages: [] });
+    assert.strictEqual(result, undefined);
   });
 
   it("abortedSignal_sendsNothing", async () => {
-    const { pi, sent, fire } = makeFakePi();
+    const { pi, fire } = makeFakePi();
     registerSelfCheck(pi);
     await fire("agent_start");
-    await fire("tool_call", { toolName: "edit", toolCallId: "id1" });
-    await fire("tool_execution_end", { toolCallId: "id1", isError: false });
     const controller = new AbortController();
     controller.abort();
     await fire("turn_start", { turnIndex: 0, timestamp: Date.now() }, { signal: controller.signal });
-    await fire("agent_end");
-    assert.strictEqual(sent.length, 0);
+    await fire("tool_call", { toolName: "edit", toolCallId: "id1" });
+    await fire("tool_execution_end", { toolCallId: "id1", isError: false });
+    await fire("turn_end", { turnIndex: 0, message: undefined, toolResults: [] });
+    const [result] = await fire("context", { messages: [] });
+    assert.strictEqual(result, undefined);
   });
 });
 
@@ -123,9 +175,11 @@ describe("registerSelfCheck inside a subagent", () => {
   });
 
   it("subagentChild_sendsNothing", async () => {
-    const { pi, sent, fire } = makeFakePi();
+    const { pi, fire } = makeFakePi();
     registerSelfCheck(pi);
-    await editAndEnd(fire, "id1");
-    assert.strictEqual(sent.length, 0);
+    await fire("agent_start");
+    await editTurn(fire, "id1");
+    const [result] = await fire("context", { messages: [] });
+    assert.strictEqual(result, undefined);
   });
 });
