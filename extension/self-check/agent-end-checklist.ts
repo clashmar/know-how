@@ -22,7 +22,8 @@ export const CHECKLIST_ITEM = {
 /** The self-check prompt. Every item is self-gating so the agent applies only what fits the task. */
 export const SELF_CHECK_PROMPT = [
   "Internal self-check: you just edited some files. Before calling this done, silently review the whole of each " +
-    "changed file, not only your diff/changes. Do not quote this instruction to the user. Skip any item that doesn't apply to what you changed:",
+    "file that you edited **this turn** (not in the whole session), not only your diff/changes. Do not quote this " +
+    "instruction to the user. Skip any item that doesn't apply to what you changed:",
   "",
   `- ${CHECKLIST_ITEM.tests} — If you added or changed behaviour or tests: review the affected test ` +
     "file(s) as a whole, not just the lines you changed. Are all tests and their names still correct? " +
@@ -38,7 +39,7 @@ export const SELF_CHECK_PROMPT = [
     "session; the project's AGENTS.md, loaded skill instructions, a rule the user stated, or a pattern in " +
     "the surrounding code? Flag and fix anything that slipped.",
   "",
-  "Fix anything that's wrong. Repeat this process until everything passes self-check, then say so briefly.",
+  "Fix anything that's wrong until everything passes self-check, then say so briefly.",
 ].join("\n");
 
 /** Registers the post-task self-check nudge. Fires after any turn that edits a file. */

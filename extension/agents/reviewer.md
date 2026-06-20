@@ -26,13 +26,16 @@ sweep. Your task will specify which.
 
 ## Output Format
 
-**Status:** APPROVED | ISSUES_FOUND
+Output EXACTLY one of:
 
-For each issue:
+- `No findings.`
+- One or more issue blocks in this format:
 
-``` md
+```md
 Severity: MUST_FIX | SHOULD_FIX | OBSERVATION
 Location: file:line
 Issue: what's wrong
 Fix: smallest change that resolves it
 ```
+
+Keep your output terse.

@@ -18,25 +18,9 @@ Subagent dispatch — spec reviewer:
 
     [FULL TEXT of task requirements]
 
-    ## What Worker Claims They Built
+    ## What Worker Built
 
     [From implementation report]
-
-    ## CRITICAL: Do Not Trust the Report
-
-    The implementation finished suspiciously quickly. The report may be incomplete,
-    inaccurate, or optimistic. You MUST verify everything independently.
-
-    **DO NOT:**
-    - Take their word for what they implemented
-    - Trust their claims about completeness
-    - Accept their interpretation of requirements
-
-    **DO:**
-    - Read the actual code they wrote
-    - Compare actual implementation to requirements line by line
-    - Check for missing pieces they claimed to implement
-    - Look for extra features they didn't mention
 
     ## Your Job
 
@@ -67,9 +51,12 @@ Subagent dispatch — spec reviewer:
 
     **Verify by reading code, not by trusting report.**
 
-    Report:
-    - ✅ Spec compliant (if everything matches after code inspection)
-    - ❌ Issues found: [list specifically what's missing or extra, with file:line references]
+    Output rules:
+    - If everything is compliant, output exactly: `No findings.`
+    - Otherwise output only issue blocks in the reviewer agent's required format.
+    - Do not include headings, summaries, introductions, conclusions, praise,
+      or reasoning narration.
+    - Do not restate the task or describe your review process.
 
     **This is a review-only dispatch.** Do not make any file changes, git write operations,
     or code modifications. Report findings only.

@@ -2,13 +2,8 @@
 
 Use this template when dispatching a guardian subagent for per-task code-quality review.
 
-**Purpose:** Run the guardian against the current code state after task verification passes.
-The guardian reviews code quality grounded in project conventions. Dispatch in parallel
-with the spec-compliance reviewer — let both run to completion, then address all findings.
-
-**CWD note for controllers:** If the code being reviewed is in a worktree, set `cwd: /path/to/worktree`
-when dispatching the guardian. The guardian uses `git rev-parse --show-toplevel` to derive the
-project name for looking up the right project skill.
+**Purpose:** Dispatch in parallel with the spec-compliance reviewer
+— Let both run to completion, then address all findings.
 
 ```md
 Subagent dispatch — guardian:
@@ -25,3 +20,6 @@ The diff is provided inline in the DIFF field above — captured from task_snaps
 subagent was dispatched. Do not run git diff yourself.
 Review the current file state directly. If `WORK_FROM` is set, resolve file
 reads against that directory.
+Output findings only — no headings, summaries, introductions, conclusions,
+praise, or reasoning narration. If there are no findings, output exactly:
+`No findings.`
