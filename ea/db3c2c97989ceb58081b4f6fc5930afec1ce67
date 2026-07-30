@@ -1,0 +1,38 @@
+extension/index.ts
+  s_9869d4e5426559::t_a9878c1d2e1d3f 30-31
+  s_9869d4e5426559::t_c11a107da404ff 699-720
+extension/write-mode/read-mode.ts
+  s_9869d4e5426559::t_be12f216ee350a 419
+  s_9869d4e5426559::t_de8a843748343e 19
+  s_9869d4e5426559::t_e10588a6d188db 214-218
+extension/self-check/agent-end-checklist.ts
+  s_9869d4e5426559::t_372ac9620c3e49 45-68
+  s_9869d4e5426559::t_d36e185839ebbe 107
+extension/write-mode/mode-editor.ts
+  s_9869d4e5426559::t_a6d33e276f4e59 65-67
+  s_9869d4e5426559::t_1c6db1c11ec87f 24,31-32
+  s_9869d4e5426559::t_17e9cd57eea8e3 33-35
+tests/self-check-agent-end-checklist.test.ts
+  s_9869d4e5426559::t_d9b644bd5114c6 4
+  s_9869d4e5426559::t_d6be4e190c51b1 186-234
+  s_9869d4e5426559::t_09b68aca0fc837 235
+docs/config.md
+  s_9869d4e5426559::t_7d59140169ec66 82
+  s_9869d4e5426559::t_b879d68a104cca 73-81,83
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.18",
+  "base_commit_sha": "eadb3c2c97989ceb58081b4f6fc5930afec1ce67",
+  "prompts": {},
+  "sessions": {
+    "s_9869d4e5426559": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_04d4dc7fbffemkZheuC9CYK3n4",
+        "model": "deepseek-v4-flash-free"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
