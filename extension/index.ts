@@ -27,8 +27,8 @@ import {
 	loadProjectSkill,
 	PROJECT_SKILLS_DIR,
 } from "./startup/skill-discovery";
-import { registerReadMode, setSessionGoal } from "./write-mode/read-mode";
-import { registerSelfCheck } from "./self-check/agent-end-checklist";
+import { registerReadMode, setSessionGoal, updateSelfCheckIndicator } from "./write-mode/read-mode";
+import { registerSelfCheck, isSelfCheckEnabled, toggleSelfCheck } from "./self-check/agent-end-checklist";
 import { registerAgentNotify } from "./notify/agent-notify";
 import { beforeAgentStart } from "./startup/session-start";
 import { Type } from "@sinclair/typebox";
@@ -694,6 +694,28 @@ Execute its procedure now.`;
 					"info",
 				);
 			}
+		},
+	});
+
+	// Register /self-check command — toggle on/off
+	pi.registerCommand("self-check", {
+		description: "Toggle the post-task self-check nudge on/off",
+		handler: async (_args, ctx) => {
+			toggleSelfCheck();
+			updateSelfCheckIndicator();
+			const state = isSelfCheckEnabled() ? "enabled" : "disabled";
+			ctx.ui.notify(`Self-check ${state}`, "info");
+		},
+	});
+
+	// Register ctrl+shift+c shortcut for self-check toggle
+	pi.registerShortcut("ctrl+shift+c", {
+		description: "Toggle self-check on/off",
+		handler: async (ctx) => {
+			toggleSelfCheck();
+			updateSelfCheckIndicator();
+			const state = isSelfCheckEnabled() ? "enabled" : "disabled";
+			ctx.ui.notify(`Self-check ${state}`, "info");
 		},
 	});
 }

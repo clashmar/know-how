@@ -42,6 +42,30 @@ export const SELF_CHECK_PROMPT = [
   "Fix anything that's wrong until everything passes self-check, then say so briefly.",
 ].join("\n");
 
+/** Module-level toggle: true = self-check prompt is injected after edit turns. */
+let selfCheckEnabled = true;
+
+/** Observer callbacks fired whenever self-check is toggled. */
+const toggleObservers: Set<(enabled: boolean) => void> = new Set();
+
+/** Subscribe to self-check toggle changes. Returns an unsubscribe function. */
+export function onSelfCheckToggle(cb: (enabled: boolean) => void): () => void {
+  toggleObservers.add(cb);
+  return () => toggleObservers.delete(cb);
+}
+
+/** Returns whether self-check is currently enabled. */
+export function isSelfCheckEnabled(): boolean {
+  return selfCheckEnabled;
+}
+
+/** Toggles self-check on/off and notifies observers. Returns the new state. */
+export function toggleSelfCheck(): boolean {
+  selfCheckEnabled = !selfCheckEnabled;
+  for (const cb of toggleObservers) cb(selfCheckEnabled);
+  return selfCheckEnabled;
+}
+
 /** Registers the post-task self-check nudge. Fires after any turn that edits a file. */
 export function registerSelfCheck(pi: ExtensionAPI): void {
   /** Tool-call ids for in-flight edit/write calls across the current prompt. */
@@ -80,6 +104,7 @@ export function registerSelfCheck(pi: ExtensionAPI): void {
     if (lastTurnSignal?.aborted) return;
     if (process.env.PI_SUBAGENT_CHILD) return;
     if (!editedThisTurn) return;
+    if (!selfCheckEnabled) return;
 
     injectSelfCheckOnNextContext = true;
   });

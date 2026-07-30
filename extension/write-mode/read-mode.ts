@@ -16,6 +16,7 @@ import { ensureWriteModeForAction } from "./approval";
 import { registerApprovedWriteModeActivator } from "./runtime";
 import { showPresentChoice } from "../tools/present-choice";
 import { getReadModeToolBlacklist } from "../settings";
+import { isSelfCheckEnabled } from "../self-check/agent-end-checklist";
 
 // ── Bash allowlist ──────────────────────────────────────────────────
 
@@ -209,6 +210,11 @@ export function setSessionGoal(goal: string | null): void {
 
 // Editor reference — updated on toggle
 let modeEditor: ModeAwareEditor | undefined;
+
+/** Syncs the editor's self-check indicator. Safe to call even without an editor instance. */
+export function updateSelfCheckIndicator(): void {
+  modeEditor?.setSelfCheckEnabled(isSelfCheckEnabled());
+}
 
 // ── Extension ───────────────────────────────────────────────────────
 
@@ -410,6 +416,7 @@ export function registerReadMode(pi: ExtensionAPI): void {
       const editor = new ModeAwareEditor(tui, theme, kb);
       modeEditor = editor;
       editor.setMode(readModeEnabled, roleLocked, agentRole);
+      editor.setSelfCheckEnabled(isSelfCheckEnabled());
       return editor;
     });
   });

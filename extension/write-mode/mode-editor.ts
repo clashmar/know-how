@@ -21,9 +21,15 @@ type EditorMode = "read" | "write" | "locked";
 export class ModeAwareEditor extends CustomEditor {
   private editorMode: EditorMode = "read";
   private currentGoal: string | null = null;
+  private selfCheckEnabled = true;
 
   setMode(readMode: boolean, locked: boolean, _role?: string): void {
     this.editorMode = locked ? "locked" : readMode ? "read" : "write";
+    this.tui?.requestRender();
+  }
+
+  setSelfCheckEnabled(enabled: boolean): void {
+    this.selfCheckEnabled = enabled;
     this.tui?.requestRender();
   }
 
@@ -56,8 +62,9 @@ export class ModeAwareEditor extends CustomEditor {
 
     const result: string[] = [];
 
-    // Top border — mode label left-aligned
-    const modeLabelText = this.editorMode === "write" ? " WRITE " : " READ ";
+    // Top border — mode label + self-check indicator left-aligned
+    const scText = this.selfCheckEnabled ? "[SC]" : "[ ]";
+    const modeLabelText = this.editorMode === "write" ? ` WRITE ${scText} ` : ` READ ${scText} `;
     const labelLen = modeLabelText.length;
     const leftLen = BORDER_EDGE_WIDTH;
     const rightLen = Math.max(0, width - leftLen - labelLen);

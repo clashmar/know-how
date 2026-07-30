@@ -1,7 +1,7 @@
 import { describe, it, beforeEach, afterEach } from "node:test";
 import assert from "node:assert/strict";
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
-import { registerSelfCheck, SELF_CHECK_PROMPT, CHECKLIST_ITEM } from "../extension/self-check/agent-end-checklist";
+import { registerSelfCheck, SELF_CHECK_PROMPT, CHECKLIST_ITEM, toggleSelfCheck, isSelfCheckEnabled, onSelfCheckToggle } from "../extension/self-check/agent-end-checklist";
 
 type Handler = (event: unknown, ctx?: unknown) => unknown;
 
@@ -181,5 +181,55 @@ describe("registerSelfCheck inside a subagent", () => {
     await editTurn(fire, "id1");
     const [result] = await fire("context", { messages: [] });
     assert.strictEqual(result, undefined);
+  });
+});
+
+describe("toggleSelfCheck", () => {
+  it("defaultState_isEnabled", () => {
+    assert.strictEqual(isSelfCheckEnabled(), true);
+  });
+
+  it("toggleSelfCheck_returnsOppositeState", () => {
+    const before = isSelfCheckEnabled();
+    const after = toggleSelfCheck();
+    assert.strictEqual(after, !before);
+    // Restore
+    toggleSelfCheck();
+  });
+
+  it("disabledToggle_doesNotInjectOnNextEditTurn", async () => {
+    const { pi, fire } = makeFakePi();
+    registerSelfCheck(pi);
+    await fire("agent_start");
+    toggleSelfCheck(); // Disable
+    await editTurn(fire, "id1");
+    const [result] = await fire("context", { messages: [] });
+    assert.strictEqual(result, undefined);
+    toggleSelfCheck(); // Restore
+  });
+
+  it("reEnabledToggle_injectsOnNextEditTurn", async () => {
+    const { pi, fire } = makeFakePi();
+    registerSelfCheck(pi);
+    await fire("agent_start");
+    toggleSelfCheck(); // Disable
+    toggleSelfCheck(); // Re-enable
+    await editTurn(fire, "id1");
+    const [result] = await fire("context", { messages: [] });
+    assert.ok(result && typeof result === "object");
+    const messages = (result as { messages?: Array<{ content: string }> }).messages;
+    assert.strictEqual(messages?.length, 1);
+  });
+
+  it("onSelfCheckToggle_firesOnToggle", () => {
+    const calls: boolean[] = [];
+    const unsub = onSelfCheckToggle((enabled) => calls.push(enabled));
+    toggleSelfCheck();
+    assert.strictEqual(calls.length, 1);
+    assert.strictEqual(calls[0], false);
+    toggleSelfCheck();
+    assert.strictEqual(calls.length, 2);
+    assert.strictEqual(calls[1], true);
+    unsub();
   });
 });

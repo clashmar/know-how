@@ -70,6 +70,17 @@ to the OS default (`open .` on macOS, `xdg-open .` on Linux, `start .` on Window
 
 Tools in the blacklist are unavailable in read mode. The default blacklist (`edit`, `write`) is always applied — the config adds to it, not replaces.
 
+## Self-check toggle
+
+**Command:** `/self-check`
+**Shortcut:** `ctrl+shift+c`
+
+Toggles the post-task self-check nudge on/off. When enabled, after any turn where the agent edits files, a hidden checklist prompt is injected asking the agent to review tests, comments, placement, and conventions.
+
+The editor shows the current state in the top border: `[SC]` when enabled, `[ ]` when disabled.
+
+Enabled by default. State is per-session (not persisted).
+
 ## Defaults
 
 - Unset values fall back to the session default.
