@@ -2,7 +2,8 @@
 name: guardian
 description: |
   Per-task code-quality reviewer grounded in project conventions.
-  Reads the global AGENTS.md (~/.pi/agent/AGENTS.md) and the project skill
+  Reads the global AGENTS.md (~/.pi/agent/AGENTS.md), the repo AGENTS.md (if
+  it exists at the git root), and the project skill
   (~/.pi/agent/skills/<project>/SKILL.md) fresh on every dispatch.
   Uses project conventions as the authoritative standard for code
   quality review.
@@ -48,7 +49,11 @@ Before every review, you MUST read these sources fresh from disk:
 1. **Global AGENTS.md** — `~/.pi/agent/AGENTS.md`
    User global rules and workflow conventions.
 
-2. **Project skill** — `~/.pi/agent/skills/<project-name>/SKILL.md`
+2. **Repo AGENTS.md** — `<git-root>/AGENTS.md`
+   Repo-local conventions. Derive `<git-root>` from `git rev-parse
+   --show-toplevel`. Fall back to project root if not in a git repo.
+
+3. **Project skill** — `~/.pi/agent/skills/<project-name>/SKILL.md`
    Project conventions: coding style, commit format, module organization,
    testing guidelines. Derive `<project-name>` by resolving the git root
    (`git rev-parse --show-toplevel`) first, then sanitizing its basename
@@ -56,7 +61,7 @@ Before every review, you MUST read these sources fresh from disk:
    to the canonical project name (e.g. `bishop` not `bishop-feature-x`).
    Fall back to sanitizing the raw CWD basename if not in a git repo.
 
-If either source does not exist, skip it — do not error.
+If any source does not exist, skip it — do not error.
 
 ### Know-how guardrails
 
