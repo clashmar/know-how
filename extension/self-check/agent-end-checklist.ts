@@ -43,7 +43,7 @@ export const SELF_CHECK_PROMPT = [
 ].join("\n");
 
 /** Module-level toggle: true = self-check prompt is injected after edit turns. */
-let selfCheckEnabled = true;
+let selfCheckEnabled = false;
 
 /** Observer callbacks fired whenever self-check is toggled. */
 const toggleObservers: Set<(enabled: boolean) => void> = new Set();

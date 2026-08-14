@@ -10,6 +10,7 @@
 import { CustomEditor } from "@mariozechner/pi-coding-agent"; 
 // @mariozechner/pi-coding-agent is deprecated upstream; will migrate when @samfp/pi-memory updates
 import { borderColor, BORDER_CHAR } from "../ui/border-style";
+import { isSelfCheckEnabled } from "../self-check/agent-end-checklist";
 
 const ANSI_RE = /\x1b\[\d+(;\d+)*m/g;
 
@@ -21,7 +22,7 @@ type EditorMode = "read" | "write" | "locked";
 export class ModeAwareEditor extends CustomEditor {
   private editorMode: EditorMode = "read";
   private currentGoal: string | null = null;
-  private selfCheckEnabled = true;
+  private selfCheckEnabled = isSelfCheckEnabled();
 
   setMode(readMode: boolean, locked: boolean, _role?: string): void {
     this.editorMode = locked ? "locked" : readMode ? "read" : "write";

@@ -79,7 +79,7 @@ Toggles the post-task self-check nudge on/off. When enabled, after any turn wher
 
 The editor shows the current state in the top border: `[SC]` when enabled, `[ ]` when disabled.
 
-Enabled by default. State is per-session (not persisted).
+Disabled by default. State is per-session (not persisted).
 
 ## Defaults
 

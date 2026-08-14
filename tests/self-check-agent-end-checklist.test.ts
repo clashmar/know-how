@@ -43,6 +43,14 @@ async function editTurn(
   await fire("turn_end", { turnIndex: 0, message: undefined, toolResults: [] });
 }
 
+function setSelfCheckState(enabled: boolean): void {
+  if (isSelfCheckEnabled() !== enabled) toggleSelfCheck();
+}
+
+beforeEach(() => {
+  setSelfCheckState(false);
+});
+
 describe("SELF_CHECK_PROMPT", () => {
   it("alwaysIncludesTestsItem", () => {
     assert.ok(SELF_CHECK_PROMPT.includes(CHECKLIST_ITEM.tests));
@@ -64,6 +72,7 @@ describe("SELF_CHECK_PROMPT", () => {
 describe("registerSelfCheck gating", () => {
   it("successfulEditTurn_nextContextInjectsOneCheck", async () => {
     const { pi, fire } = makeFakePi();
+    setSelfCheckState(true);
     registerSelfCheck(pi);
     await fire("agent_start");
     await editTurn(fire, "id1");
@@ -75,6 +84,7 @@ describe("registerSelfCheck gating", () => {
 
   it("successfulEditTurn_nextContextInjectsTheChecklistPrompt", async () => {
     const { pi, fire } = makeFakePi();
+    setSelfCheckState(true);
     registerSelfCheck(pi);
     await fire("agent_start");
     await editTurn(fire, "id1");
@@ -85,6 +95,7 @@ describe("registerSelfCheck gating", () => {
 
   it("successfulEditTurn_contextInjectionUsesHiddenCustomMessage", async () => {
     const { pi, fire } = makeFakePi();
+    setSelfCheckState(true);
     registerSelfCheck(pi);
     await fire("agent_start");
     await editTurn(fire, "id1");
@@ -139,6 +150,7 @@ describe("registerSelfCheck gating", () => {
 
   it("nonEditTurnAfterEditTurn_doesNotInjectAnotherCheck", async () => {
     const { pi, fire } = makeFakePi();
+    setSelfCheckState(true);
     registerSelfCheck(pi);
     await fire("agent_start");
     await editTurn(fire, "id1");
@@ -185,8 +197,8 @@ describe("registerSelfCheck inside a subagent", () => {
 });
 
 describe("toggleSelfCheck", () => {
-  it("defaultState_isEnabled", () => {
-    assert.strictEqual(isSelfCheckEnabled(), true);
+  it("defaultState_isDisabled", () => {
+    assert.strictEqual(isSelfCheckEnabled(), false);
   });
 
   it("toggleSelfCheck_returnsOppositeState", () => {
@@ -197,23 +209,20 @@ describe("toggleSelfCheck", () => {
     toggleSelfCheck();
   });
 
-  it("disabledToggle_doesNotInjectOnNextEditTurn", async () => {
+  it("defaultDisabled_doesNotInjectOnNextEditTurn", async () => {
     const { pi, fire } = makeFakePi();
     registerSelfCheck(pi);
     await fire("agent_start");
-    toggleSelfCheck(); // Disable
     await editTurn(fire, "id1");
     const [result] = await fire("context", { messages: [] });
     assert.strictEqual(result, undefined);
-    toggleSelfCheck(); // Restore
   });
 
-  it("reEnabledToggle_injectsOnNextEditTurn", async () => {
+  it("enabledToggle_injectsOnNextEditTurn", async () => {
     const { pi, fire } = makeFakePi();
     registerSelfCheck(pi);
     await fire("agent_start");
-    toggleSelfCheck(); // Disable
-    toggleSelfCheck(); // Re-enable
+    toggleSelfCheck();
     await editTurn(fire, "id1");
     const [result] = await fire("context", { messages: [] });
     assert.ok(result && typeof result === "object");
@@ -226,10 +235,10 @@ describe("toggleSelfCheck", () => {
     const unsub = onSelfCheckToggle((enabled) => calls.push(enabled));
     toggleSelfCheck();
     assert.strictEqual(calls.length, 1);
-    assert.strictEqual(calls[0], false);
+    assert.strictEqual(calls[0], true);
     toggleSelfCheck();
     assert.strictEqual(calls.length, 2);
-    assert.strictEqual(calls[1], true);
+    assert.strictEqual(calls[1], false);
     unsub();
   });
 });
