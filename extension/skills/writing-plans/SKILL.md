@@ -51,6 +51,8 @@ Use TDD when the plan should call for automated tests because the work has meani
 - code with tricky edge cases or regression risk
 - specific integration paths where the plan names an automated test worth adding
 
+Do not require automated tests for temporary or mock-only behavior unless that seam itself has lasting business value or meaningful regression risk.
+
 ### Manual Only
 
 Use manual verification and targeted checks when the plan should not call for automated tests, including:
@@ -61,6 +63,7 @@ Use manual verification and targeted checks when the plan should not call for au
 - simple config changes
 - setup and install flows better verified against a real local environment
 - integration work where the plan can be verified reliably without adding automated tests
+- temporary scaffolding, mocked payloads, app-local fallback seams, and other short-lived bridge behavior
 - codebases where the user explicitly does not want automated tests for this work
 
 Once the plan is written, the implementer must follow the `Testing Approach` exactly.
@@ -76,6 +79,7 @@ Plans should explicitly avoid brittle, low-value tests such as:
 - typography-only assertions
 - giant unit tests for cosmetic-only behavior
 - tests that mostly lock in implementation details
+- tests whose only purpose is to lock in temporary or mock-only behavior
 
 ### Observability & Manual Verification
 

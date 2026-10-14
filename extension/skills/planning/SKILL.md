@@ -18,7 +18,7 @@ Create a task for each of these items and complete them in order:
 2. **Ask clarifying questions** — one at a time, focused on purpose and constraints
 3. **Propose 2-3 approaches** — include trade-offs and a recommendation
 4. **Present the design** — scale detail to complexity, get approval section by section
-5. **Decide the testing strategy** — identify critical behaviors, manual checks, and whether the work should use TDD or be manually tested
+5. **Decide the testing strategy** — identify critical behaviors, manual checks, whether the work should use TDD or be manually tested, and exclude dedicated automated tests for temporary or mock-only behavior unless that seam has lasting business value
 6. **Write the design doc** — call `present_choice` to ask whether the user
    wants a full HTML spec or a markdown spec saved in the specs folder. State
    the trade-offs neutrally — do not recommend either option. Then follow the
@@ -98,8 +98,10 @@ The terminal state is invoking `know-how:writing-plans`.
 
 - Decide whether TDD should be required or manual only
 - Identify the highest-risk behaviors worth automated coverage
+- Treat temporary scaffolding, mocked payloads, app-local fallback seams, and other short-lived bridge behavior as manual-verification territory unless that seam has lasting business value or meaningful regression risk
 - Call out visual or cosmetic changes that should be verified manually instead
 - Avoid designs that imply every UI detail needs an automated assertion
+- Avoid test plans whose only purpose is to lock in temporary or mock-only behavior
 
 **Working in existing codebases:**
 
