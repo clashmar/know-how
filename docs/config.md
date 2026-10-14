@@ -40,13 +40,6 @@ to the OS default (`open .` on macOS, `xdg-open .` on Linux, `start .` on Window
         ],
         "thinkingLevel": "medium"
       },
-      "reviewer": {
-        "model": "keep-it-speedy-here",
-        "fallbackModels": [
-          "keep-it-speedy-here-too"
-        ],
-        "thinkingLevel": "medium"
-      },
       "maester": {
         "model": "one-of-the-big-hitters",
         "fallbackModels": [

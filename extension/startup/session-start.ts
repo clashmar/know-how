@@ -51,7 +51,7 @@ on every contributor and clutters the repo for people with different tools.
 
 ### Subagents and File Writes
 
-- **Scouts and reviewers** report findings as response text — not files.
+- **Scouts and the guardian** report findings as response text, not files.
 - **Workers** write code changes (source files, tests, configs) but must not
   write agent clutter (progress files, scratch pads, meta-docs) into the repo.
 - **Progress tracking** is done via the \`todo\` tool, not \`progress.md\`.

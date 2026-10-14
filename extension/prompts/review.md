@@ -1,8 +1,8 @@
 ---
-description: Review and fix latest changes with reviewer and guardian agents
+description: Review and fix latest changes with the guardian agent
 argument-hint: "[optional context]"
 ---
 
 # Review
 
-Review the latest changes in this repository. Dispatch **reviewer** and **guardian** in parallel via the subagent tool to analyze the changes. Once both return their findings, implement all MUST_FIX and SHOULD_FIX items.
+Review the latest changes in this repository. Run the controller-owned spec and scope checks first, then dispatch **guardian** via the subagent tool to analyze the changes. Once it returns findings, implement all MUST_FIX and SHOULD_FIX items.

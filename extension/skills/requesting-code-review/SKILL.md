@@ -6,7 +6,7 @@ description: Use when completing tasks, implementing major features, or before m
 
 # Requesting Code Review
 
-Dispatch the `reviewer` subagent to catch issues before they cascade. The reviewer gets precisely crafted context for evaluation — never your session's history. This keeps the reviewer focused on the work product, not your thought process, and preserves your own context for continued work.
+Dispatch the `guardian` subagent to catch convention and code-quality issues before they cascade. Handle spec-compliance and scope checks in the controller using the task requirements, diff, and verification evidence.
 
 **Core principle:** Review early, review often.
 
@@ -30,8 +30,7 @@ Dispatch the `reviewer` subagent to catch issues before they cascade. The review
 
 If `task_snapshot` was used (default in executing-plans workflows):
 The controller called `task_snapshot(action: "diff", taskId: <id>)` and captured `DIFF` before
-dispatching reviewers. Pass `DIFF` as literal diff text in the reviewer and guardian task strings
-— no git commands needed.
+requesting review. Pass `DIFF` as literal diff text in the guardian task string - no git commands needed.
 
 If `task_snapshot` was not used (fallback):
 
@@ -47,61 +46,40 @@ For uncommitted changes:
 ```bash
 # Use the base branch/commit as the diff base
 BASE_SHA=$(git merge-base HEAD origin/main 2>/dev/null || echo HEAD~1)
-# No HEAD_SHA needed — review the working tree state directly
+# No HEAD_SHA needed - review the working tree state directly
 ```
 
-**2. Dispatch reviewer subagent:**
+**2. Run the controller-owned spec check:**
 
-Use the `reviewer` agent via the `subagent` tool. Include the changed files, SHAs or
-diff info, and a stop rule — reviewers inspect the diff, not the whole codebase:
+Before dispatching guardian, answer these against the requirements and diff:
 
-For committed changes:
+- Did the implementation cover the requested behavior?
+- Did it avoid unrequested feature work or refactors?
+- Did it follow the planned testing approach?
+- Is the verification evidence sufficient?
 
-```
-subagent({
-  agent: "reviewer",
-  task: "Review code quality for: [description]. Changed files: [list paths]. BASE_SHA: [sha], HEAD_SHA: [sha]. Inspect the diff and changed files only — do not explore unrelated code. Return findings with file:line references."
-})
-```
+If any answer is unclear, stop and resolve that first.
 
-When `DIFF` is available from task_snapshot:
+**3. Dispatch guardian subagent:**
 
-```
-subagent({
-  agent: "reviewer",
-  task: "Review code quality for: [description]. Changed files: [list paths]. Diff:\n[DIFF text]. Inspect the diff and changed files only — do not explore unrelated code. Return findings with file:line references."
-})
-```
-
-When using fallback git diff (uncommitted changes):
-
-```
-subagent({
-  agent: "reviewer",
-  task: "Review code quality for: [description]. Changed files: [list paths]. Run `git diff [base_sha]` to see the diff. Inspect the diff and changed files only — do not explore unrelated code. Return findings with file:line references."
-})
-```
-
-For spec-compliance or code-quality reviews, use the appropriate prompt template:
-
-- Spec compliance: see `../../skills/executing-plans/reviewer-prompt.md`
-- Code quality: see `../../skills/executing-plans/guardian-prompt.md`
-
-**Placeholders:**
+Use `../../skills/executing-plans/guardian-prompt.md` as the single source of truth for guardian handoff.
+Populate that template with:
 
 - `{WHAT_WAS_IMPLEMENTED}` - What you just built
 - `{PLAN_OR_REQUIREMENTS}` - What it should do
-- `{BASE_SHA}` - Starting commit (or diff base for uncommitted changes)
-- `{HEAD_SHA}` - Ending commit (not used for uncommitted changes — reviewers read file state directly)
-- `{DIFF}` - Output of `git diff` against the base (for uncommitted changes, replaces BASE_SHA..HEAD_SHA)
 - `{DESCRIPTION}` - Brief summary
+- `{WORK_FROM}` - Working directory or worktree path
+- `{DIFF}` - The task diff text
 
-**3. Act on feedback:**
+When `task_snapshot` is available, use its `DIFF` output directly.
+When `task_snapshot` is not available, compute the diff in the controller with `git diff [base_sha]` and paste that output into `{DIFF}` before dispatching guardian.
 
-- Fix Critical issues immediately
-- Fix Important issues before proceeding
-- Note Minor issues for later
-- Push back if reviewer is wrong (with reasoning)
+**4. Act on feedback:**
+
+- Fix MUST_FIX issues immediately
+- Fix SHOULD_FIX issues before proceeding
+- Note OBSERVATION items for later judgment
+- Push back if guardian is wrong (with reasoning)
 
 ## Example
 
@@ -113,17 +91,17 @@ You: Let me request code review before proceeding.
 BASE_SHA=$(git log --oneline | grep "Task 1" | head -1 | awk '{print $1}')
 HEAD_SHA=$(git rev-parse HEAD)
 
-[Dispatch reviewer subagent]
+[Run controller spec check]
   WHAT_WAS_IMPLEMENTED: Verification and repair functions for conversation index
   PLAN_OR_REQUIREMENTS: Task 2 from ~/.know-how/<project-name>/plans/deployment-plan.md
   DESCRIPTION: Added verifyIndex() and repairIndex() with 4 issue types
 
+[Dispatch guardian subagent]
+
 [Subagent returns]:
-  Strengths: Clean architecture, real tests
   Issues:
-    Important: Missing progress indicators
-    Minor: Magic number (100) for reporting interval
-  Assessment: Ready to proceed
+    MUST_FIX: Missing progress indicators
+    OBSERVATION: Magic number (100) for reporting interval
 
 You: [Fix progress indicators]
 [Continue to Task 3]
@@ -139,8 +117,9 @@ You: [Fix progress indicators]
 
 **Executing Plans:**
 
-- Review after each task using the `task_snapshot`-produced `DIFF` when available
-- Get feedback, apply, continue
+- Run the controller spec check after each task using the `task_snapshot`-produced `DIFF` when available
+- Dispatch guardian
+- Apply feedback, then continue
 
 **Ad-Hoc Development:**
 
@@ -152,13 +131,12 @@ You: [Fix progress indicators]
 **Never:**
 
 - Skip review because "it's simple"
-- Ignore Critical issues
-- Proceed with unfixed Important issues
+- Ignore MUST_FIX issues
+- Proceed with unfixed SHOULD_FIX issues
 - Argue with valid technical feedback
 
-**If reviewer wrong:**
+**If guardian is wrong:**
 
 - Push back with technical reasoning
 - Show code/tests that prove it works
 - Request clarification
-

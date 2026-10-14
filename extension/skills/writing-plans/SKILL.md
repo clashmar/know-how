@@ -91,10 +91,10 @@ Include at least one observable verification command or check for the work
 as a whole. Choose the category that fits:
 
 - **Data/logic changes:** Include a logging command, debug output, or assertion
-  that a reviewer can run to see the expected outcome.
+  that a teammate can run to see the expected outcome.
   *Example: `RUST_LOG=debug cargo run -- --process-file input.json | grep "processed:"`*
 
-- **UI/visual changes:** Describe what to look for — which elements, positions,
+- **UI/visual changes:** Describe what to look for: which elements, positions,
   colors, interactions. Be specific enough that someone unfamiliar with the
   feature can verify it.
   *Example: "The save button is now disabled when the form is empty. Expected:
@@ -110,12 +110,12 @@ as a whole. Choose the category that fits:
 
 If a change cannot be observed without automation (no visual feedback, no CLI
 output, no API), add a logging or instrumentation step to the implementation.
-The rule: a reviewer who wasn't in the session should be able to independently
+The rule: someone who wasn't in the session should be able to independently
 verify correctness.
 
 ## Scope Check
 
-If the spec covers multiple independent subsystems, it should have been broken into sub-project specs during planning. If it wasn't, suggest breaking this into separate plans — one per subsystem. Each plan should produce working, testable software on its own.
+If the spec covers multiple independent subsystems, it should have been broken into sub-project specs during planning. If it wasn't, suggest breaking this into separate plans, one per subsystem. Each plan should produce working, testable software on its own.
 
 ## Reuse Analysis
 
@@ -231,7 +231,7 @@ If the decision is `Required`, write the failing test first and follow TDD stric
 
 **Review gate:**
 
-- [ ] **Whole-implementation reviewer:** comprehensive sweep
+- [ ] **Whole-implementation scope-and-spec check:** comprehensive sweep
 
 **Optimization:**
 
@@ -374,8 +374,8 @@ After writing the plan and completing self-review, present the execution configu
 
 Call `present_decisions` with title "Plan Configuration" and two decisions:
 
-1. **Worktree Strategy** — options: Worktree (isolated worktree), Direct (current branch)
-2. **Autonomy** — options: Fully autonomous (continuous task-to-task), Checkpointed (pause after each task)
+1. **Worktree Strategy**: options Worktree (isolated worktree), Direct (current branch)
+2. **Autonomy**: options Fully autonomous (continuous task-to-task), Checkpointed (pause after each task)
 
 `present_decisions` auto-adds `Something else...` for each decision; do not add duplicates. `otherLabel` renames it, so keep it short.
 
@@ -397,7 +397,7 @@ widget"). This records what this plan implements.
 
 **REQUIRED SUB-SKILL:** Use know-how:executing-plans
 
-Execute inline while performing required spec-compliance and guardian review before
-each task is complete. Guardian runs per-task — every task gets convention and quality
-review. The final whole-implementation reviewer sweeps at the end. Close-out task
-handles review, optimization report, and integration.
+Execute inline while performing controller-owned spec-compliance checks and guardian review before
+each task is complete. Guardian runs per-task and checks convention and code quality.
+The final whole-implementation scope-and-spec check runs at the end. Close-out task handles
+review, optimization report, and integration.

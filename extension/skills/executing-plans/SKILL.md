@@ -40,14 +40,14 @@ todo rules:
      "Start background build in worktree" [shape=box];
      "Implement current task" [shape=box];
      "Required verification passes?" [shape=diamond];
-     "Fix verification issues" [shape=box];
-     "Dispatch spec + guardian reviewers" [shape=box];
+     "Run controller spec checklist" [shape=box];
+     "Dispatch guardian review" [shape=box];
      "Address all review feedback" [shape=box];
      "Mark current task completed" [shape=box];
      "Execution Autonomy is Checkpointed?" [shape=diamond];
      "Report status and wait for approval" [shape=box];
      "More tasks remain?" [shape=diamond];
-     "Dispatch whole-implementation reviewer" [shape=box];
+     "Run final controller scope-and-spec check" [shape=box];
      "Invoke closing-out-work" [shape=doublecircle];
 
      "Read plan, extract tasks, and create todo items" -> "Worktree Strategy?";
@@ -59,17 +59,17 @@ todo rules:
      "Implement current task" -> "Required verification passes?";
      "Required verification passes?" -> "Fix verification issues" [label="no"];
      "Fix verification issues" -> "Implement current task";
-     "Required verification passes?" -> "Dispatch spec + guardian reviewers" [label="yes"];
-     "Dispatch spec + guardian reviewers" -> "Address all review feedback";
+     "Required verification passes?" -> "Run controller spec checklist" [label="yes"];
+     "Run controller spec checklist" -> "Dispatch guardian review";
+     "Dispatch guardian review" -> "Address all review feedback";
      "Address all review feedback" -> "Mark current task completed";
      "Mark current task completed" -> "Execution Autonomy is Checkpointed?";
      "Execution Autonomy is Checkpointed?" -> "Report status and wait for approval" [label="yes"];
      "Execution Autonomy is Checkpointed?" -> "More tasks remain?" [label="no"];
      "Report status and wait for approval" -> "More tasks remain?";
      "More tasks remain?" -> "Implement current task" [label="yes"];
-     "More tasks remain?" -> "Dispatch whole-implementation reviewer" [label="no"];
-     "Dispatch whole-implementation reviewer" -> "Address all review feedback" [label="feedback"];
-     "Address all review feedback" -> "Invoke closing-out-work" [label="done"];
+     "More tasks remain?" -> "Run final controller scope-and-spec check" [label="no"];
+     "Run final controller scope-and-spec check" -> "Invoke closing-out-work";
  }
 ```
 
@@ -153,17 +153,18 @@ For each task:
 3. Follow each step exactly (plan has bite-sized steps)
 4. Run verifications as specified
 5. Once verification passes, call `task_snapshot(action: "end", taskId: <id>)` then call `task_snapshot(action: "diff", taskId: <id>)` and capture the output as `DIFF`
-6. Dispatch the `reviewer` agent (for spec compliance, using `reviewer-prompt.md`) and the `guardian` agent (for code quality, using `guardian-prompt.md`) in parallel, passing `DIFF` as the literal diff text in both task strings. Let both run to completion — do not cancel either.
-7. Collect all feedback from both reviewers. Address every finding.
-8. Re-run the task's required verification after fixes to confirm nothing broke.
-9. Mark the same todo item as `completed`
-10. If `Execution Autonomy` is `Checkpointed`, report status and wait for user approval before starting the next task
+6. Run the controller-owned spec check defined in `know-how:requesting-code-review` against the task requirements, `DIFF`, and the plan's Testing Approach. If any answer is unclear or no, stop and resolve that before review.
+7. Dispatch the `guardian` agent (using `guardian-prompt.md`) for code-quality and convention review, passing `DIFF` as the literal diff text in the task string.
+8. Address every guardian finding.
+9. Re-run the task's required verification after fixes to confirm nothing broke.
+10. Mark the same todo item as `completed`
+11. If `Execution Autonomy` is `Checkpointed`, report status and wait for user approval before starting the next task
 
 ### Step 3: Complete Development
 
 After all tasks complete and verified:
 
-- Dispatch the whole-implementation reviewer. Collect feedback and address every finding.
+- Run a final controller scope-and-spec checklist against the plan and the full working-tree diff.
 - Re-run verification after any final fixes.
 - Announce: "All implementation tasks complete. Executing close-out task."
 - The plan's close-out task handles verification, cleanup, and integration.
@@ -200,15 +201,15 @@ After all tasks complete and verified:
 - Follow the plan's `Testing Approach` exactly
 - Don't skip verifications
 - Don't create extra todo items for verification, review gates, or manual checks
-- Don't mark a task complete before addressing all review feedback
-- Always dispatch both spec reviewer and guardian in parallel after verification
-- Always re-run verification after any review-driven fixes
-- Don't skip the final whole-implementation review before the close-out task
+- Don't mark a task complete before the controller spec checklist passes and all guardian feedback is addressed
+- Always run the controller spec checklist before guardian review after verification
+- Always re-run verification after any guardian-driven fixes
+- Don't skip the final controller scope-and-spec check before the close-out task
 - Reference skills when plan says to
 - Stop when blocked, don't guess
 - Never start implementation on main/master branch without explicit user consent
-- Never make git write operations during execution — no commits, pushes, merges, stash, checkout --, branch -D, or worktree remove during task execution. All git integration is gated behind user review at checkpoints and at close-out via closing-out-work
-- Never treat worktree branches as "safe to commit on" — the git write gate applies universally, regardless of branch
+- Never make git write operations during execution: no commits, pushes, merges, stash, checkout --, branch -D, or worktree remove during task execution. All git integration is gated behind user review at checkpoints and at close-out via closing-out-work
+- Never treat worktree branches as "safe to commit on". The git write gate applies universally, regardless of branch
 - Use the current workspace unless the user explicitly asks for a different setup
 
 ## Integration
@@ -218,5 +219,4 @@ After all tasks complete and verified:
 - **know-how:writing-plans** - Creates the plan this skill executes
 - **know-how:requesting-code-review** - Use for focused review on risky, behavior-changing, or multi-file tasks
 - **know-how:closing-out-work** - Close out work after all tasks, get user review, then choose integration (invoked by the plan's close-out task)
-- **reviewer-prompt.md** - Dispatch template for spec-compliance review via `reviewer` agent (in same directory)
 - **guardian-prompt.md** - Dispatch template for code-quality review (in same directory)

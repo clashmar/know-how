@@ -2,7 +2,7 @@
  * Read/Write Mode Extension
  *
  * Role-based read/write gating for subagents. Read-only roles
- * (scout, reviewer, guardian) permanently locked to read mode.
+ * are permanently locked to read mode.
  * Write-capable roles (maester, deckbuilder) start in write mode.
  * Main (human) sessions default to read mode with toggle.
  */
@@ -14,6 +14,7 @@ import { ModeAwareEditor } from "./mode-editor";
 import type { WriteModeApprovalRequest, WriteModeTransitionResult } from "./approval";
 import { ensureWriteModeForAction } from "./approval";
 import { registerApprovedWriteModeActivator } from "./runtime";
+import { describeReadOnlyRoles, READ_ONLY_ROLES, WRITE_CAPABLE_ROLES } from "./roles";
 import { showPresentChoice } from "../tools/present-choice";
 import { getReadModeToolBlacklist } from "../settings";
 import { isSelfCheckEnabled } from "../self-check/agent-end-checklist";
@@ -155,11 +156,7 @@ function computeReadModeTools(pi: ExtensionAPI): string[] {
 // ── Role sets ───────────────────────────────────────────────────────
 // Read-only roles permanently locked to read mode. Write-capable start in write.
 
-/** Source-of-truth list of read-only role names. */
-export const READ_ONLY_ROLES = ["scout", "reviewer", "guardian"] as const;
-
-/** Source-of-truth list of write-capable role names. */
-export const WRITE_CAPABLE_ROLES = ["maester", "deckbuilder"] as const;
+export { READ_ONLY_ROLES, WRITE_CAPABLE_ROLES } from "./roles";
 
 const READ_ONLY_ROLES_SET = new Set<string>(READ_ONLY_ROLES);
 const WRITE_CAPABLE_ROLES_SET = new Set<string>(WRITE_CAPABLE_ROLES);
@@ -360,7 +357,7 @@ export function registerReadMode(pi: ExtensionAPI): void {
           "Use the `/write` command to request write-mode approval. " +
           "Write-capable steps and dispatched agents require write-mode approval before continuing. " +
           "If the approval prompt returns the enable/switch option, write mode is already enabled — " +
-          "continue without asking the user to run /write again. Scouts and reviewers are fine.",
+          `continue without asking the user to run /write again. ${describeReadOnlyRoles()} are fine.`,
       };
     }
 

@@ -25,13 +25,13 @@ Feature planned to easily disable their use in a session. Useful for request-bas
 
 - **scout** - fast recon of codebase that returns summaries to controller.
 
-- **reviewer** - checks spec compliance and performs whole-implementation sweeps.
-
 - **guardian** - per-task code quality review grounded in project conventions.
 
 - **maester** - metacognition layer; reviews whole process and surfaces optimizations.
 
 - **deckbuilder** - optionally called by the controller to write specs/reports as html.
+
+Spec and scope checks stay with the controller. Code-quality review is dispatched to `guardian`.
 
 ## Why I should use this
 

@@ -40,7 +40,7 @@ digraph when_to_use {
 
 - 3+ independent investigation questions across different files
 - Multiple subsystems need parallel reconnaissance
-- Per-task review gates: spec reviewer + guardian dispatched together
+- Multiple independent read-only investigations across different domains
 - Each domain can be understood without context from others
 - No shared state between investigations
 
@@ -67,9 +67,9 @@ Each domain is independent — understanding the editor doesn't require render p
 Each agent gets:
 
 - **Specific scope:** Exact files to read, not vague areas
-- **Clear goal:** Answer specific questions (scout) or review against specific criteria (reviewer)
+- **Clear goal:** Answer specific questions or review against specific criteria
 - **Constraints:** Don't explore beyond listed files
-- **Expected output:** Bullet list under 500 words (scout) or structured findings (reviewer)
+- **Expected output:** Bullet list under 500 words (scout) or structured findings for the specific review task
 
 **For scout tasks:** follow `../dispatching-parallel-agents/scout-prompt.md` — every scout MUST have:
 - Specific files to read (not "the auth module")
@@ -77,9 +77,9 @@ Each agent gets:
 - A stop boundary ("stop after reading listed files")
 - A conciseness directive ("bullet list under 500 words")
 
-**For review tasks:** dispatch spec reviewer and guardian in parallel using the prompt
-templates from `../executing-plans/` (`reviewer-prompt.md` and `guardian-prompt.md`).
-Let both run to completion, collect all feedback, then address every finding.
+**For review tasks:** dispatch only genuinely distinct review domains in parallel.
+If a task only needs guardian, dispatch guardian alone. Do not manufacture parallelism
+by pairing one real review with a nonexistent second review lane.
 
 ### 3. Dispatch in Parallel
 
@@ -92,10 +92,9 @@ subagent({ agent: "scout", task: "Read src/editor/state.ts and src/editor/reduce
 subagent({ agent: "scout", task: "Read src/render/pipeline.ts and src/render/compositor.ts. Answer: (1) What are the render stages? (2) How are layers composited? (3) Where does the frame budget get allocated? Stop after these files. Bullet list under 400 words.", reads: ["src/render/pipeline.ts", "src/render/compositor.ts"] })
 ```
 
-**Parallel review (spec + guardian):**
+**Single review when only guardian applies:**
 
 ```
-subagent({ agent: "reviewer", task: "Review spec compliance for Task 3. [full task text and diff]" })
 subagent({ agent: "guardian", task: "Review code quality and project conventions for Task 3. [summary and diff]" })
 ```
 
