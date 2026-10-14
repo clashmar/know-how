@@ -1,0 +1,21 @@
+extension/skills/planning/SKILL.md
+  s_a45772dbbafc7c::t_c0397e2da1cc46 21,101,104
+extension/skills/writing-plans/SKILL.md
+  s_a45772dbbafc7c::t_5eb5d7145e2dfa 54-55,66,82
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "71b4be73f0233fbae2dee0a9d8c8748dc32de929",
+  "prompts": {},
+  "sessions": {
+    "s_a45772dbbafc7c": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a13a06-995b-77bb-8b31-a29b237cc1df",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
