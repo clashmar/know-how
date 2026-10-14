@@ -1,0 +1,73 @@
+extension/write-mode/read-mode.ts
+  s_4112937bc54d4f::t_9261e0f04dde28 5
+  s_4112937bc54d4f::t_c078b893566a39 17,159,360
+extension/skills/executing-plans/guardian-prompt.md
+  s_4112937bc54d4f::t_bc97155b884167 5-6
+  s_4112937bc54d4f::t_e50bb502b1c996 9,14-15,24
+  s_4112937bc54d4f::t_f13a2a9b468eeb 19
+  s_4112937bc54d4f::t_725fe751bdfe08 21-23
+extension/skills/executing-plans/SKILL.md
+  s_4112937bc54d4f::t_f93595b12f9be9 156
+  s_4112937bc54d4f::t_1579b315114aaf 43-44,62-64,157-161,167,204-206
+  s_4112937bc54d4f::t_f529fec2460d0e 50,71-72,207
+  s_4112937bc54d4f::t_fe72e1f28940b3 211-212
+README.md
+  s_4112937bc54d4f::t_446554bfb605e2 34
+  s_4112937bc54d4f::t_59686fb1c26056 35
+extension/startup/session-start.ts
+  s_4112937bc54d4f::t_5693e96cc8dfd8 54
+extension/skills/requesting-code-review/SKILL.md
+  s_4112937bc54d4f::t_5eb714f0bc369a 65-66,71-72,74-75
+  s_4112937bc54d4f::t_9da6ba9b20fcef 9,33,49,52,54,56-59,61,63,77,82,94,99-100,120-122,138
+  s_4112937bc54d4f::t_fd3cc3f1bd4d23 79-81,103-104,134-135
+  s_a45772dbbafc7c::t_73e4369819dc9c 78
+extension/skills/closing-out-work/maester-prompt.md
+  s_4112937bc54d4f::t_ef3bfd00019e12 8,10,19,21,27-29
+extension/skills/writing-plans/SKILL.md
+  s_4112937bc54d4f::t_1efd27bb6341ce 97,118
+  s_4112937bc54d4f::t_aadc82eae6327d 234
+  s_4112937bc54d4f::t_89917d104c9e6e 377-378
+  s_4112937bc54d4f::t_d6c4b826a908f9 400-401,403
+  s_4112937bc54d4f::t_fc5465a221c9e1 94,113
+  s_4112937bc54d4f::t_a269d201e1a7b4 402
+extension/prompts/review.md
+  s_4112937bc54d4f::t_eda071d3aa3587 2,8
+tests/read-mode.test.ts
+  s_4112937bc54d4f::t_07a55b486805f1 9
+  s_4112937bc54d4f::t_10f6cdad5f388d 1-2,5,23-24
+  s_4112937bc54d4f::t_5b71620e1d2234 3,16-22
+  s_4112937bc54d4f::t_d17a4596cab8a1 4,6-8,10-15
+AGENTS.md
+  s_4112937bc54d4f::t_6bdcb73ae16bb3 11
+extension/skills/dispatching-parallel-agents/SKILL.md
+  s_4112937bc54d4f::t_d0354fc819f916 43,70,72,80-81,95
+  s_4112937bc54d4f::t_0a062131aa7fad 82
+extension/agents/maester.md
+  s_4112937bc54d4f::t_0af2e9ebe55c1b 22-23,57-58
+extension/write-mode/roles.ts
+  s_4112937bc54d4f::t_96827398b55c2f 1-27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "53e2d1feb0bc641d5b54a654332e94dd45b36896",
+  "prompts": {},
+  "sessions": {
+    "s_4112937bc54d4f": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a13a55-824b-7c0d-b4f8-df0e660547aa",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    },
+    "s_a45772dbbafc7c": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a13a06-995b-77bb-8b31-a29b237cc1df",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
