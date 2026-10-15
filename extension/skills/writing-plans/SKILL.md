@@ -354,7 +354,7 @@ Expected: no automated tests beyond those explicitly called for by the plan
 
 For `Manual only` tasks, do not add automated tests unless the plan is updated first.
 
-## Self-Review
+## Self-Review - Spec
 
 After writing the complete plan, look at the spec with fresh eyes and check the plan against it. This is a checklist you run yourself — not a subagent dispatch.
 
@@ -367,6 +367,35 @@ After writing the complete plan, look at the spec with fresh eyes and check the 
 **4. Spec sync:** If any design decisions have changed since writing the spec, update the spec to reflect them.
 
 Fix minor consistency and placeholder issues inline. If you change scope or task structure, run the self-review checklist again before handoff. If you find a spec requirement with no task, add the task.
+
+## Self-Review - Simplify
+
+Ask these questions in relation to the plan document:
+
+1. Does every line of code need to exist? If not, remove it from the plan.
+
+2. Does the plan recreate something that already exists in the codebase? If yes, reuse the existing thing instead of adding a new copy.
+
+3. Which planned branches, guards, wrappers, helpers, options, config, or conversions are unnecessary and can be removed while preserving core functionality?
+
+4. Do all defensive checks correspond to a known real input or state? If not, remove it.
+
+5. Is the plan second-guessing a known data shape instead of checking the actual allowed case? If a value is `T | null`, check `null` if needed. Do not add broader type checks unless broader types are genuinely possible. 
+
+6. Can the remaining planned solution be made shorter and easier to review without losing required behavior?
+
+Hard rules:
+
+- `maybe` is not justification
+- `safer this way` is not justification
+- `might be useful later` is not justification
+- `the shape could change someday` is not justification
+- Do not invent fallback branches for shapes the system does not produce.
+
+- If planned code does not need to exist, remove it from the plan.
+- If the plan recreates an existing equivalent, change the plan to reuse it.
+- If a planned branch, guard, wrapper, helper, option, config layer, or conversion has no known required case, delete it from the plan.
+- If a defensive check is genuinely required, keep only the narrow check the known real case requires.
 
 ## Execution Handoff
 
