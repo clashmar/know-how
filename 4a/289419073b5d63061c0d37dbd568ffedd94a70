@@ -1,0 +1,14 @@
+extension/skills/writing-plans/SKILL.md
+  h_a5b30c7c23f15c 357,371-399
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "4a289419073b5d63061c0d37dbd568ffedd94a70",
+  "prompts": {},
+  "humans": {
+    "h_a5b30c7c23f15c": {
+      "author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
