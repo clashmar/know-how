@@ -1,0 +1,21 @@
+extension/skills/test-driven-development/SKILL.md
+  s_045e288c8a5443::t_14342be55b71c4 119,213-229
+AGENTS.md
+  s_045e288c8a5443::t_c5b71f4835e3ac 195-197
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c8f5166f6e99b9d98b705f98c4d040f9da318c9d",
+  "prompts": {},
+  "sessions": {
+    "s_045e288c8a5443": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a13ade-fed5-78f5-8c1e-9ebabed15037",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
