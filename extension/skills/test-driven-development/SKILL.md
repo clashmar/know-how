@@ -116,6 +116,7 @@ Vague name, tests mock not code
 - One behavior
 - Clear name
 - Real code (no mocks unless unavoidable)
+- Offline-safe by default: tests, fixtures, screenshots, and sample assets must run without live network access unless the test is specifically about that network interaction
 
 ### Verify RED - Watch It Fail
 
@@ -209,6 +210,23 @@ Next failing test for next feature.
 | **Minimal** | One thing. "and" in name? Split it. | `test('validates email and domain and whitespace')` |
 | **Clear** | Name describes behavior | `test('test1')` |
 | **Shows intent** | Demonstrates desired API | Obscures what code should do |
+| **Offline-safe** | Controlled fixtures and intercepted assets | Live URLs and third-party dependencies |
+
+## Network Independence
+
+Automated tests must be network-independent unless the behavior under test is the network interaction itself.
+
+Default rule:
+- do not use live API endpoints in tests
+- do not use real image URLs or third-party asset hosts in screenshot tests
+- do not rely on remote fixtures, embeds, or media staying reachable
+
+Instead:
+- use fixture payloads and mocked responses for data
+- use fake/local test URLs plus interception for screenshot and media tests
+- fulfill asset requests with in-memory or controlled local responses when the actual asset contents do not matter
+
+If the purpose of the test is to verify network behavior, say so explicitly in the test setup and keep the live dependency scoped to that test only.
 
 ## Why Order Matters
 

@@ -192,6 +192,9 @@ needed.
 - Use the unitOfWorkConditionExpectedOutcome convention for naming tests.
 - If a test references a value or type in the main repo, ALWAYS derive it from the source.
 - No magic strings or numbers if they appear in more than one place.
+- Tests, fixtures, mocks, screenshots, and sample assets MUST work offline by default.
+- Do not depend on live network resources in tests unless the test is specifically about that network interaction.
+- Do not use real image URLs, third-party asset hosts, or live API endpoints in screenshot or fixture-driven tests. Use controlled fixture data, local test URLs plus interception, or in-memory fulfilled responses instead.
 
 ## Comments
 
