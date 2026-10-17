@@ -37,11 +37,13 @@ Do not re-read a skill that is already loaded in context.
 
 **Invoke relevant or requested skills before any response or action.** If the loaded skill turns out not to apply, you can stop using it. The check still has to happen first.
 
+Only enter the planning flow when the user explicitly asks to plan, runs `/plan`, or requests a written design or spec.
+
 ```dot
 digraph skill_flow {
     "User message received" [shape=doublecircle];
-    "About to enter planning flow?" [shape=diamond];
-    "Already planned?" [shape=diamond];
+    "Did the user explicitly ask to plan or run /plan?" [shape=diamond];
+    "Is planning already loaded?" [shape=diamond];
     "Invoke planning skill" [shape=box];
     "Might any skill apply?" [shape=diamond];
     "Load skill" [shape=box];
@@ -51,11 +53,11 @@ digraph skill_flow {
     "Follow skill exactly" [shape=box];
     "Respond or act" [shape=doublecircle];
 
-    "User message received" -> "About to enter planning flow?";
-    "About to enter planning flow?" -> "Already planned?" [label="yes"];
-    "About to enter planning flow?" -> "Might any skill apply?" [label="no"];
-    "Already planned?" -> "Invoke planning skill" [label="no"];
-    "Already planned?" -> "Might any skill apply?" [label="yes"];
+    "User message received" -> "Did the user explicitly ask to plan or run /plan?";
+    "Did the user explicitly ask to plan or run /plan?" -> "Is planning already loaded?" [label="yes"];
+    "Did the user explicitly ask to plan or run /plan?" -> "Might any skill apply?" [label="no"];
+    "Is planning already loaded?" -> "Invoke planning skill" [label="no"];
+    "Is planning already loaded?" -> "Might any skill apply?" [label="yes"];
     "Invoke planning skill" -> "Might any skill apply?";
     "Might any skill apply?" -> "Load skill" [label="yes, even 1%"];
     "Might any skill apply?" -> "Respond or act" [label="definitely not"];

@@ -1,11 +1,12 @@
 ---
 name: planning
-description: Always use this before creative work, feature design, or behavior changes to turn rough ideas into an approved design before implementation starts.
+description: Use when the user explicitly asks to plan, runs /plan, or wants a written design or spec before implementation.
+disable-model-invocation: true
 ---
 
 # Planning Ideas Into Designs
 
-Help turn ideas into an approved design and a written spec before implementation.
+Use this for explicit planning requests that need an approved design and a written spec before implementation.
 
 Do not invoke implementation skills, write code, scaffold projects, or make behavior changes until you have presented a design and the user has approved it.
 
