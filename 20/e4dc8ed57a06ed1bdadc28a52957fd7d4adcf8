@@ -1,0 +1,25 @@
+extension/skills/dispatching-parallel-agents/SKILL.md
+  s_e231ed7c975c42::t_546d12220cbd90 92-93,122,131
+  s_e231ed7c975c42::t_805c62351fef91 76,79
+extension/skills/planning/SKILL.md
+  s_e231ed7c975c42::t_f433b3a6d82f28 18,77
+  s_e231ed7c975c42::t_a9bb7e679ec0c9 78
+extension/skills/dispatching-parallel-agents/scout-prompt.md
+  s_e231ed7c975c42::t_dcdae5dca7ed92 21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "20e4dc8ed57a06ed1bdadc28a52957fd7d4adcf8",
+  "prompts": {},
+  "sessions": {
+    "s_e231ed7c975c42": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a14991-a6ea-7183-9748-45cd8f049429",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
