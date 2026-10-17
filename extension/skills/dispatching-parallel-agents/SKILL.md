@@ -73,9 +73,10 @@ Each agent gets:
 
 **For scout tasks:** follow `../dispatching-parallel-agents/scout-prompt.md` — every scout MUST have:
 - Specific files to read (not "the auth module")
-- Specific questions to answer (2-4 numbered bullets)
+- 1-3 specific questions to answer
 - A stop boundary ("stop after reading listed files")
 - A conciseness directive ("bullet list under 500 words")
+- If a scout needs more than 3 files or more than 3 questions, split it
 
 **For review tasks:** dispatch only genuinely distinct review domains in parallel.
 If a task only needs guardian, dispatch guardian alone. Do not manufacture parallelism
@@ -88,8 +89,8 @@ Dispatch one agent per domain concurrently by issuing one `subagent(agent, task)
 **Parallel investigation (scouts):**
 
 ```
-subagent({ agent: "scout", task: "Read src/editor/state.ts and src/editor/reducer.ts. Answer: (1) How is editor state structured? (2) What actions mutate it? (3) Where are side effects triggered? Stop after these files. Bullet list under 400 words.", reads: ["src/editor/state.ts", "src/editor/reducer.ts"] })
-subagent({ agent: "scout", task: "Read src/render/pipeline.ts and src/render/compositor.ts. Answer: (1) What are the render stages? (2) How are layers composited? (3) Where does the frame budget get allocated? Stop after these files. Bullet list under 400 words.", reads: ["src/render/pipeline.ts", "src/render/compositor.ts"] })
+subagent({ agent: "scout", task: "Read src/editor/state.ts and src/editor/reducer.ts. Answer: (1) How is editor state structured? (2) Where are side effects triggered? Stop after these files. Bullet list under 400 words.", reads: ["src/editor/state.ts", "src/editor/reducer.ts"] })
+subagent({ agent: "scout", task: "Read src/render/pipeline.ts and src/render/compositor.ts. Answer: (1) What are the render stages? (2) How are layers composited? Stop after these files. Bullet list under 400 words.", reads: ["src/render/pipeline.ts", "src/render/compositor.ts"] })
 ```
 
 **Single review when only guardian applies:**
@@ -118,9 +119,8 @@ Good agent prompts are:
 Read src/agents/agent-tool-abort.test.ts and src/agents/abort-handler.ts.
 
 Answer:
-1. What are the 3 test names and their expected behavior?
+1. What are the test names and their expected behavior?
 2. What assertions are currently failing and why?
-3. Is the abort handler missing a state transition the tests expect?
 
 Stop after reading these two files. Bullet list under 400 words.
 ```
@@ -128,7 +128,7 @@ Stop after reading these two files. Bullet list under 400 words.
 ## Common Mistakes
 
 **❌ Vague scout task:** "Investigate agent-tool-abort.test.ts failures" - scout wanders, reads 26 files
-**✅ Bounded scout task:** "Read agent-tool-abort.test.ts and abort-handler.ts. Answer: (1) What are the test names? (2) What's failing? (3) What state is the handler missing? Stop after these files. Bullet list under 400 words."
+**✅ Bounded scout task:** "Read agent-tool-abort.test.ts and abort-handler.ts. Answer: (1) What are the test names? (2) What's failing? Stop after these files. Bullet list under 400 words."
 
 **❌ Too broad:** "Review all the changes" - agent gets lost
 **✅ Specific:** "Review spec compliance for Task 3 against the plan requirements"

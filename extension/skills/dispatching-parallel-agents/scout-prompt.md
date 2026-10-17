@@ -18,8 +18,7 @@ Subagent dispatch — scout:
     [CONCRETE QUESTION or FILE SET — be specific, not vague:
       GOOD: "Read src/editor/highlight.rs and src/editor/ghost.rs.
              Answer: (1) What highlighting code exists?
-             (2) What test coverage exists for highlighting?
-             (3) What's missing for the highlight feature?"
+             (2) What test coverage exists for highlighting?"
       BAD:  "Explore the codebase for the highlight feature."]
 
     ## What To Read
