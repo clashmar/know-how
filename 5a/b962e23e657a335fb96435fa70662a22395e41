@@ -1,0 +1,31 @@
+extension/write-mode/read-mode.ts
+  s_ae2dd9f2cf4753::t_484fa12194eff8 6
+extension/write-mode/roles.ts
+  s_ae2dd9f2cf4753::t_a349faddda2440 5
+AGENTS.md
+  s_ae2dd9f2cf4753::t_fed220450258e7 11
+extension/skills/writing-plans/SKILL.md
+  s_ae2dd9f2cf4753::t_c7ab309d525e8f 408,410-411,427
+extension/skills/closing-out-work/SKILL.md
+  s_ae2dd9f2cf4753::t_6c39d3f5f6b853 221,225-226,228,230
+extension/skills/planning/SKILL.md
+  s_ae2dd9f2cf4753::t_ac6e312cc4cb27 43,45,81,98
+  s_ae2dd9f2cf4753::t_169fad64e9765e 18,23,30,42
+  s_ae2dd9f2cf4753::t_2d30f00332c12b 38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5ab962e23e657a335fb96435fa70662a22395e41",
+  "prompts": {},
+  "sessions": {
+    "s_ae2dd9f2cf4753": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a149a7-e49c-70ee-978e-935c00f764cf",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
