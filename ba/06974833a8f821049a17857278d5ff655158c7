@@ -1,0 +1,30 @@
+extension/agents/guardian.md
+  s_5527ef0edda7a8::t_cf04a66d89d939 5-6,52,55-58,74-76
+  s_5527ef0edda7a8::t_5aed4a8cd26933 54,59,62,66
+  s_46897f5e68683b::t_1959de6ad5a2cf 4,25,31-33,100-115,134
+  s_46897f5e68683b::t_7e9cd671510005 135
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ba06974833a8f821049a17857278d5ff655158c7",
+  "prompts": {},
+  "sessions": {
+    "s_46897f5e68683b": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a149bd-0df0-72b4-b15e-5077ed03a42f",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    },
+    "s_5527ef0edda7a8": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a149ba-2c96-75d8-bbb9-68cd1b904659",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
