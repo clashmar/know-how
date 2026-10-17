@@ -1,0 +1,23 @@
+tests/planning-skill.test.ts
+  s_04af8b4ea83f2d::t_20ba0a20e2c0a5 1-29
+extension/skills/planning/SKILL.md
+  s_04af8b4ea83f2d::t_65bd2f94c6a2ee 3-4,9
+extension/skills/using-know-how/SKILL.md
+  s_04af8b4ea83f2d::t_f69b8235998add 40-41,45-46,56-60
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "7326229644ab4ecb587909e0ed834c7b1c5bc2d8",
+  "prompts": {},
+  "sessions": {
+    "s_04af8b4ea83f2d": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a14997-f4b8-72b4-b15e-5074b1eb4d8d",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
