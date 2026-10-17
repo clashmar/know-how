@@ -29,8 +29,6 @@ Feature planned to easily disable their use in a session. Useful for request-bas
 
 - **maester** - metacognition layer; reviews whole process and surfaces optimizations.
 
-- **deckbuilder** - optionally called by the controller to write specs/reports as html.
-
 Spec and scope checks stay with the controller. Code-quality review is dispatched to `guardian`.
 
 ## Why I should use this

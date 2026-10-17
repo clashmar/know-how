@@ -3,7 +3,7 @@
  *
  * Role-based read/write gating for subagents. Read-only roles
  * are permanently locked to read mode.
- * Write-capable roles (maester, deckbuilder) start in write mode.
+ * Write-capable roles start in write mode.
  * Main (human) sessions default to read mode with toggle.
  */
 

@@ -46,13 +46,6 @@ to the OS default (`open .` on macOS, `xdg-open .` on Linux, `start .` on Window
           "one-of-the-others"
         ],
         "thinkingLevel": "high"
-      },
-      "deckbuilder": {
-        "model": "small-boi-for-frontend",
-        "fallbackModels": [
-          "keep-it-fast"
-        ],
-        "thinkingLevel": "low"
       }
     }
   }

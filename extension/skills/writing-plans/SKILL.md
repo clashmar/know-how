@@ -320,9 +320,6 @@ Every step must contain the actual content an engineer needs. These are **plan f
 
 ## Task Structure When Testing Is Manual Only
 
-The final task in every plan is always the Close Out task (see template above).
-Its gates are always manual — it verifies, reviews, and integrates.
-
 ````markdown
 ### Task N: [Component Name]
 
@@ -351,8 +348,6 @@ Expected: `[specific success marker]`
 
 Expected: no automated tests beyond those explicitly called for by the plan
 ````
-
-For `Manual only` tasks, do not add automated tests unless the plan is updated first.
 
 ## Self-Review - Spec
 
@@ -410,10 +405,10 @@ Call `present_decisions` with title "Plan Configuration" and two decisions:
 
 Read the returned map, record the `Execution Autonomy:` and `Worktree Strategy:` fields in the plan header, then save the final plan. Before saving the file, if the controller is still in read mode, run `/write` first. Once write mode activates, proceed to save.
 
-After saving, present file artifacts as short markdown links (not bare paths or bare `file://` URLs). Use concise labels, for example:
+After saving, present file artifacts as short markdown links instead of bare paths. Use concise labels, for example:
 
-- `[Open spec](file://...)` when a spec file exists
-- `[Open plan](file://...)`
+- `[Open spec](<spec-link>)` when a spec file exists
+- `[Open plan](<plan-link>)`
 
 Then present the chosen execution configuration and handoff status.
 
@@ -429,4 +424,4 @@ widget"). This records what this plan implements.
 Execute inline while performing controller-owned spec-compliance checks and guardian review before
 each task is complete. Guardian runs per-task and checks convention and code quality.
 The final whole-implementation scope-and-spec check runs at the end. Close-out task handles
-review, optimization report, and integration.
+review, optimization, and integration.

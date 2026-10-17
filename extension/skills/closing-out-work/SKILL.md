@@ -218,25 +218,16 @@ Then report completion and the resulting branch state.
      tasks → one recommendation)
    - Stale-memory audit (contradictions, duplicates, superseded facts)
    - Cross-session auto-surfaces (gaps flagged 3+ times across sessions)
-3. Before any per-suggestion approval UI, call `present_choice` with title `Optimization report format` and options:
-   - HTML report — value: `html`
-   - Inline findings — value: `inline`
-   `present_choice` auto-adds `Something else...`; do not add a duplicate. `otherLabel` renames it, so keep it short.
-4. If the human chooses `HTML report`:
-   - Read `./optimization-report-prompt.md`
-   - Fill in the prompt with the maester findings and current session context
-   - Dispatch `deckbuilder` to save a persistent report at `~/.know-how/<project-name>/reports/YYYY-MM-DD-<topic>-optimization-report.html`
-   - Present the saved report as a short markdown link before continuing
-5. If the human chooses `Inline findings`, present the same report content inline before continuing:
+3. Present the report content inline before any per-suggestion approval UI:
    - Cross-session auto-surfaces first
    - De-duplicated optimization suggestions with enough evidence to make a decision
    - Stale-memory audit findings
-6. After the report is shown, present the maester suggestions to the human as actionable decision points.
-7. For each maester suggestion, call `present_choice` with title matching the suggestion summary and options: Apply / Edit / Skip.
+4. After the report is shown, present the maester suggestions to the human as actionable decision points.
+5. For each maester suggestion, call `present_choice` with title matching the suggestion summary and options: Apply / Edit / Skip.
    `present_choice` auto-adds `Something else...`; do not add a duplicate. `otherLabel` renames it, so keep it short.
-8. For approved suggestions:
+6. For approved suggestions:
    - Apply the doc/memory/skill changes
-9. Re-run verification if project docs were changed.
+7. Re-run verification if project docs were changed.
 
 <HARD-GATE>
   Surface all maester suggestions, you do not have discretion to skip any. 

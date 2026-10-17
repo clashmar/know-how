@@ -2,7 +2,7 @@
 export const READ_ONLY_ROLES = ["scout", "guardian"] as const;
 
 /** Source-of-truth list of write-capable role names. */
-export const WRITE_CAPABLE_ROLES = ["maester", "deckbuilder"] as const;
+export const WRITE_CAPABLE_ROLES = ["maester"] as const;
 
 type ReadOnlyRole = (typeof READ_ONLY_ROLES)[number];
 
