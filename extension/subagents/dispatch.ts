@@ -15,6 +15,11 @@ import { isInReadMode, isRoleLocked, isWriteCapableRole, requestWriteMode } from
 import type { WriteModeApprovalRequest } from "../write-mode/approval";
 import { renderResultView } from "./render";
 import { createResponseCollector } from "./response-collector";
+import {
+  prepareGuardianDispatch,
+  rememberGuardianDispatch,
+} from "./guardian-cache";
+import { buildPiInvocation } from "./invocation";
 import { readSettings, type Settings } from "../settings";
 
 // ── Types ────────────────────────────────────────────────────────
@@ -71,40 +76,6 @@ function readAgentPrompt(filePath: string): string {
   }
 }
 
-function buildPiArgs(params: {
-  agentName: string;
-  agentPrompt: string;
-  task: string;
-  reads?: string[];
-  model?: string;
-}): { args: string[]; tempDir?: string } {
-  const args: string[] = [];
-
-  let taskText = params.task;
-  if (params.reads?.length) {
-    taskText = `[Read from: ${params.reads.join(", ")}]\n\n${params.task}`;
-  }
-
-  args.push("--mode", "json");
-  args.push("-p");
-  args.push("--no-session");
-
-  let tempDir: string | undefined;
-  if (params.agentPrompt) {
-    tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "kh-subagent-"));
-    const promptPath = path.join(tempDir, "prompt.md");
-    fs.writeFileSync(promptPath, params.agentPrompt, "utf-8");
-    args.push("--system-prompt", promptPath);
-  }
-
-  if (params.model) {
-    args.push("--model", params.model);
-  }
-
-  args.push(taskText);
-
-  return { args, tempDir };
-}
 
 // ── Process Spawning ────────────────────────────────────────────
 
@@ -114,7 +85,7 @@ function createAbortError(agentName: string): Error {
 
 function spawnPi(
   agentName: string,
-  args: string[],
+  invocation: { args: string[]; stdin: string },
   cwd: string,
   signal?: AbortSignal,
   onData?: (chunk: string) => void,
@@ -124,7 +95,7 @@ function spawnPi(
   }
 
   return new Promise((resolve, reject) => {
-    const child = spawn("pi", args, {
+    const child = spawn("pi", invocation.args, {
       cwd,
       env: {
         ...process.env,
@@ -175,7 +146,7 @@ function spawnPi(
       responseCollector.appendStderr(data.toString());
     });
 
-    child.stdin?.end();
+    child.stdin?.end(invocation.stdin);
 
     child.on("close", (code) => {
       const extracted = responseCollector.finalize();
@@ -256,6 +227,11 @@ function formatAttemptFailures(agentName: string, failures: ModelAttemptFailure[
   return new Error(`All models failed for agent "${agentName}"\nAttempted models:\n${summary}`);
 }
 
+interface DispatchAgentResult {
+  response: string;
+  cacheHit: boolean;
+}
+
 async function dispatchAgent(
   agentName: string,
   task: string,
@@ -264,7 +240,7 @@ async function dispatchAgent(
   signal?: AbortSignal,
   onData?: (chunk: string) => void,
   onModelChange?: (info: { failedModel: string; error: string; nextModel?: string }) => void,
-): Promise<string> {
+): Promise<DispatchAgentResult> {
   const settings = readSettings();
   const agentFile = resolveAgentPath(agentName);
   const agentPrompt = readAgentPrompt(agentFile);
@@ -272,6 +248,20 @@ async function dispatchAgent(
   const models = buildModelList(settings, agentName);
   const candidates = models.length > 0 ? models : [undefined];
   const failures: ModelAttemptFailure[] = [];
+  const preparedDispatch = prepareGuardianDispatch({
+    agentName,
+    task,
+    cwd,
+    promptText: agentPrompt,
+    modelSignature: candidates.map((candidate) => candidate ?? "default").join("|"),
+  });
+
+  if (preparedDispatch.cachedResponse) {
+    return {
+      response: preparedDispatch.cachedResponse,
+      cacheHit: true,
+    };
+  }
 
   for (let i = 0; i < candidates.length; i++) {
     if (signal?.aborted) {
@@ -280,18 +270,25 @@ async function dispatchAgent(
 
     const model = candidates[i] ?? "default";
     try {
-      const { args, tempDir } = buildPiArgs({
-        agentName, agentPrompt, task, reads, model: candidates[i],
+      const invocation = buildPiInvocation({
+        agentPrompt,
+        task: preparedDispatch.task,
+        reads,
+        model: candidates[i],
       });
       try {
-        const response = await spawnPi(agentName, args, cwd, signal, onData);
+        const response = await spawnPi(agentName, invocation, cwd, signal, onData);
         if (!response) {
           throw new Error(`Empty response from model ${model}`);
         }
-        return response;
+        rememberGuardianDispatch(preparedDispatch.cacheKey, response);
+        return {
+          response,
+          cacheHit: false,
+        };
       } finally {
-        if (tempDir) {
-          try { fs.rmSync(tempDir, { recursive: true, force: true }); } catch {}
+        if (invocation.tempDir) {
+          try { fs.rmSync(invocation.tempDir, { recursive: true, force: true }); } catch {}
         }
       }
     } catch (error) {
@@ -382,9 +379,10 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
 
       let lineBuffer = "";
       let response: string;
+      let cacheHit = false;
 
       try {
-        response = await dispatchAgent(
+        const dispatchResult = await dispatchAgent(
           agentName, task, reads, workDir, signal,
           (chunk: string) => {
             lineBuffer += chunk;
@@ -423,8 +421,13 @@ export default function dispatchExtension(pi: ExtensionAPI): void {
             pushUpdate();
           },
         );
+        response = dispatchResult.response;
+        cacheHit = dispatchResult.cacheHit;
         state.status = "done";
         state.durationMs = Date.now() - dispatchStartedAt;
+        if (cacheHit) {
+          state.model = "cache";
+        }
       } catch (err) {
         if (signal?.aborted) {
           throw err;
