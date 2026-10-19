@@ -1,0 +1,21 @@
+extension/skills/planning/SKILL.md
+  s_3b40ab6b796778::t_77f7423c15433d 102,104
+  s_3b40ab6b796778::t_e355609ffc9381 11,45,60,98,114
+  s_3b40ab6b796778::t_8c2fc7063783db 21,25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "6e039eaed5500958d03b6b39ff16f64e7d2e2367",
+  "prompts": {},
+  "sessions": {
+    "s_3b40ab6b796778": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a1538d-6841-72d2-bcfa-9a3352bcdcb6",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
