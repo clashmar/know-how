@@ -1,0 +1,32 @@
+tests/subagent-invocation.test.ts
+  s_5527ef0edda7a8::t_4989c4f2a3d827 1,3-53
+  s_5527ef0edda7a8::t_70db1decae8406 2
+tests/guardian-cache.test.ts
+  s_5527ef0edda7a8::t_f62278acc5e879 1-164
+extension/subagents/dispatch.ts
+  s_5527ef0edda7a8::t_d4a5f216644bdc 18-21,230-234,243,251-264,274-277,284-288,382,385,424-425,428-430
+  s_5527ef0edda7a8::t_c1428c8ed5f200 22,88,98,149,273,280,290-291
+extension/subagents/guardian-cache.ts
+  s_5527ef0edda7a8::t_3e68a276a9252b 181,183
+  s_5527ef0edda7a8::t_bbcc6d1ecf95bb 22,27,36
+  s_5527ef0edda7a8::t_be0f9d40c50cef 1-21,23-26,28-35,37-180,182,184-199,201-234
+  s_5527ef0edda7a8::t_ab1c8d7e0c9fa5 200
+extension/subagents/invocation.ts
+  s_5527ef0edda7a8::t_fedf5779ea96f1 1-50
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c398fa25c3e5ea3eeef7e8b09b0f8382c8e78b04",
+  "prompts": {},
+  "sessions": {
+    "s_5527ef0edda7a8": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a149ba-2c96-75d8-bbb9-68cd1b904659",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
