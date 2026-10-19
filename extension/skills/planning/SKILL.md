@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 Use this for explicit planning requests that need an approved design and a written spec before implementation.
 
-Do not invoke implementation skills, write code, scaffold projects, or make behavior changes until you have presented a design and the user has approved it.
+Do not invoke implementation skills, write code, scaffold projects, or make behavior changes until the written spec has been reviewed and approved.
 
 ## Checklist
 
@@ -18,11 +18,11 @@ Create a task for each of these items and complete them in order:
 1. **Explore project context** — dispatch parallel `scout` agents with bounded tasks (see `../dispatching-parallel-agents/scout-prompt.md`). Each scout gets: specific files to read, 1-3 tightly scoped questions to answer, a stop boundary, and a conciseness directive. Prefer 1-3 files per scout unless the task explicitly requires more. Prefer follow-up scouts over synthesis-heavy first-pass prompts. Gather all results before continuing. Never dispatch a scout with a vague mandate like "explore the codebase."
 2. **Ask clarifying questions** — one at a time, focused on purpose and constraints
 3. **Propose 2-3 approaches** — include trade-offs and a recommendation
-4. **Present the design** — scale detail to complexity, get approval section by section
+4. **Develop the design for the spec** — scale detail to complexity and carry it straight into the written spec, which serves as the design presentation
 5. **Decide the testing strategy** — identify critical behaviors, manual checks, whether the work should use TDD or be manually tested, and exclude dedicated automated tests for temporary or mock-only behavior unless that seam has lasting business value
 6. **Write the design doc** — write the spec per the Documentation section below.
 7. **Self-review the spec** — remove ambiguity, placeholders, and contradictions
-8. **Ask the user to review the spec** — wait for approval before moving on
+8. **Ask the user to review the spec** — use `present_choice` for the written spec review and wait for approval before moving on
 9. **Set the session goal** — call `set_session_goal` with the spec title as a complete sentence (but no punctuation or emojis) under 8 words.
 10. **Transition to implementation planning** — if the controller is still in read mode,
    run `/write` to open the write-mode approval prompt before continuing
@@ -42,7 +42,7 @@ Create a task for each of these items and complete them in order:
 - **Explore the current project state first using parallel `scout` agents.** Dispatch them per checklist step 1 and gather all results before drawing conclusions.
 - **Always include one scout that covers file structure.** Start with 1-2 tightly scoped questions about naming conventions and ownership. If placement is still unclear, use a follow-up scout to find the closest existing equivalents.
 - If the request covers multiple independent subsystems, decompose it before refining details
-- Ask one question at a time and use `present_choice` for all questions and approval gates
+- Ask one question at a time and use `present_choice` for clarifying questions and the final spec review gate
 - Focus on purpose, constraints, and success criteria
 
 ⚠️ HARD GATE: MAX 3 concurrent subagents ⚠️
@@ -57,7 +57,7 @@ Create a task for each of these items and complete them in order:
 
 - Cover architecture, components, data flow, error handling, and testing
 - Keep sections short when the problem is simple
-- Ask for approval as you go
+- Carry the design straight into the spec, then self-review it before asking the user to review the written spec
 
 **Deciding the testing strategy:**
 
@@ -95,13 +95,13 @@ Create a task for each of these items and complete them in order:
 3. Scope check: confirm the scope can be executed as one coherent plan without mixing unrelated subsystems or independent deliverables
 4. Ambiguity check: make edge-case behavior explicit for any case that changes user-visible behavior, validation, failure handling, or state transitions
 
-Fix self-review issues inline. If a fix changes the design materially, present the updated spec to the user before planning.
+Fix self-review issues inline. If a fix changes the design materially, update the written spec and present that updated spec at the normal spec review gate before planning.
 
 **User Review Gate:**
 
-After the self-review passes, ask the user to review the written spec before planning.
+After the self-review passes, present the written spec for review using `present_choice` before planning.
 
-> "Spec written to `<path>`. Please review it and let me know if you want any changes before we write the implementation plan."
+> "Spec written to `<path>`. Please review it before we write the implementation plan."
 
 Wait for approval before invoking the next skill.
 
@@ -111,4 +111,4 @@ Wait for approval before invoking the next skill.
 - Multiple choice preferred when useful
 - YAGNI aggressively
 - Explore alternatives before settling
-- Get explicit approval before implementation
+- Get explicit spec approval before implementation
