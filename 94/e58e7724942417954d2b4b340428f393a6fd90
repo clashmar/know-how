@@ -1,0 +1,32 @@
+README.md
+  s_3b1be6bbe2b0a8::t_2ba2d864b2afc3 19,30
+extension/skills/session-reflection/SKILL.md
+  s_3b1be6bbe2b0a8::t_335a92b1a6e695 24,264
+AGENTS.md
+  s_3b1be6bbe2b0a8::t_0f49791192ba0f 15,68
+extension/agents/maester.md
+  s_3b1be6bbe2b0a8::t_d6fd33ca39fefd 4,17
+extension/skills/writing-plans/SKILL.md
+  s_3b1be6bbe2b0a8::t_b7804624845072 420
+extension/skills/closing-out-work/SKILL.md
+  s_3b1be6bbe2b0a8::t_beb6208fb06c53 3,10,12,14
+  s_3b1be6bbe2b0a8::t_7455665b465c96 201
+  s_3b1be6bbe2b0a8::t_415304a1f2a6b4 80
+  s_3b1be6bbe2b0a8::t_ff829879d0c3f5 81,202
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "94e58e7724942417954d2b4b340428f393a6fd90",
+  "prompts": {},
+  "sessions": {
+    "s_3b1be6bbe2b0a8": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a17ced-2b93-775c-a5b0-6642b925c648",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
