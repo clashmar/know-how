@@ -233,13 +233,6 @@ If the decision is `Required`, write the failing test first and follow TDD stric
 
 - [ ] **Whole-implementation scope-and-spec check:** comprehensive sweep
 
-**Optimization:**
-
-- [ ] Present optimization suggestions
-- [ ] `/reflect`
-- [ ] Approve, edit, or skip each suggestion
-- [ ] Apply agreed doc/memory/skill changes
-
 **Cleanup:**
 
 - [ ] Sweep for residual artifacts (temp files, dead code, stale comments)
@@ -424,4 +417,4 @@ widget"). This records what this plan implements.
 Execute inline while performing controller-owned spec-compliance checks and guardian review before
 each task is complete. Guardian runs per-task and checks convention and code quality.
 The final whole-implementation scope-and-spec check runs at the end. Close-out task handles
-review, optimization, and integration.
+review and integration.

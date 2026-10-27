@@ -1,17 +1,17 @@
 ---
 name: closing-out-work
-description: Use when implementation is complete, verification is passing, and you need to close out the work with cleanup, review, process optimization, reflection, and final integration choices
+description: Use when implementation is complete, verification is passing, and you need to close out the work with cleanup, review, and final integration choices
 ---
 
 # Closing Out Work
 
 ## Overview
 
-Close out implementation by verifying it, giving the testing artifacts, cleaning up residual artifacts, anticipating likely feedback, asking the user to review the work, presenting final integration options, then optimizing and reflecting on the process.
+Close out implementation by verifying it, giving the testing artifacts, cleaning up residual artifacts, anticipating likely feedback, asking the user to review the work, then presenting final integration options.
 
-**Core principle:** Verify -> help user testing -> clean up -> anticipate feedback -> ask for review -> feedback loop if needed -> integrate -> optimize and reflect.
+**Core principle:** Verify -> help user testing -> clean up -> anticipate feedback -> ask for review -> feedback loop if needed -> integrate.
 
-**Announce at start:** "I'm using the closing-out-work skill to complete this work. Verifying state before moving on to feedback, final integration options, then process optimization and reflection."
+**Announce at start:** "I'm using the closing-out-work skill to complete this work. Verifying state before moving on to feedback, then final integration options."
 
 ## The Process
 
@@ -76,6 +76,8 @@ git symbolic-ref refs/remotes/origin/HEAD --short 2>/dev/null | sed 's#^origin/#
 ```
 
 If that does not return one clear branch name, check common local branch names like `main` or `master`. If the likely base branch is still unclear, ask the user before continuing.
+
+Derive the issue number from the current branch name. If the branch starts with digits followed by a hyphen (for example `1234-remaining-carousel-filters`), the issue number is those digits. Otherwise there is no issue number. In a worktree, use the worktree branch name.
 
 ### Step 4: Check For Residual Artifacts
 
@@ -196,6 +198,8 @@ EOF
 )"
 ```
 
+Only when Step 3 found an issue number, ask the user with `present_choice` whether this PR closes the ticket or only relates to it (title: "Issue link", options: Closes, Relates to). End the PR body with a blank line followed by `Closes #<issue-number>` or `Relates to #<issue-number>` accordingly. With no issue number, the body has no link line. Do not run `gh issue close`; a closed ticket is closed by the PR merging.
+
 Then report completion and the resulting PR or branch state.
 
 #### Option 3: Keep As-Is
@@ -203,58 +207,6 @@ Then report completion and the resulting PR or branch state.
 Report: "Keeping branch <name> as-is."
 
 Then report completion and the resulting branch state.
-
-### Step 10: Maester Optimization
-
-1. Dispatch EXACTLY ONE `maester` agent to perform process optimization and memory
-   stewardship at close-out.
-
-   Fill in all `<…>` placeholders from this session's context, then dispatch
-   (see `./maester-prompt.md`). Pass reviewer evidence inline from
-   its response text.
-
-2. The maester produces a process optimization report:
-   - De-duplicated optimization suggestions (same gap flagged in multiple
-     tasks → one recommendation)
-   - Stale-memory audit (contradictions, duplicates, superseded facts)
-   - Cross-session auto-surfaces (gaps flagged 3+ times across sessions)
-3. Present the report content inline before any per-suggestion approval UI:
-   - Cross-session auto-surfaces first
-   - De-duplicated optimization suggestions with enough evidence to make a decision
-   - Stale-memory audit findings
-4. After the report is shown, present the maester suggestions to the human as actionable decision points.
-5. For each maester suggestion, call `present_choice` with title matching the suggestion summary and options: Apply / Edit / Skip.
-   `present_choice` auto-adds `Something else...`; do not add a duplicate. `otherLabel` renames it, so keep it short.
-6. For approved suggestions:
-   - Apply the doc/memory/skill changes
-7. Re-run verification if project docs were changed.
-
-<HARD-GATE>
-  Surface all maester suggestions, you do not have discretion to skip any. 
-  If the maester flags an optimization, you must present it to the user and ask for approval to apply it. 
-  Do not skip or ignore maester suggestions.
-</HARD-GATE>  
-
-### Step 11: Reflect
-
-Once integration is complete, use the `session-reflection` skill to record 
-key decisions, user corrections, and recurring problems from this work.
-
-The reflection should cover everything from this work unit:
-
-- Decisions made and why
-- Any user corrections or steering received
-- Mistakes and their fixes
-- Patterns that recurred (check prior reflections in
-  `~/.know-how/<project>/reflections/`)
-- Remaining work or follow-ups
-
-Persist key decisions and lessons to pi-memory via `memory_remember`.
-Remove any stale facts via `memory_forget`.
-
-<HARD-GATE>
-  Do not skip reflection. Reflection is essential for learning and improvement.
-</HARD-GATE>
 
 ## Common Mistakes
 
@@ -284,10 +236,6 @@ Always:
 - sweep for residual artifacts before review
 - ask the user to review before presenting final options
 - loop back through verification, cleanup, polish, and review after feedback
-
-## Prompt Templates
-
-- `./maester-prompt.md` — Dispatch maester for close-out optimization report
 
 ## Integration
 

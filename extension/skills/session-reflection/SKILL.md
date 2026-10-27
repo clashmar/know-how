@@ -21,7 +21,7 @@ smarter because of it.
 ## Checklist
 
 <IMPORTANT>
-When this skill is loaded (via /reflect, closing-out-work, or manually), follow
+When this skill is loaded (via /reflect or manually), follow
 the appropriate section below based on what you're doing.
 </IMPORTANT>
 
@@ -39,8 +39,6 @@ Run `/reflect` or ask the user if they want you to reflect when:
    again, or the user corrected the same kind of thing twice
 4. **After completing a significant feature or milestone** — even if trigger #1
    already applies, a milestone warrants a more thorough reflection
-5. **When closing-out-work tells you to** — the close-out skill includes a
-   mandatory reflection step
 
 **Reflect if:**
 
@@ -263,7 +261,7 @@ Examples:
 
 **Global / cross-project decisions:** Decisions that apply to all projects (e.g., "no `any` types in TypeScript") live under the `know-how` project — since know-how is the process layer that governs all projects.
 
-**Enforcement:** The guardian checks memory keys during final review. The maester audits for key-pattern violations during close-out stale-memory sweeps. If a fact uses an unexpected namespace or format, flag it as a naming violation.
+**Enforcement:** The guardian checks memory keys during final review. The maester audits for key-pattern violations during stale-memory sweeps. If a fact uses an unexpected namespace or format, flag it as a naming violation.
 
 ## How to Catch Up
 
@@ -281,12 +279,6 @@ preferences. Run memory_search with a lesson-related query (e.g.
 `"lessons"` or `"corrections"`) to check for corrections from past sessions.
 
 ## Integration Points
-
-### closing-out-work
-
-The closing-out-work skill includes a reflection step. When you reach that
-step, produce a reflection covering everything from this work unit: decisions
-made, corrections received, recurring patterns, remaining work.
 
 ### planning
 

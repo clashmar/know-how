@@ -16,7 +16,7 @@ Know-how is a WIP pi extension designed to give developers control over their wo
 
 - **Standards and Scope** are enforced during reviews as well as the usual spec/quality reviews, meaning you spend less time fixing recurring violations of your personal/project standards or arguing with it about random refactoring/reformatting nobody asked for.
 
-- **know-how reflects on the process**. It surfaces process issues to you, optionally actions them, reflects on them at close-out and remembers them. When you want historical context, use explicit catch-up instead of automatic session-start reflection loading. know-how piggy-backs on pi-memory with extra layers to integrate it into the workflow and a dedicated agent to maintain memory and analyze it.
+- **know-how reflects on the process**. It surfaces process issues to you, optionally actions them, reflects on them on demand and remembers them. When you want historical context, use explicit catch-up instead of automatic session-start reflection loading. know-how piggy-backs on pi-memory with extra layers to integrate it into the workflow and a dedicated agent to maintain memory and analyze it.
 
 ## Agents
 
@@ -27,7 +27,7 @@ Feature planned to easily disable their use in a session. Useful for request-bas
 
 - **guardian** - per-task code quality review grounded in project conventions.
 
-- **maester** - metacognition layer; reviews whole process and surfaces optimizations.
+- **maester** - metacognition layer; on demand, reviews whole process and surfaces optimizations.
 
 Spec and scope checks stay with the controller. Code-quality review is dispatched to `guardian`.
 

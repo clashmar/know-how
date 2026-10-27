@@ -12,7 +12,7 @@ The know-how extension bundles three agents in `extension/agents/`:
 
 - **scout** — Codebase reconnaissance. Reads files, answers bounded questions, returns text report. Read-only.
 - **guardian** — Per-task code quality review grounded in project conventions. Read-only.
-- **maester** — Process optimization. Surfaces improvements, audits memory, and detects patterns at close-out.
+- **maester** — Process optimization. Surfaces improvements, audits memory, and detects patterns on demand.
 
 The install script (`scripts/install`) copies these agent definitions from
 `extension/agents/` to `~/.pi/agent/extensions/know-how/agents/`. The dispatch extension
@@ -65,7 +65,7 @@ Examples:
 feat(skills): add verification-before-completion skill
 fix(dispatch): resolve agent lookup falling back incorrectly
 refactor(agents): rename guardian to sentinel
-docs(agents): document maester close-out responsibilities
+docs(agents): document maester on-demand responsibilities
 chore(install): update copy targets for new skills directory
 ```
 
