@@ -6,6 +6,8 @@ import type { ChoiceOption } from "../ui/choice-picker";
 import type { ExtensionAPI, AgentToolResult, ExtensionUIContext } from "@mariozechner/pi-coding-agent"; 
 import { activateApprovedWriteMode } from "../write-mode/runtime";
 import { CANCELLED_SENTINEL, isWriteModeEnableSelection } from "../write-mode/signals";
+import { FREE_TEXT_REPLY_NOTE, formatChoiceReply } from "./choice-result";
+import type { ChoiceSelection } from "./choice-result";
 
 /** Parameters for the present_choice tool. */
 export const PresentChoiceParams = Type.Object({
@@ -20,7 +22,7 @@ export const PresentChoiceParams = Type.Object({
 
 /**
  * Shared helper to show a choice picker via ctx.ui.custom().
- * Returns the selected value string, or null if cancelled.
+ * Returns the confirmed selection, or null if cancelled.
  */
 export async function showPresentChoice(
   ui: ExtensionUIContext,
@@ -29,15 +31,15 @@ export async function showPresentChoice(
     options: ChoiceOption[];
     otherLabel?: string;
   },
-): Promise<string | null> {
+): Promise<ChoiceSelection | null> {
   const options: ChoiceOption[] = params.options;
   const otherLabel = params.otherLabel || "Something else...";
 
   if (options.length === 0) return null;
 
-  return ui.custom<string | null>((tui, theme, _kb, done) => {
+  return ui.custom<ChoiceSelection | null>((tui, theme, _kb, done) => {
     const picker = new ChoicePicker(params.title, options, theme, otherLabel);
-    picker.onSelect = (value) => done(value);
+    picker.onSelect = (value, isFreeText) => done({ value, isFreeText });
     picker.onCancel = () => done(null);
     picker.onRequestRender = () => tui.requestRender();
     return picker;
@@ -54,7 +56,8 @@ export function registerPresentChoice(pi: ExtensionAPI): void {
       "Automatically appends an 'other' option at the end for free-text input. " +
       "Default other label is 'Something else...'; otherLabel overrides it. " +
       "Do not add your own other option in options, and keep otherLabel short. " +
-      "Do NOT ask the user to type their choice — call this tool instead.",
+      "Do NOT ask the user to type their choice; call this tool instead. " +
+      FREE_TEXT_REPLY_NOTE,
     parameters: PresentChoiceParams,
     renderCall(args, theme) {
       const container = new Container();
@@ -88,11 +91,13 @@ export function registerPresentChoice(pi: ExtensionAPI): void {
         };
       }
 
-      const result = await showPresentChoice(ctx.ui, { title: params.title, options, otherLabel });
-      if (result !== null && isWriteModeEnableSelection(result)) {
+      const selection = await showPresentChoice(ctx.ui, { title: params.title, options, otherLabel });
+      if (selection !== null && isWriteModeEnableSelection(selection.value)) {
         activateApprovedWriteMode(ctx);
       }
-      const output = result === null ? CANCELLED_SENTINEL : result;
+      const output = selection === null
+        ? CANCELLED_SENTINEL
+        : formatChoiceReply(selection.value, selection.isFreeText);
       return {
         content: [{ type: "text", text: output }],
         details: {},

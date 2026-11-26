@@ -319,11 +319,13 @@ export function registerReadMode(pi: ExtensionAPI): void {
         enableWriteMode: () => {
           enterWriteMode(ctx);
         },
-        presentChoice: async (pickerParams) =>
-          showPresentChoice(ctx.ui, {
+        presentChoice: async (pickerParams) => {
+          const selection = await showPresentChoice(ctx.ui, {
             title: pickerParams.title,
             options: pickerParams.options,
-          }),
+          });
+          return selection?.value ?? null;
+        },
       },
       req,
     );

@@ -56,8 +56,8 @@ export class DecisionForm {
   // Per-decision focus mode
   private modes: ("select" | "input")[] = [];
 
-  /** Callback invoked when all selections are submitted */
-  public onSubmit?: (values: Record<string, string>) => void;
+  /** Callback invoked when all selections are submitted, with the labels answered by free text */
+  public onSubmit?: (values: Record<string, string>, freeTextLabels: ReadonlySet<string>) => void;
   /** Callback invoked when the form is cancelled */
   public onCancel?: () => void;
   /** Callback invoked when a render is requested */
@@ -186,17 +186,19 @@ export class DecisionForm {
 
   private submit(): void {
     const values: Record<string, string> = {};
+    const freeTextLabels = new Set<string>();
     this.decisions.forEach((decision, index) => {
       const state = this.states[index];
       if (state.otherText.length > 0) {
         values[decision.label] = state.otherText;
+        freeTextLabels.add(decision.label);
       } else if (state.selectedValue === OTHER_VALUE) {
         values[decision.label] = "";
       } else {
         values[decision.label] = state.selectedValue;
       }
     });
-    this.onSubmit?.(values);
+    this.onSubmit?.(values, freeTextLabels);
   }
 
   handleInput(data: string): void {

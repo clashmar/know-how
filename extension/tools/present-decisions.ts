@@ -2,6 +2,7 @@ import { Text, Container } from "@earendil-works/pi-tui";
 import { Type } from "@sinclair/typebox";
 import { DecisionForm } from "../ui/decision-form";
 import type { Decision, DecisionOption } from "../ui/decision-form";
+import { FREE_TEXT_REPLY_NOTE, formatDecisionLines } from "./choice-result";
 // @mariozechner/pi-coding-agent is deprecated upstream; will migrate when @samfp/pi-memory updates
 import type { ExtensionAPI, AgentToolResult } from "@mariozechner/pi-coding-agent"; 
 
@@ -32,7 +33,8 @@ export function registerPresentDecisions(pi: ExtensionAPI): void {
       "Do not add your own other option in decision options, and keep otherLabel short. " +
       "Use this when the user needs to make multiple related choices at once " +
       "(e.g. execution style + worktree strategy + autonomy level). " +
-      "Do NOT ask the user to type their choices — call this tool instead.",
+      "Do NOT ask the user to type their choices — call this tool instead. " +
+      FREE_TEXT_REPLY_NOTE,
     parameters: PresentDecisionsParams,
     renderCall(args, theme) {
       const container = new Container();
@@ -70,25 +72,26 @@ export function registerPresentDecisions(pi: ExtensionAPI): void {
         };
       }
 
-      const result = await ctx.ui.custom<Record<string, string> | null>((_tui, theme, _kb, done) => {
-        const form = new DecisionForm(params.title, decisions, theme);
-        form.onSubmit = (results) => done(results);
-        form.onCancel = () => done(null);
-        form.onRequestRender = () => _tui.requestRender();
-        return form;
-      });
+      const answer = await ctx.ui.custom<{ values: Record<string, string>; freeTextLabels: ReadonlySet<string> } | null>(
+        (_tui, theme, _kb, done) => {
+          const form = new DecisionForm(params.title, decisions, theme);
+          form.onSubmit = (values, freeTextLabels) => done({ values, freeTextLabels });
+          form.onCancel = () => done(null);
+          form.onRequestRender = () => _tui.requestRender();
+          return form;
+        },
+      );
 
-      if (result === null) {
+      if (answer === null) {
         return {
           content: [{ type: "text", text: "(no selection)" }],
           details: {},
         };
       }
 
-      const lines = Object.entries(result).map(([key, value]) => `- ${key}: ${value}`);
       return {
-        content: [{ type: "text", text: lines.join("\n") }],
-        details: { selections: result },
+        content: [{ type: "text", text: formatDecisionLines(answer.values, answer.freeTextLabels).join("\n") }],
+        details: { selections: answer.values },
       };
     },
   });

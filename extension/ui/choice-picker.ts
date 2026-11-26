@@ -30,7 +30,7 @@ export class ChoicePicker {
   private title: Text;
   private colorFn: (s: string) => string;
 
-  public onSelect?: (value: string) => void;
+  public onSelect?: (value: string, isFreeText: boolean) => void;
   public onCancel?: () => void;
   public onRequestRender?: () => void;
 
@@ -61,7 +61,7 @@ export class ChoicePicker {
     const list = new PickerList(items, this.theme);
     list.onSelect = (item) => {
       if (item.value === OTHER_VALUE) this.switchToInput();
-      else this.onSelect?.(item.value);
+      else this.onSelect?.(item.value, false);
     };
     list.onCancel = () => this.onCancel?.();
     return list;
@@ -110,7 +110,7 @@ export class ChoicePicker {
       return;
     }
     if (matchesKey(data, Key.enter)) {
-      this.onSelect?.(this.inputField!.getValue());
+      this.onSelect?.(this.inputField!.getValue(), true);
       return;
     }
     this.inputField!.handleInput(data);
