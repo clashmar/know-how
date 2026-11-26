@@ -1,0 +1,32 @@
+extension/tools/present-decisions.ts
+  s_25df28798efb57::t_df4ce3ead599de 5,36-37,75-83,85,93-94
+extension/tools/choice-result.ts
+  s_25df28798efb57::t_e865f8c9aff821 1-29
+extension/tools/present-choice.ts
+  s_25df28798efb57::t_7b23c4927e4d59 9-10,25,34,40,42,60,94-95,98-100
+  s_25df28798efb57::t_0fbdf690d98545 59
+extension/ui/choice-picker.ts
+  s_25df28798efb57::t_fcc3b73a7bc0c3 33,64,113
+extension/write-mode/read-mode.ts
+  s_25df28798efb57::t_7b23c4927e4d59 322-323,326-328
+tests/choice-result.test.ts
+  s_25df28798efb57::t_784c8a51ef9faf 1-38
+extension/ui/decision-form.ts
+  s_25df28798efb57::t_fcc3b73a7bc0c3 59-60,189,194,201
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "aa1ae7bc0d09a4a6aef4938e7233ad9d6389ee31",
+  "prompts": {},
+  "sessions": {
+    "s_25df28798efb57": {
+      "agent_id": {
+        "tool": "pi",
+        "id": "01a2121e-b5c4-759d-b27a-18b32c903bfb",
+        "model": "claude-sonnet-5-5"
+      },
+      "human_author": "Charlie Lashmar <c.lashmar08@gmail.com>"
+    }
+  }
+}
