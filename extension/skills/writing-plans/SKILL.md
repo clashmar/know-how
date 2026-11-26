@@ -21,6 +21,7 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 - If `~/.know-how/<project-name>/` does not exist, use `present_choice` to offer: create it, use another path, or skip (write the plan inline to the current context).
 - User preferences for plan location override this default.
 - If the controller is still in read mode, run `/write` to open the write-mode approval prompt before saving the plan file. The approval is automatic — once the user selects the enable option, write mode activates immediately and you can proceed to save.
+- After saving, show the plan to the user in a chat message as `[Open plan](file:///<absolute path to file>) · [Open folder](file:///<absolute path to folder>/)`, and the spec in the same format (label `Open spec`) when one exists. Expand `~` to the full home directory path and percent-encode spaces in the URLs. Never show a bare path.
 
 ## Core Rule
 
@@ -398,12 +399,7 @@ Call `present_decisions` with title "Plan Configuration" and two decisions:
 
 Read the returned map, record the `Execution Autonomy:` and `Worktree Strategy:` fields in the plan header, then save the final plan. Before saving the file, if the controller is still in read mode, run `/write` first. Once write mode activates, proceed to save.
 
-After saving, present file artifacts as short markdown links instead of bare paths. Use concise labels, for example:
-
-- `[Open spec](<spec-link>)` when a spec file exists
-- `[Open plan](<plan-link>)`
-
-Then present the chosen execution configuration and handoff status.
+After saving, show the artifact links (see "Save plans to"), then present the chosen execution configuration and handoff status.
 
 ### Set the session goal
 

@@ -72,9 +72,10 @@ This loads this skill into context. Then:
    `~/.know-how/<project-name>/reflections/YYYY-MM-DD-<topic>.html` using the
    write tool as a self-contained HTML document.
 
-4. **Present the saved reflection to the user** as a short markdown link label,
-   not a bare filesystem path, for example `[Open reflection](file://...)`.
-   This keeps the link clickable in narrow terminals.
+4. **Present the saved reflection to the user** in a chat message as
+   `[Open reflection](file:///<absolute path to file>) · [Open folder](file:///<absolute path to folder>/)`.
+   Expand `~` to the full home directory path and percent-encode spaces in the
+   URLs. Never show a bare filesystem path.
 
 5. **Persist to pi-memory** — for each key decision, correction, or lesson:
    - Call memory_search to find existing facts

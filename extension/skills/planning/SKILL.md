@@ -16,8 +16,8 @@ Do not invoke implementation skills, write code, scaffold projects, or make beha
 Create a task for each of these items and complete them in order:
 
 1. **Explore project context** — dispatch parallel `scout` agents with bounded tasks (see `../dispatching-parallel-agents/scout-prompt.md`). Each scout gets: specific files to read, 1-3 tightly scoped questions to answer, a stop boundary, and a conciseness directive. Prefer 1-3 files per scout unless the task explicitly requires more. Prefer follow-up scouts over synthesis-heavy first-pass prompts. Gather all results before continuing. Never dispatch a scout with a vague mandate like "explore the codebase."
-2. **Ask clarifying questions** — one at a time, focused on purpose and constraints
-3. **Propose 2-3 approaches** — include trade-offs and a recommendation
+2. **Ask clarifying questions** — one at a time, focused on purpose and constraints. When the answer changes what gets built, first send a plain-language message (before the `present_choice` call) stating the problem or goal and what exploration found, with file paths
+3. **Propose 2-3 approaches** — include trade-offs and a recommendation. First send a plain-language message explaining what each approach means in practice and what picking it changes; the `present_choice` dialog carries short labels only
 4. **Develop the design for the spec** — scale detail to complexity and carry it straight into the written spec, which serves as the design presentation
 5. **Decide the testing strategy** — identify critical behaviors, manual checks, whether the work should use TDD or be manually tested, and exclude dedicated automated tests for temporary or mock-only behavior unless that seam has lasting business value
 6. **Write the design doc** — write the spec per the Documentation section below.
@@ -43,6 +43,8 @@ Create a task for each of these items and complete them in order:
 - **Always include one scout that covers file structure.** Start with 1-2 tightly scoped questions about naming conventions and ownership. If placement is still unclear, use a follow-up scout to find the closest existing equivalents.
 - If the request covers multiple independent subsystems, decompose it before refining details
 - Ask one question at a time and use `present_choice` for clarifying questions and the final spec review gate
+- Before any `present_choice` whose answer changes what gets built or how, explain the problem, the findings, and the consequences of each option in a normal message first. Small questions that need no investigation context (for example "include docs?") may stay one line. This applies to every such decision for the rest of the session, not only the first
+- If the user says they do not understand an option, explain it in prose with a concrete example, then re-ask; do not just reword the dialog
 - Focus on purpose, constraints, and success criteria
 
 ⚠️ HARD GATE: MAX 3 concurrent subagents ⚠️
@@ -78,7 +80,7 @@ Create a task for each of these items and complete them in order:
 
 **Documentation:**
 
-- Write the validated spec to `~/.know-how/<project-name>/specs/YYYY-MM-DD-<topic>.md` and present the path to the user.
+- Write the validated spec to `~/.know-how/<project-name>/specs/YYYY-MM-DD-<topic>.md`, then show it to the user as two markdown links in a chat message: `[Open spec](file:///<absolute path to spec>) · [Open folder](file:///<absolute path to specs folder>/)`. Expand `~` to the full home directory path and percent-encode spaces in the URLs. Never show a bare path.
 - Derive `<project-name>` from the git repository root (`git rev-parse --show-toplevel`)
   basename, lowercased with non-alphanumeric runs replaced by hyphens.
 - If `~/.know-how/<project-name>/` does not exist, use `present_choice` to
@@ -99,9 +101,9 @@ Fix self-review issues inline. If a fix changes the design materially, update th
 
 **User Review Gate:**
 
-After the self-review passes, present the written spec for review using `present_choice` before planning.
+After the self-review passes, write a chat message that says: "Spec written. Please review it before we write the implementation plan." followed by the spec links in the format above.
 
-> "Spec written to `<path>`. Please review it before we write the implementation plan."
+Then present the review gate using `present_choice` titled "Spec ready for review". Do not put the path in the title or options: the overlay does not render links.
 
 Wait for approval before invoking the next skill.
 
